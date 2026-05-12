@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" fill="none">
+  <defs>
+    <linearGradient id="bubbleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22B9D4"/>
+      <stop offset="100%" stop-color="#0891B2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Bubble tail — drawn first so the body overlaps the seam -->
+  <path d="M 28 68 L 13 86 L 46 68 Z" fill="#0891B2"/>
+
+  <!-- Speech bubble body -->
+  <rect x="10" y="8" width="70" height="60" rx="18" fill="url(#bubbleGrad)"/>
+
+  <!-- Dialog lines: 3 conversation turns, decreasing width/opacity -->
+  <rect x="24" y="24" width="42" height="6" rx="3" fill="white"/>
+  <rect x="24" y="37" width="32" height="6" rx="3" fill="white" fill-opacity="0.7"/>
+  <rect x="24" y="50" width="22" height="6" rx="3" fill="white" fill-opacity="0.45"/>
+
+  <!-- Recording badge on top-right corner -->
+  <circle cx="76" cy="14" r="9" fill="#FF7043"/>
+  <circle cx="76" cy="14" r="4.5" fill="white"/>
+
+  <!-- Wordmark -->
+  <text
+    x="96" y="44"
+    font-family="'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', sans-serif"
+    font-weight="800"
+    font-size="34"
+    fill="#0891B2"
+    letter-spacing="-1">lingo</text>
+
+  <text
+    x="98" y="72"
+    font-family="'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', sans-serif"
+    font-weight="800"
+    font-size="20"
+    fill="#FF7043"
+    letter-spacing="4">snack</text>
+</svg>

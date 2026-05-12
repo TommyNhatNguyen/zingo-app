@@ -1,0 +1,105 @@
+{
+  "project_info": {
+    "project_number": "401423416709",
+    "project_id": "chat-app-88d8f",
+    "storage_bucket": "chat-app-88d8f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401423416709:android:ce5d5d41b91fb4a8f898ec",
+        "android_client_info": {
+          "package_name": "com.example.bill_share"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLmQcL823B_7GEs2L7jSmQoK2jDDFabHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401423416709:android:ec99fdbbb2884380f898ec",
+        "android_client_info": {
+          "package_name": "com.example.chat_ap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLmQcL823B_7GEs2L7jSmQoK2jDDFabHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401423416709:android:a575c5779a9eaf2af898ec",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLmQcL823B_7GEs2L7jSmQoK2jDDFabHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401423416709:android:a00be9de29911ebbf898ec",
+        "android_client_info": {
+          "package_name": "com.example.news_clean_architecture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLmQcL823B_7GEs2L7jSmQoK2jDDFabHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401423416709:android:a83f57cd027f0c87f898ec",
+        "android_client_info": {
+          "package_name": "com.example.zingo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLmQcL823B_7GEs2L7jSmQoK2jDDFabHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

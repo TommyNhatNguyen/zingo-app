@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 100" fill="none">
+  <!-- ── Icon mark (same 100×100 parrot composition) ── -->
+
+  <!-- Crest feathers -->
+  <ellipse cx="36" cy="17" rx="5" ry="12" fill="#FFB800" transform="rotate(-18 36 17)"/>
+  <ellipse cx="47" cy="15" rx="5" ry="11" fill="#FFB800"/>
+  <ellipse cx="58" cy="17" rx="4.5" ry="11" fill="#FF7043" transform="rotate(18 58 17)"/>
+
+  <!-- Head -->
+  <circle cx="46" cy="52" r="38" fill="#0891B2"/>
+
+  <!-- Cheek patch -->
+  <circle cx="58" cy="59" r="17" fill="#22B9D4"/>
+
+  <!-- Beak -->
+  <path d="M 80 46 L 96 52 L 90 57 L 80 58 Q 75 52 80 46 Z" fill="#FF7043"/>
+
+  <!-- Eye ring -->
+  <circle cx="65" cy="46" r="10" fill="#FFB800"/>
+  <!-- Eye white -->
+  <circle cx="65" cy="46" r="7" fill="white"/>
+  <!-- Pupil -->
+  <circle cx="66.5" cy="46" r="3.5" fill="#0C2D36"/>
+  <!-- Shine -->
+  <circle cx="67.5" cy="44.5" r="1.2" fill="white"/>
+
+  <!-- ── Wordmark ── -->
+  <!-- Thin divider line between mark and type -->
+  <line x1="104" y1="24" x2="104" y2="76" stroke="#C8E8ED" stroke-width="1.5" stroke-linecap="round"/>
+
+  <text
+    x="116" y="67"
+    font-family="'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', sans-serif"
+    font-weight="800"
+    font-size="54"
+    letter-spacing="-1.5">
+    <tspan fill="#FF7043">z</tspan><tspan fill="#0891B2">ingo</tspan>
+  </text>
+</svg>
