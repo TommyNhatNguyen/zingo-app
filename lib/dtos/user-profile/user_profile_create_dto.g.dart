@@ -35,10 +35,10 @@ Map<String, dynamic> _$UserProfileCreateDtoToJson(
 };
 
 const _$EnglishLevelEnumMap = {
-  EnglishLevel.a1: 'a1',
-  EnglishLevel.a2: 'a2',
-  EnglishLevel.b1: 'b1',
-  EnglishLevel.b2: 'b2',
-  EnglishLevel.c1: 'c1',
-  EnglishLevel.c2: 'c2',
+  EnglishLevel.A1: 'A1',
+  EnglishLevel.A2: 'A2',
+  EnglishLevel.B1: 'B1',
+  EnglishLevel.B2: 'B2',
+  EnglishLevel.C1: 'C1',
+  EnglishLevel.C2: 'C2',
 };

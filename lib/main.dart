@@ -19,7 +19,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(),
+      create: (_) => AuthBloc(),
       child: MaterialApp.router(
         theme: AppTheme.light,
         routerConfig: initRoutes,

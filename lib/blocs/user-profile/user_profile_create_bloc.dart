@@ -4,7 +4,6 @@ import 'package:zingo/blocs/user-profile/user_profile_create_event.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/services/user_profile_service.dart';
-import 'package:zingo/services/user_service.dart';
 
 class UserProfileCreateBloc
     extends Bloc<UserProfileCreateEvent, UserProfileCreateState> {

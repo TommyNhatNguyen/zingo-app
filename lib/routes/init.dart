@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
@@ -18,11 +17,8 @@ final initRoutes = GoRouter(
       pageBuilder: (context, state) {
         return NoTransitionPage(
           key: state.pageKey,
-          child: MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => UserProfileCreateBloc()),
-              // BlocProvider(create: (context) => AuthBloc()),
-            ],
+          child: BlocProvider(
+            create: (context) => UserProfileCreateBloc(),
             child: const ProfileScreen(),
           ),
         );
@@ -33,10 +29,7 @@ final initRoutes = GoRouter(
       pageBuilder: (context, state) {
         return NoTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => AuthBloc(),
-            child: const LoginScreen(),
-          ),
+          child: const LoginScreen(),
         );
       },
     ),
@@ -67,10 +60,7 @@ final initRoutes = GoRouter(
             }
 
             if (!snapshot.hasData) {
-              return BlocProvider(
-                create: (_) => AuthBloc(),
-                child: const LoginScreen(),
-              );
+              return const LoginScreen();
             }
 
             return const HomeScreen();

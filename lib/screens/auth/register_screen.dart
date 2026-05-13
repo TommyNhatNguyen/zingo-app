@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/blocs/users/users_event.dart';
 import 'package:zingo/blocs/users/users_state.dart';
@@ -58,6 +60,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             autoCloseDuration: const Duration(seconds: 4),
           );
+          final user = state.data;
+          if (user != null) {
+            context.read<AuthBloc>().add(AuthApplyBackendUser(data: user));
+          }
           context.go('/profile');
         }
         if (state.requestStatus == RequestStatus.error) {

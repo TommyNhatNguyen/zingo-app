@@ -1,6 +1,7 @@
+import 'package:zingo/constants/enums.dart' as app_enums;
 
 class EnglishLevel {
-  final String code;
+  final app_enums.EnglishLevel code;
   final String name;
   final String description;
 
@@ -12,37 +13,37 @@ class EnglishLevel {
 
   static const List<EnglishLevel> all = [
     EnglishLevel(
-      code: 'a1',
+      code: app_enums.EnglishLevel.A1,
       name: 'Beginner',
       description:
           'Can use basic phrases, introduce themselves, and ask simple questions.',
     ),
     EnglishLevel(
-      code: 'a2',
+      code: app_enums.EnglishLevel.A2,
       name: 'Pre-intermediate/Elementary',
       description:
           'Communicates in simple, routine tasks and describes familiar matters.',
     ),
     EnglishLevel(
-      code: 'b1',
+      code: app_enums.EnglishLevel.B1,
       name: 'Intermediate',
       description:
           'Understands main points of familiar topics, handles travel situations, and writes simple texts.',
     ),
     EnglishLevel(
-      code: 'b2',
+      code: app_enums.EnglishLevel.B2,
       name: 'Upper Intermediate',
       description:
           'Understands complex text, interacts with some fluency, and produces clear, detailed text.',
     ),
     EnglishLevel(
-      code: 'c1',
+      code: app_enums.EnglishLevel.C1,
       name: 'Advanced',
       description:
           'Understands long, demanding texts and uses language flexibly for social, academic, and professional purposes.',
     ),
     EnglishLevel(
-      code: 'c2',
+      code: app_enums.EnglishLevel.C2,
       name: 'Proficiency/Mastery',
       description:
           'Understands almost everything with ease, expresses themselves spontaneously, and writes nuanced, complex texts.',

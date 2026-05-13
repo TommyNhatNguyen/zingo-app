@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +25,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Language? _selectedLanguage;
-  EnglishLevel? _selectedEnglishLevel;
+  app_enums.EnglishLevel? _selectedEnglishLevel;
   TimeOfDay? _selectedNotificationTime;
   final Set<String> _selectedTopicCodes = {};
   final PageController _pageViewController = PageController();
@@ -60,11 +59,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void _selectEnglishLevel(EnglishLevel level) {
+  void _selectEnglishLevel(app_enums.EnglishLevel level) {
     setState(() {
-      _selectedEnglishLevel = _selectedEnglishLevel?.code == level.code
-          ? null
-          : level;
+      _selectedEnglishLevel = _selectedEnglishLevel == level ? null : level;
     });
   }
 
@@ -121,9 +118,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildEnglishLevelCard(EnglishLevel level) {
-    final isSelected = _selectedEnglishLevel?.code == level.code;
+    final isSelected = _selectedEnglishLevel == level.code;
     return InkWell(
-      onTap: () => _selectEnglishLevel(level),
+      onTap: () => _selectEnglishLevel(level.code),
       child: Card.outlined(
         color: isSelected ? AppColors.primaryContainer : null,
         shape: RoundedRectangleBorder(
@@ -141,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${level.code.toUpperCase()} · ${level.name}',
+                      '${level.code.value.toUpperCase()} · ${level.name}',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isSelected ? AppColors.primary : null,
@@ -221,8 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onSubmit(BuildContext context) {
-    print(context.read<AuthBloc>().state.data);
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userId = context.read<AuthBloc>().state.data?.id;
     if (userId == null) return;
 
     final notificationTimeStr = _selectedNotificationTime != null
@@ -233,11 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       UserProfileCreateTrigger(
         payload: UserProfileCreateDto(
           user_id: userId,
-          cefr_level: _selectedEnglishLevel != null
-              ? app_enums.EnglishLevel.values.byName(
-                  _selectedEnglishLevel!.code,
-                )
-              : app_enums.EnglishLevel.a1,
+          cefr_level: _selectedEnglishLevel ?? app_enums.EnglishLevel.A1,
           display_name: _nameController.text.trim().isEmpty
               ? 'User'
               : _nameController.text.trim(),

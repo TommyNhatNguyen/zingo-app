@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (state.data != null &&
             state.requestStatus == RequestStatus.success) {
-          context.pushReplacement("/profile");
+          context.pushReplacement("/home");
         }
         if (state.requestStatus == RequestStatus.error) {
           Toastification().show(

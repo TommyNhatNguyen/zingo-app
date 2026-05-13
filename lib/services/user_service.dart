@@ -16,4 +16,17 @@ class UserService {
       throw Exception(result.error);
     }
   }
+
+  Future<Users?> getUserByUid(String userUid) async {
+    final response = await dio.get('/v1/users/uid/$userUid');
+    final result = ApiResponse.fromJson(response.data);
+    if (result.success) {
+      if (result.data == null) {
+        return null;
+      }
+      return Users.fromJson(result.data!);
+    } else {
+      throw Exception(result.error);
+    }
+  }
 }
