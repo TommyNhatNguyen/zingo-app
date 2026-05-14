@@ -8,7 +8,6 @@ import 'package:zingo/services/user_service.dart';
 
 class UsersBloc extends Bloc<UsersEvent, UsersState> {
   final _userService = UserService();
-
   UsersBloc() : super(UsersState.initial()) {
     on<UsersRegister>((event, emit) async {
       try {

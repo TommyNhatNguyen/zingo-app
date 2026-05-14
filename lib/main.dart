@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/config/app_theme.dart';
 import 'package:zingo/routes/init.dart';
 
@@ -20,9 +21,14 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => AuthBloc(),
-      child: MaterialApp.router(
-        theme: AppTheme.light,
-        routerConfig: initRoutes,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          // initRoutes.refresh();
+        },
+        child: MaterialApp.router(
+          theme: AppTheme.light,
+          routerConfig: initRoutes,
+        ),
       ),
     );
   }

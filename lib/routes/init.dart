@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
@@ -10,7 +9,19 @@ import 'package:zingo/screens/home/home_screen.dart';
 import 'package:zingo/screens/profile/profile_screen.dart';
 
 final initRoutes = GoRouter(
-  initialLocation: "/home",
+  initialLocation: '/home',
+  redirect: (context, state) {
+    final location = state.matchedLocation;
+    final user = context.read<AuthBloc>().state.user;
+    final isLoginRoute = location == '/login';
+    final isRegisterRoute = location == '/register';
+
+    if (user == null && !(isLoginRoute || isRegisterRoute)) {
+      return '/login';
+    }
+
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/profile',
@@ -27,10 +38,7 @@ final initRoutes = GoRouter(
     GoRoute(
       path: '/login',
       pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: const LoginScreen(),
-        );
+        return NoTransitionPage(key: state.pageKey, child: const LoginScreen());
       },
     ),
     GoRoute(
@@ -45,28 +53,6 @@ final initRoutes = GoRouter(
         );
       },
     ),
-    GoRoute(
-      path: '/home',
-      builder: (context, state) {
-        return StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return const Text('Something went wrong');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading...");
-            }
-
-            if (!snapshot.hasData) {
-              return const LoginScreen();
-            }
-
-            return const HomeScreen();
-          },
-        );
-      },
-    ),
+    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
   ],
 );

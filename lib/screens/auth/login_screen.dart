@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _register() {
-    context.push("/register");
+    context.go("/register");
   }
 
   @override
@@ -59,7 +59,15 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (state.data != null &&
             state.requestStatus == RequestStatus.success) {
-          context.pushReplacement("/home");
+          Toastification().show(
+            context: context,
+            type: ToastificationType.success,
+            style: ToastificationStyle.flat,
+            title: const Text('Login successful'),
+            description: Text("Welcome back to Zingo"),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
+          context.go('/home');
         }
         if (state.requestStatus == RequestStatus.error) {
           Toastification().show(

@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.push("/login");
+                context.go("/login");
               },
               child: Text('Login'),
             ),
@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.push("/profile");
+                context.go("/profile");
               },
               child: Text('Profile'),
             ),
