@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_event.dart';
@@ -262,7 +263,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return BlocListener<UserProfileCreateBloc, UserProfileCreateState>(
       listener: (context, state) {
-        if (state.requestStatus == app_enums.RequestStatus.success) {
+        if (state.data != null &&
+            state.requestStatus == app_enums.RequestStatus.success) {
+          Toastification().show(
+            context: context,
+            type: ToastificationType.success,
+            style: ToastificationStyle.flat,
+            title: const Text('Welcome to Zingo'),
+            description: Text(
+              "Let's start using Zingo and boost your english skills with bite size dialogs",
+            ),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
           context.go('/home');
         } else if (state.requestStatus == app_enums.RequestStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(

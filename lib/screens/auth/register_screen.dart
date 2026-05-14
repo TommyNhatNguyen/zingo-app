@@ -66,11 +66,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 context: context,
                 type: ToastificationType.success,
                 style: ToastificationStyle.flat,
-                title: const Text('Welcome to Zingo'),
+                title: const Text("Let's get you started"),
                 description: Text(
-                  "Let's start using Zingo and boost your english skills with bite size dialogs",
+                  "Set your profile for Zingo to setup your english learning journey",
                 ),
-                autoCloseDuration: Duration(seconds: 4),
+                autoCloseDuration: const Duration(seconds: 4),
               );
               context.read<AuthBloc>().add(
                 AuthLoginWithEmailAndPassword(

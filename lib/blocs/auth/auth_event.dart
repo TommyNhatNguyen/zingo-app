@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 
 class AuthEvent extends Equatable {
@@ -22,4 +23,13 @@ class AuthLoginWithGoogle extends AuthEvent {
 
   @override
   List<Object?> get props => [];
+}
+
+class AuthStateChanged extends AuthEvent {
+  final User user;
+
+  const AuthStateChanged({required this.user});
+
+  @override
+  List<Object?> get props => [user];
 }

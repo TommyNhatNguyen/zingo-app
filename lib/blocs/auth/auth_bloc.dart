@@ -9,7 +9,36 @@ import 'package:zingo/services/user_service.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _authService = AuthService();
   final _userService = UserService();
+  final Stream<User?> _authStateStream = FirebaseAuth.instance
+      .authStateChanges();
+
   AuthBloc() : super(AuthState.initial()) {
+    _authStateStream.listen((user) {
+      if (user != null) {
+        add(AuthStateChanged(user: user));
+      }
+    });
+
+    on<AuthStateChanged>((event, emit) async {
+      try {
+        final userData = await _userService.getUserByUid(event.user.uid);
+        emit(
+          state.copyWith(
+            requestStatus: RequestStatus.success,
+            data: userData,
+            user: event.user,
+          ),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            requestStatus: RequestStatus.error,
+            error: e.toString(),
+          ),
+        );
+      }
+    });
+
     on<AuthLoginWithEmailAndPassword>((event, emit) async {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
