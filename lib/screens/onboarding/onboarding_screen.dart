@@ -15,7 +15,7 @@ import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/constants/topics.dart';
 import 'package:zingo/dtos/user-profile/user_profile_create_dto.dart';
 import 'package:zingo/widgets/card_select.dart';
-import 'package:zingo/widgets/time_picker.dart';
+import 'package:zingo/widgets/pickers/time_picker.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

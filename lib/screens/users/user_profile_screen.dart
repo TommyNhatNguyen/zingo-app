@@ -12,10 +12,10 @@ import 'package:zingo/constants/notification_time.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
 import 'package:zingo/widgets/card_select.dart';
-import 'package:zingo/widgets/english_level_picker.dart';
-import 'package:zingo/widgets/favorite_topics_picker.dart';
-import 'package:zingo/widgets/languages_picker.dart';
-import 'package:zingo/widgets/time_picker.dart';
+import 'package:zingo/widgets/pickers/english_level_picker.dart';
+import 'package:zingo/widgets/pickers/favorite_topics_picker.dart';
+import 'package:zingo/widgets/pickers/languages_picker.dart';
+import 'package:zingo/widgets/pickers/time_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
