@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
+import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
+import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
@@ -85,9 +87,19 @@ final initRoutes = GoRouter(
     GoRoute(
       path: '/profile',
       pageBuilder: (context, state) {
+        final authData = context.read<AuthBloc>().state.data;
         return NoTransitionPage(
           key: state.pageKey,
-          child: const UserProfileScreen(),
+          child: BlocProvider(
+            create: (_) {
+              final bloc = UserSettingsBloc(seedUser: authData);
+              if (authData != null) {
+                bloc.add(UserSettingsLoaded(userId: authData.id));
+              }
+              return bloc;
+            },
+            child: const UserProfileScreen(),
+          ),
         );
       },
     ),
