@@ -7,8 +7,9 @@ import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/home/home_screen.dart';
-import 'package:zingo/screens/profile/profile_screen.dart';
+import 'package:zingo/screens/onboarding/onboarding_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
+import 'package:zingo/screens/users/user_profile_screen.dart';
 
 final initRoutes = GoRouter(
   initialLocation: '/splash',
@@ -40,13 +41,13 @@ final initRoutes = GoRouter(
       },
     ),
     GoRoute(
-      path: '/profile',
+      path: '/onboarding',
       pageBuilder: (context, state) {
         return NoTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
             create: (context) => UserProfileCreateBloc(),
-            child: const ProfileScreen(),
+            child: const OnboardingScreen(),
           ),
         );
       },
@@ -78,6 +79,15 @@ final initRoutes = GoRouter(
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/profile',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: const UserProfileScreen(),
         );
       },
     ),

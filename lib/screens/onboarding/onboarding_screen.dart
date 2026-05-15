@@ -17,14 +17,14 @@ import 'package:zingo/dtos/user-profile/user_profile_create_dto.dart';
 import 'package:zingo/widgets/card_select.dart';
 import 'package:zingo/widgets/time_picker.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen> {
   Language? _selectedLanguage;
   app_enums.EnglishLevel? _selectedEnglishLevel;
   TimeOfDay? _selectedNotificationTime;

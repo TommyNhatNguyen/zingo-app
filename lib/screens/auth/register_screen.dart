@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           listener: (context, state) {
             if (state.user != null &&
                 state.requestStatus == RequestStatus.success) {
-              context.go('/profile');
+              context.go('/onboarding');
             }
           },
         ),

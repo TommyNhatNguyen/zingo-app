@@ -28,9 +28,9 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/profile");
+                context.go("/onboarding");
               },
-              child: Text('Profile'),
+              child: Text('Onboarding'),
             ),
           ),
           const SizedBox(height: 16),
@@ -42,6 +42,17 @@ class HomeScreen extends StatelessWidget {
                 context.go("/splash");
               },
               child: Text('Splash'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 52,
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                context.go("/profile");
+              },
+              child: Text('Profile'),
             ),
           ),
         ],
