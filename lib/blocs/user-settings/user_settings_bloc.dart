@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_state.dart';
 import 'package:zingo/constants/enums.dart';
@@ -31,7 +30,6 @@ class UserSettingsBloc extends Bloc<UserSettingsEvent, UserSettingsState> {
        ) {
     on<UserSettingsLoaded>(_onLoaded);
     on<UserSettingsSaved>(_onSaved);
-    on<UserSettingsLoggedOut>(_onLoggedOut);
   }
 
   Future<void> _onLoaded(
@@ -120,17 +118,6 @@ class UserSettingsBloc extends Bloc<UserSettingsEvent, UserSettingsState> {
       emit(
         state.copyWith(saveStatus: RequestStatus.error, error: e.toString()),
       );
-    }
-  }
-
-  Future<void> _onLoggedOut(
-    UserSettingsLoggedOut event,
-    Emitter<UserSettingsState> emit,
-  ) async {
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {
-      // Sign-out errors are non-fatal here; redirect will still send to /login.
     }
   }
 }

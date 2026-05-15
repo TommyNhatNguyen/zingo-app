@@ -36,7 +36,3 @@ class UserSettingsSaved extends UserSettingsEvent {
   @override
   List<Object?> get props => [userId, profile, cefrLevel, topicCodes];
 }
-
-class UserSettingsLoggedOut extends UserSettingsEvent {
-  const UserSettingsLoggedOut();
-}

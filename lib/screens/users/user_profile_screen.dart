@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_state.dart';
 import 'package:zingo/config/app_colors.dart';
-import 'package:zingo/constants/english_level.dart' as level_const;
 import 'package:zingo/constants/enums.dart' as app_enums;
-import 'package:zingo/constants/languages.dart';
 import 'package:zingo/constants/notification_time.dart';
 import 'package:zingo/constants/practice_goal.dart';
-import 'package:zingo/constants/topics.dart';
 import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
 import 'package:zingo/widgets/card_select.dart';
+import 'package:zingo/widgets/english_level_picker.dart';
+import 'package:zingo/widgets/favorite_topics_picker.dart';
+import 'package:zingo/widgets/languages_picker.dart';
 import 'package:zingo/widgets/time_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -352,63 +354,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           title: 'Your English level',
           subtitle: "We'll match dialogs to your comfort zone.",
         ),
-        ...level_const.EnglishLevel.all.map((lvl) {
-          final isSelected = _cefr == lvl.code;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: InkWell(
-              onTap: () => setState(() => _cefr = lvl.code),
-              borderRadius: BorderRadius.circular(12),
-              child: Card.outlined(
-                color: isSelected ? AppColors.primaryContainer : null,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: isSelected ? AppColors.primary : AppColors.divider,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${lvl.code.value.toUpperCase()} · ${lvl.name}',
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected
-                                        ? AppColors.primary
-                                        : null,
-                                  ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              lvl.description,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isSelected)
-                        const Icon(
-                          Icons.check_circle,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
+        EnglishLevelPicker(
+          value: _cefr,
+          onChanged: (lvl) => setState(() => _cefr = lvl),
+        ),
       ],
     );
   }
@@ -424,25 +373,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle(context, title: title, subtitle: subtitle),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 2.4,
-          crossAxisCount: 2,
-          children: Language.all.map((lang) {
-            return CardSelect(
-              emoji: lang.flag,
-              label: lang.nativeName,
-              isSelected: selected == lang.code,
-              onTap: () =>
-                  onChanged(selected == lang.code ? null : lang.code),
-              labelStyle: Theme.of(context).textTheme.bodySmall,
-              labelMaxLines: 2,
-              checkIconSize: 16,
-            );
-          }).toList(),
+        LanguagesPicker(
+          value: selected,
+          onChanged: onChanged,
+          sheetTitle: title,
+          sheetSubtitle: subtitle,
         ),
       ],
     );
@@ -493,9 +428,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 children: [
                                   Text(
                                     goal.label,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
+                                    style: Theme.of(context).textTheme.bodyLarge
                                         ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   Text(
@@ -577,31 +510,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           title: 'Favourite topics',
           subtitle: "Pick as many as you like; we'll personalise your dialogs.",
         ),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 2.4,
-          crossAxisCount: 2,
-          children: TopicCategory.all.map((cat) {
-            final selected = _topicCodes.contains(cat.code);
-            return CardSelect(
-              emoji: cat.emoji,
-              label: cat.name,
-              isSelected: selected,
-              onTap: () => setState(() {
-                if (selected) {
-                  _topicCodes.remove(cat.code);
-                } else {
-                  _topicCodes.add(cat.code);
-                }
-              }),
-              labelStyle: Theme.of(context).textTheme.bodySmall,
-              labelMaxLines: 2,
-              checkIconSize: 16,
-            );
-          }).toList(),
+        FavoriteTopicsPicker(
+          value: _topicCodes,
+          onChanged: (next) => setState(() => _topicCodes = next),
         ),
       ],
     );
@@ -613,15 +524,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: OutlinedButton.icon(
         onPressed: isSaving
             ? null
-            : () => context.read<UserSettingsBloc>().add(
-                const UserSettingsLoggedOut(),
-              ),
+            : () => context.read<AuthBloc>().add(const AuthLoggedOut()),
         icon: const Icon(Icons.logout, color: AppColors.scoreLow),
         label: Text(
           'Log out',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: AppColors.scoreLow,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: AppColors.scoreLow),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.scoreLow,

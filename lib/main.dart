@@ -13,16 +13,29 @@ void main() async {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late final AuthBloc _authBloc = AuthBloc();
+
+  @override
+  void dispose() {
+    _authBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AuthBloc(),
+    return BlocProvider.value(
+      value: _authBloc,
       child: MaterialApp.router(
         theme: AppTheme.light,
-        routerConfig: initRoutes,
+        routerConfig: buildRoutes(_authBloc),
       ),
     );
   }

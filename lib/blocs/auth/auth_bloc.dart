@@ -16,7 +16,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _authStateStream.listen((user) {
       if (user != null) {
         add(AuthStateChanged(user: user));
+      } else {
+        add(const AuthLoggedOut());
       }
+    });
+
+    on<AuthLoggedOut>((event, emit) async {
+      try {
+        await FirebaseAuth.instance.signOut();
+      } catch (e) {
+        emit(
+          state.copyWith(
+            requestStatus: RequestStatus.error,
+            error: e.toString(),
+          ),
+        );
+      }
+      emit(AuthState.initial());
     });
 
     on<AuthStateChanged>((event, emit) async {

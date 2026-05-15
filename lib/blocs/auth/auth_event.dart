@@ -33,3 +33,10 @@ class AuthStateChanged extends AuthEvent {
   @override
   List<Object?> get props => [user];
 }
+
+class AuthLoggedOut extends AuthEvent {
+  const AuthLoggedOut();
+
+  @override
+  List<Object?> get props => [];
+}

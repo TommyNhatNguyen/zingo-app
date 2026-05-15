@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -13,8 +15,23 @@ import 'package:zingo/screens/onboarding/onboarding_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
 
-final initRoutes = GoRouter(
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _subscription = stream.listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   initialLocation: '/splash',
+  refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     final location = state.matchedLocation;
     final user = context.read<AuthBloc>().state.user;

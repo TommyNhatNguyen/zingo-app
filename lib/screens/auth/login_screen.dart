@@ -56,6 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
+      listenWhen: (previous, current) =>
+          current.requestStatus == RequestStatus.success &&
+          current.data != null &&
+          previous.requestStatus != RequestStatus.success,
       listener: (context, state) {
         if (state.data != null &&
             state.requestStatus == RequestStatus.success) {
