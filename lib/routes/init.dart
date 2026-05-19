@@ -12,6 +12,7 @@ import 'package:zingo/blocs/users/users_bloc.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/home/home_screen.dart';
+import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/learn/learn_screen.dart';
 import 'package:zingo/screens/onboarding/onboarding_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
@@ -132,6 +133,13 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             child: const LearnScreen(),
           ),
         );
+      },
+    ),
+    GoRoute(
+      path: '/learn/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return LearnDetailScreen(id: id);
       },
     ),
   ],

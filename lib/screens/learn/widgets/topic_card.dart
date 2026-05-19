@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 
@@ -11,7 +12,7 @@ class TopicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        print(" tapped");
+        context.push('/learn/${dialog?.id}');
       },
       borderRadius: BorderRadius.circular(16),
       child: SizedBox(

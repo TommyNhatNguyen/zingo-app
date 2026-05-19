@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/login");
+                context.push("/login");
               },
               child: Text('Login'),
             ),
@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/onboarding");
+                context.push("/onboarding");
               },
               child: Text('Onboarding'),
             ),
@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/splash");
+                context.push("/splash");
               },
               child: Text('Splash'),
             ),
@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/profile");
+                context.push("/profile");
               },
               child: Text('Profile'),
             ),
@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.go("/learn");
+                context.push("/learn");
               },
               child: Text('Learn'),
             ),
