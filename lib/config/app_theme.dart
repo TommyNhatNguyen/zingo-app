@@ -199,7 +199,7 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w600,
         ),
         side: BorderSide.none,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
 

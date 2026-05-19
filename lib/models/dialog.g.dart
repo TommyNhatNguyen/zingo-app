@@ -27,6 +27,9 @@ Dialog _$DialogFromJson(Map<String, dynamic> json) => Dialog(
   deleted_at: json['deleted_at'] == null
       ? null
       : DateTime.parse(json['deleted_at'] as String),
+  topics: json['topics'] == null
+      ? null
+      : Topic.fromJson(json['topics'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
@@ -44,4 +47,5 @@ Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
   'created_at': instance.created_at?.toIso8601String(),
   'updated_at': instance.updated_at?.toIso8601String(),
   'deleted_at': instance.deleted_at?.toIso8601String(),
+  'topics': instance.topics,
 };

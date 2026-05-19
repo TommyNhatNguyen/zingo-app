@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:zingo/models/topic.dart';
 
 part 'dialog.g.dart';
 
@@ -19,6 +20,7 @@ class Dialog extends Equatable {
   final DateTime? created_at;
   final DateTime? updated_at;
   final DateTime? deleted_at;
+  final Topic? topics;
 
   const Dialog({
     required this.id,
@@ -35,6 +37,7 @@ class Dialog extends Equatable {
     this.created_at,
     this.updated_at,
     this.deleted_at,
+    this.topics,
   });
 
   factory Dialog.fromJson(Map<String, dynamic> json) => _$DialogFromJson(json);
@@ -57,5 +60,6 @@ class Dialog extends Equatable {
     created_at,
     updated_at,
     deleted_at,
+    topics,
   ];
 }
