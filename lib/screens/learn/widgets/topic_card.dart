@@ -27,14 +27,18 @@ class TopicCard extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: AppColors.accentContainer,
+                  color: AppColors.primaryContainer,
+                  image: DecorationImage(
+                    image:
+                        dialog?.thumbnail_url == null ||
+                            dialog?.thumbnail_url?.isEmpty == true
+                        ? AssetImage("assets/default-fallback-image.png")
+                        : NetworkImage(dialog?.thumbnail_url ?? ""),
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 child: Stack(
                   children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Icon(Icons.cast_for_education),
-                    ),
                     Align(
                       alignment: Alignment(0.88, -0.84),
                       child: FittedBox(
