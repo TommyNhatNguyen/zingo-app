@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
@@ -124,7 +125,13 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
     GoRoute(
       path: '/learn',
       pageBuilder: (context, state) {
-        return NoTransitionPage(key: state.pageKey, child: const LearnScreen());
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (context) => DialogListBloc(),
+            child: const LearnScreen(),
+          ),
+        );
       },
     ),
   ],

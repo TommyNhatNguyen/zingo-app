@@ -17,35 +17,38 @@ class ApiResponse {
       ApiResponse(success: false, error: error);
 }
 
-class Pagination {
+class PaginationMeta {
   final int total;
   final int page;
   final int limit;
 
-  Pagination({this.total = 0, this.page = 1, this.limit = 10});
+  PaginationMeta({this.total = 0, this.page = 1, this.limit = 10});
 
-  factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
+  factory PaginationMeta.fromJson(Map<String, dynamic> json) => PaginationMeta(
     total: json['total'],
     page: json['page'],
     limit: json['limit'],
   );
 }
 
-class PaginatedApiResponse {
+class PaginatedApiResult<T> {
   final bool success;
-  final Pagination pagination;
-  final List<dynamic>? data;
+  final PaginationMeta meta;
+  final List<T>? data;
+  final String? error;
 
-  PaginatedApiResponse({
+  PaginatedApiResult({
     required this.success,
-    required this.pagination,
+    required this.meta,
     this.data = const [],
+    this.error,
   });
 
-  factory PaginatedApiResponse.fromJson(Map<String, dynamic> json) =>
-      PaginatedApiResponse(
+  factory PaginatedApiResult.fromJson(Map<String, dynamic> json) =>
+      PaginatedApiResult(
         success: json['success'] ?? false,
-        pagination: Pagination.fromJson(json['pagination'] ?? {}),
+        meta: PaginationMeta.fromJson(json['meta'] ?? {}),
         data: json['data'],
+        error: json['error'],
       );
 }

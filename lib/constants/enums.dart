@@ -1,6 +1,7 @@
 enum RequestStatus {
   initial,
   loading,
+  loadingMore,
   success,
   error;
 
@@ -10,6 +11,8 @@ enum RequestStatus {
         return 'Initial';
       case RequestStatus.loading:
         return 'Loading';
+      case RequestStatus.loadingMore:
+        return 'Loading More';
       case RequestStatus.success:
         return 'Success';
       case RequestStatus.error:

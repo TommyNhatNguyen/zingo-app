@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/blocs/dialog/list/dialog_list_event.dart';
+import 'package:zingo/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/dialog/dialog_list_payload.dart';
+import 'package:zingo/models/dialog.dart' as dialog_model;
 
 Map<int, String> weekdays = {
   1: "M",
@@ -11,90 +19,161 @@ Map<int, String> weekdays = {
   7: "S",
 };
 
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    DateTime firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    List<DateTime> days = List.generate(
-      7,
-      (index) => firstDayOfWeek.add(Duration(days: index)),
-    );
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        actionsPadding: const EdgeInsets.only(right: 16),
-        title: Text(
-          "Pick a dialog",
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+  State<LearnScreen> createState() => _LearnScreenState();
+}
+
+class _LearnScreenState extends State<LearnScreen> {
+  late final ScrollController _scrollController;
+  late final List<DateTime> days;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
+
+    final now = DateTime.now();
+    final firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    days = List.generate(7, (i) => firstDayOfWeek.add(Duration(days: i)));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DialogListBloc>().add(
+        DialogListFetchEvent(payload: DialogListPayload(page: 1, limit: 10)),
+      );
+    });
+  }
+
+  void _onScroll() {
+    final bloc = context.read<DialogListBloc>();
+    final isAtBottom =
+        _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent;
+    final meta = bloc.state.meta;
+    final hasMore =
+        meta != null && meta.page < (meta.total / meta.limit).ceil();
+    if (isAtBottom &&
+        hasMore &&
+        bloc.state.requestStatus != RequestStatus.loading &&
+        bloc.state.requestStatus != RequestStatus.loadingMore) {
+      bloc.add(
+        DialogListFetchMoreEvent(
+          payload: DialogListPayload(page: meta.page + 1, limit: meta.limit),
         ),
-        centerTitle: false,
-        actions: [
-          Chip(
-            avatar: Icon(Icons.star_border, color: AppColors.xp),
-            label: Text(
-              '10',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppColors.xp,
-                fontWeight: FontWeight.bold,
-              ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DialogListBloc, DialogListState>(
+      builder: (context, state) {
+        final total = state.meta?.total ?? 0;
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            actionsPadding: const EdgeInsets.only(right: 16),
+            title: Text(
+              "Pick a dialog",
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            backgroundColor: AppColors.highlightContainer,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(100),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          child: Column(
-            children: [
-              StreakCard(days: days),
-              const SizedBox(height: 16),
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.play_arrow),
-                          const SizedBox(width: 8),
-                          Text("Continue practicing"),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      Text("2 in progress"),
-                    ],
+            centerTitle: false,
+            actions: [
+              Chip(
+                avatar: Icon(Icons.star_border, color: AppColors.xp),
+                label: Text(
+                  '${total}',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: AppColors.xp,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 180,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 5,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (_, __) => TopicCard(),
-                    ),
-                  ),
-                ],
+                ),
+                backgroundColor: AppColors.highlightContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100),
+                ),
               ),
             ],
           ),
-        ),
-      ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              child: Column(
+                children: [
+                  StreakCard(days: days),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.play_arrow),
+                              const SizedBox(width: 8),
+                              Text("Continue practicing"),
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                          Text("$total in progress"),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 180,
+                        child: Skeletonizer(
+                          enabled: state.requestStatus == RequestStatus.loading,
+                          child: ListView.separated(
+                            controller: _scrollController,
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                (state.data?.length ?? 0) +
+                                (state.requestStatus ==
+                                        RequestStatus.loadingMore
+                                    ? 1
+                                    : 0),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (_, index) {
+                              if (index == state.data?.length) {
+                                return const SizedBox(
+                                  width: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+                              return TopicCard(dialog: state.data?[index]);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class TopicCard extends StatelessWidget {
-  const TopicCard({super.key});
+  final dialog_model.Dialog? dialog;
+
+  const TopicCard({super.key, this.dialog});
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +224,7 @@ class TopicCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                "78",
+                                dialog?.xp_points.toString() ?? "",
                                 style: Theme.of(context).textTheme.labelMedium
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
@@ -163,11 +242,11 @@ class TopicCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.textPrimary.withValues(alpha: 0.8),
+                            color: AppColors.textPrimary.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            "2 min",
+                            "${dialog?.conversation_length} turns",
                             style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -189,8 +268,20 @@ class TopicCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text("Cafe"),
-                  Text("Ordering coffee at a busy cafe", softWrap: true),
+                  Text(
+                    dialog?.title ?? "",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    dialog?.description ?? "",
+                    softWrap: true,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
