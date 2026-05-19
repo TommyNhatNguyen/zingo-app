@@ -60,42 +60,50 @@ class _DialogListState extends State<DialogList> {
 
         return Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.play_arrow),
-                    const SizedBox(width: 8),
-                    Text("Continue practicing"),
-                  ],
-                ),
-                Text("$total in progress"),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.play_arrow),
+                      const SizedBox(width: 8),
+                      Text("Continue practicing"),
+                    ],
+                  ),
+                  Text("$total in progress"),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 180,
-              child: Skeletonizer(
-                enabled: state.requestStatus == RequestStatus.loading,
-                child: ListView.separated(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount:
-                      (state.data?.length ?? 0) +
-                      (state.requestStatus == RequestStatus.loadingMore
-                          ? 1
-                          : 0),
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, index) {
-                    if (index == state.data?.length) {
-                      return const SizedBox(
-                        width: 60,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-                    return TopicCard(dialog: state.data?[index]);
-                  },
+            Material(
+              color: Colors.transparent,
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                height: 180,
+                child: Skeletonizer(
+                  enabled: state.requestStatus == RequestStatus.loading,
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount:
+                        (state.data?.length ?? 0) +
+                        (state.requestStatus == RequestStatus.loadingMore
+                            ? 1
+                            : 0),
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, index) {
+                      if (index == state.data?.length) {
+                        return const SizedBox(
+                          width: 60,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return TopicCard(dialog: state.data?[index]);
+                    },
+                  ),
                 ),
               ),
             ),

@@ -11,6 +11,12 @@
       "deviceId": "209B3A35-1D84-4D77-B031-53EB1AAB795A"
     },
     {
+      "name": "zingo (real device debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "00008110-000C09412287601"
+    },
+    {
       "name": "zingo (profile mode)",
       "request": "launch",
       "type": "dart",

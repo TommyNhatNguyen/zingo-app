@@ -40,11 +40,12 @@ class _LearnScreenState extends State<LearnScreen> {
           ),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: Column(
                 children: [
-                  const StreakCard(),
-                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: const StreakCard(),
+                  ),
                   const DialogList(),
                 ],
               ),
