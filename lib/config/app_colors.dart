@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
+  static const Color white = Color(0xFFFFFFFF);
   // ── Brand — ocean teal: fresh, clear, forward-moving (no purple anywhere)
   static const Color primary = Color(0xFF0891B2);
   static const Color primaryLight = Color(0xFF22B9D4);

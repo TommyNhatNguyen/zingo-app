@@ -7,7 +7,8 @@
     {
       "name": "zingo (debug mode)",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "deviceId": "209B3A35-1D84-4D77-B031-53EB1AAB795A"
     },
     {
       "name": "zingo (profile mode)",

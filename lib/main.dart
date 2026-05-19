@@ -21,7 +21,7 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  late final AuthBloc _authBloc = AuthBloc();
+  final AuthBloc _authBloc = AuthBloc();
 
   @override
   void dispose() {

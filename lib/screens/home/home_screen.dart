@@ -55,6 +55,17 @@ class HomeScreen extends StatelessWidget {
               child: Text('Profile'),
             ),
           ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 52,
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                context.go("/learn");
+              },
+              child: Text('Learn'),
+            ),
+          ),
         ],
       ),
     );
