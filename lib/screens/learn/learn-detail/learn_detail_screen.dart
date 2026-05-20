@@ -192,6 +192,59 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          border: Border(top: BorderSide(color: AppColors.border)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.mic_outlined),
+                label: const Text("Start practice"),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.white,
+                  elevation: 4,
+                  shadowColor: AppColors.accentLight.withAlpha(150),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                children: [
+                  TextSpan(text: "${_selectedMode.label} · up to "),
+                  TextSpan(
+                    text: "+45 XP",
+                    style: TextStyle(
+                      color: AppColors.xp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
