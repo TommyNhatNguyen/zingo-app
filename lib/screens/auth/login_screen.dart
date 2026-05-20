@@ -87,125 +87,132 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
         return Scaffold(
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 36),
-                  Center(
-                    child: SvgPicture.asset(
-                      "assets/logo_icon.svg",
-                      width: 100,
-                      height: 100,
-                    ),
-                  ),
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Zingo",
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          child: Text(
-                            "Boost your english skills with bite size dialogs",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 36),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: "Email",
-                      prefixIcon: Icon(Icons.email),
-                      hintText: "Enter your email",
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      prefixIcon: const Icon(Icons.lock),
-                      hintText: "Enter your password",
-                      suffixIcon: IconButton(
-                        onPressed: _toggleShowPassword,
-                        icon: Icon(
-                          _isShowPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
+          body: SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 36),
+                    Center(
+                      child: SvgPicture.asset(
+                        "assets/logo_icon.svg",
+                        width: 100,
+                        height: 100,
                       ),
                     ),
-                    obscureText: !_isShowPassword,
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : () => _login(context),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text("Login"),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(thickness: 1)),
-                      const SizedBox(width: 8),
-                      Text("Or sign in with"),
-                      const SizedBox(width: 8),
-                      const Expanded(child: Divider(thickness: 1)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: isLoading
-                          ? null
-                          : () => _loginWithGoogle(context),
-                      icon: SvgPicture.network(
-                        "https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg",
-                        fit: BoxFit.contain,
-                        width: 24,
-                        height: 24,
-                      ),
-                      label: const Text("Sign in with Google"),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: isLoading ? null : () => _register(),
-                    child: Text.rich(
-                      TextSpan(
+                    Center(
+                      child: Column(
                         children: [
-                          const TextSpan(text: "Don't have an account? "),
-                          TextSpan(
-                            text: "Sign up",
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(),
+                          Text(
+                            "Zingo",
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              "Boost your english skills with bite size dialogs",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 36),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        prefixIcon: Icon(Icons.email),
+                        hintText: "Enter your email",
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        prefixIcon: const Icon(Icons.lock),
+                        hintText: "Enter your password",
+                        suffixIcon: IconButton(
+                          onPressed: _toggleShowPassword,
+                          icon: Icon(
+                            _isShowPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                        ),
+                      ),
+                      obscureText: !_isShowPassword,
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : () => _login(context),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text("Login"),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider(thickness: 1)),
+                        const SizedBox(width: 8),
+                        Text("Or sign in with"),
+                        const SizedBox(width: 8),
+                        const Expanded(child: Divider(thickness: 1)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: isLoading
+                            ? null
+                            : () => _loginWithGoogle(context),
+                        icon: SvgPicture.network(
+                          "https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg",
+                          fit: BoxFit.contain,
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text("Sign in with Google"),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: isLoading ? null : () => _register(),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            const TextSpan(text: "Don't have an account? "),
+                            TextSpan(
+                              text: "Sign up",
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.copyWith(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

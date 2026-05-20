@@ -33,7 +33,8 @@ class GoRouterRefreshStream extends ChangeNotifier {
 }
 
 GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
-  initialLocation: '/learn',
+  initialLocation: '/learn/ef8f3029-c801-4a6c-b0ff-0c957d736f63',
+  // initialLocation: '/learn',
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     final location = state.matchedLocation;

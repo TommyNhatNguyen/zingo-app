@@ -98,151 +98,155 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context, state) {
           final isLoading = state.requestStatus == RequestStatus.loading;
           return Scaffold(
-            body: SafeArea(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 36),
-                      Center(
-                        child: SvgPicture.asset(
-                          "assets/logo_zingo.svg",
-                          width: 100,
-                          height: 100,
+            body: SingleChildScrollView(
+              child: SafeArea(
+                child: Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 36),
+                        Center(
+                          child: SvgPicture.asset(
+                            "assets/logo_zingo.svg",
+                            width: 100,
+                            height: 100,
+                          ),
                         ),
-                      ),
-                      Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              "Create an account",
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              child: Text(
-                                "Let's start using Zingo and boost your english skills with bite size dialogs",
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 36),
-                      TextFormField(
-                        controller: _usernameController,
-                        decoration: const InputDecoration(
-                          labelText: "Username",
-                          prefixIcon: Icon(Icons.person),
-                          hintText: "Enter your username",
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Username is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          prefixIcon: Icon(Icons.email),
-                          hintText: "Enter your email",
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          prefixIcon: Icon(Icons.lock),
-                          hintText: "Enter your password",
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Password is required';
-                          }
-                          if (value != _confirmPasswordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Confirm Password",
-                          prefixIcon: Icon(Icons.lock),
-                          hintText: "Confirm your password",
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Confirm password is required';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () => _register(context),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text("Register"),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () => context.go("/login"),
-                        child: Text.rich(
-                          TextSpan(
+                        Center(
+                          child: Column(
                             children: [
-                              const TextSpan(text: "Already have an account? "),
-                              TextSpan(
-                                text: "Sign in",
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(),
+                              Text(
+                                "Create an account",
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 200,
+                                child: Text(
+                                  "Let's start using Zingo and boost your english skills with bite size dialogs",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 36),
+                        TextFormField(
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
+                            labelText: "Username",
+                            prefixIcon: Icon(Icons.person),
+                            hintText: "Enter your username",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Username is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: "Email",
+                            prefixIcon: Icon(Icons.email),
+                            hintText: "Enter your email",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: Icon(Icons.lock),
+                            hintText: "Enter your password",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password is required';
+                            }
+                            if (value != _confirmPasswordController.text) {
+                              return 'Passwords do not match';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: "Confirm Password",
+                            prefixIcon: Icon(Icons.lock),
+                            hintText: "Confirm your password",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Confirm password is required';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isLoading
+                                ? null
+                                : () => _register(context),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text("Register"),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: isLoading
+                              ? null
+                              : () => context.go("/login"),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: "Already have an account? ",
+                                ),
+                                TextSpan(
+                                  text: "Sign in",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
