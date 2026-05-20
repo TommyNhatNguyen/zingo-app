@@ -1,6 +1,14 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
+import 'package:zingo/blocs/dialog/detail/dialog_detail_event.dart';
+import 'package:zingo/blocs/dialog/detail/dialog_detail_state.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
 
 class LearnDetailScreen extends StatefulWidget {
   final String id;
@@ -13,6 +21,14 @@ class LearnDetailScreen extends StatefulWidget {
 
 class _LearnDetailScreenState extends State<LearnDetailScreen> {
   PracticeMode _selectedMode = PracticeMode.freeSpeak;
+  DialogDetailBloc get bloc => context.read<DialogDetailBloc>();
+  @override
+  void initState() {
+    super.initState();
+    bloc.add(
+      DialogDetailFetchEvent(payload: DialogDetailPayload(id: widget.id)),
+    );
+  }
 
   void _onModeSelected(PracticeMode mode) {
     setState(() => _selectedMode = mode);
@@ -21,293 +37,323 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
-    return Scaffold(
-      body: CustomScrollView(
-        controller: scrollController,
-        slivers: [
-          SliverAppBar(
-            leading: IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.arrow_back),
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-            ),
-            actionsPadding: const EdgeInsets.only(right: 8),
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.heart_broken_outlined),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
-            ],
-            automaticallyImplyLeading: false,
-            automaticallyImplyActions: false,
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background: Stack(
-                children: [
-                  Image.asset(
-                    "assets/default-fallback-image.png",
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                  ),
-                  Positioned(
-                    left: 8,
-                    bottom: 8,
-                    child: Chip(
-                      avatar: Icon(Icons.star_border, color: AppColors.xp),
-                      label: Text(
-                        'cafe & food',
-                        style: TextStyle(color: AppColors.xp),
+    return BlocConsumer<DialogDetailBloc, DialogDetailState>(
+      listener: (context, state) {
+        if (state.requestStatus == RequestStatus.error) {
+          Toastification().show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            title: const Text('Error'),
+            description: Text(state.error ?? 'An error occurred'),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: Skeletonizer(
+            enabled: state.requestStatus == RequestStatus.loading,
+            child: CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverAppBar(
+                  leading: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.arrow_back),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      backgroundColor: AppColors.highlightContainer,
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                spacing: 16,
-                children: [
-                  Text(
-                    "Ordering coffee at a busy cafe",
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  Text(
-                    "A crowded morning cafe. The barista is friendly but rushed.",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                  actionsPadding: const EdgeInsets.only(right: 8),
+                  actions: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.heart_broken_outlined),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
                     ),
-                  ),
-                  Transform.translate(
-                    offset: Offset(-3, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 8,
+                  ],
+                  automaticallyImplyLeading: false,
+                  automaticallyImplyActions: false,
+                  expandedHeight: 200,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    collapseMode: CollapseMode.pin,
+                    background: Stack(
                       children: [
-                        Chip(label: Text("Beginner")),
-                        Chip(label: Text("2 min")),
-                        Chip(label: Text("5 turns")),
+                        state.data?.thumbnail_url == null
+                            ? Image.asset(
+                                "assets/default-fallback-image.png",
+                                fit: BoxFit.cover,
+                                height: double.infinity,
+                                width: double.infinity,
+                              )
+                            : Image.network(
+                                state.data?.thumbnail_url ?? '',
+                                fit: BoxFit.cover,
+                                height: double.infinity,
+                                width: double.infinity,
+                              ),
+                        Positioned(
+                          left: 8,
+                          bottom: 8,
+                          child: Chip(
+                            avatar: Icon(Icons.folder_open_rounded),
+                            label: Text(state.data?.topics?.name ?? ''),
+                            backgroundColor: AppColors.white,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       spacing: 16,
                       children: [
-                        Expanded(
+                        Text(
+                          state.data?.title ?? '',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        Text(
+                          state.data?.description ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                        Transform.translate(
+                          offset: Offset(-3, 0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 8,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "LAST",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          letterSpacing: 1.2,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                  ),
-                                  Text(
-                                    "78",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge
-                                        ?.copyWith(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "BEST",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          letterSpacing: 1.2,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                  ),
-                                  Text(
-                                    "85",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge
-                                        ?.copyWith(
-                                          color: AppColors.highlight,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                  ),
-                                ],
+                              Chip(label: Text(state.data?.level ?? '')),
+                              Chip(label: Text(state.data?.duration ?? '')),
+                              Chip(
+                                label: Text(
+                                  "${state.data?.conversation_length.toString()} turns",
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        Chip(
-                          backgroundColor: AppColors.primaryContainer,
-                          avatar: Icon(
-                            Icons.add_circle,
-                            color: AppColors.primary,
-                            size: 16,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                          label: Text(
-                            "+7 · 3 tries",
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: AppColors.primary),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.max,
+                            spacing: 16,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "LAST",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                letterSpacing: 1.2,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                        ),
+                                        Text(
+                                          "78",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge
+                                              ?.copyWith(
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "BEST",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                letterSpacing: 1.2,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                        ),
+                                        Text(
+                                          "85",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge
+                                              ?.copyWith(
+                                                color: AppColors.highlight,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Chip(
+                                backgroundColor: AppColors.primaryContainer,
+                                avatar: Icon(
+                                  Icons.add_circle,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                                label: Text(
+                                  "+7 · 3 tries",
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(color: AppColors.primary),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  PraceticeModeForm(
-                    selectedMode: _selectedMode,
-                    onModeSelected: _onModeSelected,
-                  ),
-                  PracticeModePreview(selectedMode: _selectedMode),
-                  const HowItWorks(),
-                  const YoullBeScoredOn(),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.highlightContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline,
-                          size: 16,
-                          color: AppColors.highlight,
+                        PraceticeModeForm(
+                          selectedMode: _selectedMode,
+                          onModeSelected: _onModeSelected,
                         ),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textOnHighlight),
-                              children: [
-                                TextSpan(
-                                  text: "Tip: ",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.highlight,
+                        PracticeModePreview(selectedMode: _selectedMode),
+                        const HowItWorks(),
+                        const YoullBeScoredOn(),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.highlightContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 10,
+                            children: [
+                              Icon(
+                                Icons.lightbulb_outline,
+                                size: 16,
+                                color: AppColors.highlight,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.textOnHighlight,
+                                        ),
+                                    children: [
+                                      TextSpan(
+                                        text: "Tip: ",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.highlight,
+                                        ),
+                                      ),
+                                      const TextSpan(
+                                        text:
+                                            "Speak clearly. Pauses are fine — recording stops only when you tap again.",
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const TextSpan(
-                                  text:
-                                      "Speak clearly. Pauses are fine — recording stops only when you tap again.",
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          border: Border(top: BorderSide(color: AppColors.border)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.mic_outlined),
-                label: const Text("Start practice"),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: AppColors.white,
-                  elevation: 4,
-                  shadowColor: AppColors.accentLight.withAlpha(150),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
+          bottomNavigationBar: Container(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              border: Border(top: BorderSide(color: AppColors.border)),
             ),
-            const SizedBox(height: 8),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-                children: [
-                  TextSpan(text: "${_selectedMode.label} · up to "),
-                  TextSpan(
-                    text: "+45 XP",
-                    style: TextStyle(
-                      color: AppColors.xp,
-                      fontWeight: FontWeight.bold,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.mic_outlined),
+                    label: const Text("Start practice"),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: AppColors.white,
+                      elevation: 4,
+                      shadowColor: AppColors.accentLight.withAlpha(150),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    children: [
+                      TextSpan(text: "${_selectedMode.label} · up to "),
+                      TextSpan(
+                        text: "+45 XP",
+                        style: TextStyle(
+                          color: AppColors.xp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

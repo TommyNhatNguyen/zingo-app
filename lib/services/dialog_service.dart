@@ -1,4 +1,5 @@
 import 'package:zingo/config/dio_http.dart';
+import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
 import 'package:zingo/dtos/dialog/dialog_list_payload.dart';
 import 'package:zingo/interfaces/api_response.dart';
 import 'package:zingo/models/dialog.dart';
@@ -31,6 +32,23 @@ class DialogService {
       );
 
       return result;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<Dialog?> getDialogDetail(DialogDetailPayload payload) async {
+    try {
+      final response = await dio.get('/v1/dialogs/${payload.id}');
+      final result = ApiResponse.fromJson(response.data);
+      if (result.success) {
+        if (result.data == null) {
+          return null;
+        }
+        return Dialog.fromJson(result.data!);
+      } else {
+        throw Exception(result.error);
+      }
     } catch (e) {
       throw Exception(e);
     }
