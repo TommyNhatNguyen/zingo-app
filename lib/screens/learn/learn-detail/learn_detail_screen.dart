@@ -84,11 +84,18 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.min,
+                spacing: 16,
                 children: [
-                  Text("Ordering coffee at a busy cafe"),
+                  Text(
+                    "Ordering coffee at a busy cafe",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                   Text(
                     "A crowded morning cafe. The barista is friendly but rushed.",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   Transform.translate(
                     offset: Offset(-3, 0),
@@ -122,16 +129,72 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              Column(children: [Text("Last"), Text("78")]),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "LAST",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          letterSpacing: 1.2,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                  ),
+                                  Text(
+                                    "78",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge
+                                        ?.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(width: 16),
-                              Column(children: [Text("Best"), Text("78")]),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "BEST",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          letterSpacing: 1.2,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                  ),
+                                  Text(
+                                    "85",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge
+                                        ?.copyWith(
+                                          color: AppColors.highlight,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
                         Chip(
                           backgroundColor: AppColors.primaryContainer,
-                          avatar: Icon(Icons.add_circle),
-                          label: Row(children: [Text("+7"), Text("3 tries")]),
+                          avatar: Icon(
+                            Icons.add_circle,
+                            color: AppColors.primary,
+                            size: 16,
+                          ),
+                          label: Text(
+                            "+7 · 3 tries",
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: AppColors.primary),
+                          ),
                         ),
                       ],
                     ),
@@ -193,7 +256,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
           color: AppColors.background,
           border: Border(top: BorderSide(color: AppColors.border)),
@@ -262,7 +325,14 @@ class PracticeModePreview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        const SizedBox(height: 4),
+        Text(
+          "PREVIEW · TURN 2",
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
+          ),
+        ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -452,8 +522,23 @@ class _PraceticeModeFormState extends State<PraceticeModeForm> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Practice mode".toUpperCase()),
-            Text("What's the differences?"),
+            Text(
+              "PRACTICE MODE",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text("What's the difference?"),
+            ),
           ],
         ),
         Row(
@@ -497,8 +582,16 @@ class _PraceticeModeFormState extends State<PraceticeModeForm> {
                                     : AppColors.textSecondary,
                               ),
                             ),
-                            Text(mode.label),
-                            Text(mode.description),
+                            Text(
+                              mode.label,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              mode.description,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
                           ],
                         ),
                         Positioned(
