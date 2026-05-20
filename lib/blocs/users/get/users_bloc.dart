@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:zingo/blocs/users/users_event.dart';
-import 'package:zingo/blocs/users/users_state.dart';
+import 'package:zingo/blocs/users/get/users_event.dart';
+import 'package:zingo/blocs/users/get/users_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/users/users_create_dto.dart';
 import 'package:zingo/services/user_service.dart';

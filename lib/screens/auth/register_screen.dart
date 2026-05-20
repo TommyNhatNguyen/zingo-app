@@ -6,9 +6,9 @@ import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
-import 'package:zingo/blocs/users/users_bloc.dart';
-import 'package:zingo/blocs/users/users_event.dart';
-import 'package:zingo/blocs/users/users_state.dart';
+import 'package:zingo/blocs/users/get/users_bloc.dart';
+import 'package:zingo/blocs/users/get/users_event.dart';
+import 'package:zingo/blocs/users/get/users_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 

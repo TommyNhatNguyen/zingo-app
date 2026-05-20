@@ -5,12 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_state.dart';
+import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_bloc.dart';
+import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_event.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
+import 'package:zingo/dtos/users/users_favorite_dialog_dto.dart';
 
 class LearnDetailScreen extends StatefulWidget {
   final String id;
@@ -25,12 +29,20 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
   PracticeMode _selectedMode = PracticeMode.freeSpeak;
   final ScrollController _scrollController = ScrollController();
   bool _isHideNavbar = false;
-
+  bool _isAtTop = true;
   DialogDetailBloc get bloc => context.read<DialogDetailBloc>();
+  FavoriteDialogBloc get favoriteBloc => context.read<FavoriteDialogBloc>();
+  AuthBloc get authBloc => context.read<AuthBloc>();
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
+      if (_scrollController.position.pixels <= 180) {
+        setState(() => _isAtTop = true);
+      } else {
+        setState(() => _isAtTop = false);
+      }
+
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
         if (!_isHideNavbar) setState(() => _isHideNavbar = true);
@@ -52,6 +64,28 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
 
   void _onModeSelected(PracticeMode mode) {
     setState(() => _selectedMode = mode);
+  }
+
+  void _onFavoritePressed() {
+    if (authBloc.state.data == null) {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        title: const Text('Error'),
+        description: Text('You must be logged in to favorite a dialog'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+    }
+
+    favoriteBloc.add(
+      FavoriteDialogAddEvent(
+        payload: UsersFavoriteDialogDto(
+          dialog_id: widget.id,
+          user_id: authBloc.state.data!.id,
+        ),
+      ),
+    );
   }
 
   @override
@@ -93,8 +127,8 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                         actionsPadding: const EdgeInsets.only(right: 8),
                         actions: [
                           IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.heart_broken_outlined),
+                            onPressed: _onFavoritePressed,
+                            icon: Icon(favoriteBloc.state.isFavorite ? Icons.favorite : Icons.favorite_outline),
                             style: IconButton.styleFrom(
                               backgroundColor: AppColors.white,
                               shape: RoundedRectangleBorder(
@@ -105,13 +139,26 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                         ],
                         automaticallyImplyLeading: false,
                         automaticallyImplyActions: false,
-                        // surfaceTintColor: AppColors.background,
+                        elevation: 0.5,
+                        shadowColor: AppColors.background.withAlpha(200),
+                        surfaceTintColor: AppColors.primaryContainer,
                         backgroundColor: AppColors.background,
                         expandedHeight: 200,
-                        pinned: false,
                         floating: true,
-                        snap: true,
+                        pinned: true,
+                        title: AnimatedOpacity(
+                          opacity: _isAtTop ? 0 : 1,
+                          duration: Duration(milliseconds: 300),
+                          child: Text(
+                            state.data?.title ?? '',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                        centerTitle: true,
+                        snap: false,
                         flexibleSpace: FlexibleSpaceBar(
+                          centerTitle: true,
+                          expandedTitleScale: 1,
                           collapseMode: CollapseMode.pin,
                           background: Stack(
                             children: [
