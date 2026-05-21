@@ -21,6 +21,7 @@ class Dialog extends Equatable {
   final DateTime? updated_at;
   final DateTime? deleted_at;
   final Topic? topics;
+  final bool is_favorite;
 
   const Dialog({
     required this.id,
@@ -38,6 +39,7 @@ class Dialog extends Equatable {
     this.updated_at,
     this.deleted_at,
     this.topics,
+    this.is_favorite = false,
   });
 
   factory Dialog.fromJson(Map<String, dynamic> json) => _$DialogFromJson(json);
@@ -61,5 +63,6 @@ class Dialog extends Equatable {
     updated_at,
     deleted_at,
     topics,
+    is_favorite,
   ];
 }

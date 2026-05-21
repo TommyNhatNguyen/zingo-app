@@ -30,6 +30,7 @@ Dialog _$DialogFromJson(Map<String, dynamic> json) => Dialog(
   topics: json['topics'] == null
       ? null
       : Topic.fromJson(json['topics'] as Map<String, dynamic>),
+  is_favorite: json['is_favorite'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
@@ -48,4 +49,5 @@ Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
   'updated_at': instance.updated_at?.toIso8601String(),
   'deleted_at': instance.deleted_at?.toIso8601String(),
   'topics': instance.topics,
+  'is_favorite': instance.is_favorite,
 };

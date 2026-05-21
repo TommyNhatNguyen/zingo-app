@@ -9,19 +9,24 @@ class UserFavoriteDialogService {
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
+    final isFavorite = result.data?['is_favorite'] ?? false;
     if (result.success) {
-      return true;
+      return isFavorite;
     } else {
       throw Exception(result.error);
     }
   }
 
-  Future<void> removeFavorite(UsersFavoriteDialogDto payload) async {
+  Future<bool> removeFavorite(UsersFavoriteDialogDto payload) async {
     final response = await dio.delete(
-      '/v1/users/favorite-dialog/${payload.dialog_id}',
-      queryParameters: {'user_id': payload.user_id},
+      '/v1/users/favorite-dialog',
+      data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
-    if (!result.success) throw Exception(result.error);
+    if (result.success) {
+      return true;
+    } else {
+      throw Exception(result.error);
+    }
   }
 }

@@ -11,6 +11,7 @@ import 'package:zingo/blocs/dialog/detail/dialog_detail_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_state.dart';
 import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_bloc.dart';
 import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_event.dart';
+import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
@@ -78,57 +79,70 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
       );
     }
 
-    favoriteBloc.add(
-      FavoriteDialogAddEvent(
-        payload: UsersFavoriteDialogDto(
-          dialog_id: widget.id,
-          user_id: authBloc.state.data!.id,
+    if (bloc.state.data?.is_favorite == true) {
+      favoriteBloc.add(
+        FavoriteDialogRemoveEvent(
+          payload: UsersFavoriteDialogDto(
+            dialog_id: widget.id,
+            user_id: authBloc.state.data!.id,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      favoriteBloc.add(
+        FavoriteDialogAddEvent(
+          payload: UsersFavoriteDialogDto(
+            dialog_id: widget.id,
+            user_id: authBloc.state.data!.id,
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<DialogDetailBloc, DialogDetailState>(
-      listener: (context, state) {
-        if (state.requestStatus == RequestStatus.error) {
-          Toastification().show(
-            context: context,
-            type: ToastificationType.error,
-            style: ToastificationStyle.flat,
-            title: const Text('Error'),
-            description: Text(state.error ?? 'An error occurred'),
-            autoCloseDuration: const Duration(seconds: 4),
-          );
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: Skeletonizer(
-            enabled: state.requestStatus == RequestStatus.loading,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverAppBar(
-                        leading: IconButton(
-                          onPressed: () => context.pop(),
-                          icon: Icon(Icons.arrow_back),
-                          style: IconButton.styleFrom(
-                            backgroundColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                          ),
-                        ),
-                        actionsPadding: const EdgeInsets.only(right: 8),
-                        actions: [
-                          IconButton(
-                            onPressed: _onFavoritePressed,
-                            icon: Icon(favoriteBloc.state.isFavorite ? Icons.favorite : Icons.favorite_outline),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<FavoriteDialogBloc, FavoriteDialogState>(
+          listener: (context, state) {
+            if (state.requestStatus == RequestStatus.success) {
+              bloc.add(
+                DialogDetailFetchEvent(
+                  payload: DialogDetailPayload(id: widget.id),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: BlocConsumer<DialogDetailBloc, DialogDetailState>(
+        listener: (context, state) {
+          if (state.requestStatus == RequestStatus.error) {
+            Toastification().show(
+              context: context,
+              type: ToastificationType.error,
+              style: ToastificationStyle.flat,
+              title: const Text('Error'),
+              description: Text(state.error ?? 'An error occurred'),
+              autoCloseDuration: const Duration(seconds: 4),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            body: Skeletonizer(
+              enabled: state.requestStatus == RequestStatus.loading,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        SliverAppBar(
+                          leading: IconButton(
+                            onPressed: () => context.pop(),
+                            icon: Icon(Icons.arrow_back),
                             style: IconButton.styleFrom(
                               backgroundColor: AppColors.white,
                               shape: RoundedRectangleBorder(
@@ -136,341 +150,377 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                               ),
                             ),
                           ),
-                        ],
-                        automaticallyImplyLeading: false,
-                        automaticallyImplyActions: false,
-                        elevation: 0.5,
-                        shadowColor: AppColors.background.withAlpha(200),
-                        surfaceTintColor: AppColors.primaryContainer,
-                        backgroundColor: AppColors.background,
-                        expandedHeight: 200,
-                        floating: true,
-                        pinned: true,
-                        title: AnimatedOpacity(
-                          opacity: _isAtTop ? 0 : 1,
-                          duration: Duration(milliseconds: 300),
-                          child: Text(
-                            state.data?.title ?? '',
-                            style: Theme.of(context).textTheme.bodyMedium,
+                          actionsPadding: const EdgeInsets.only(right: 8),
+                          actions: [
+                            IconButton(
+                              onPressed: _onFavoritePressed,
+                              icon: Icon(
+                                state.data?.is_favorite ?? false
+                                    ? Icons.favorite
+                                    : Icons.favorite_outline,
+                                color: state.data?.is_favorite ?? false
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                              style: IconButton.styleFrom(
+                                backgroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                              ),
+                            ),
+                          ],
+                          automaticallyImplyLeading: false,
+                          automaticallyImplyActions: false,
+                          elevation: 0.5,
+                          shadowColor: AppColors.background.withAlpha(200),
+                          surfaceTintColor: AppColors.primaryContainer,
+                          backgroundColor: AppColors.background,
+                          expandedHeight: 200,
+                          floating: true,
+                          pinned: true,
+                          title: AnimatedOpacity(
+                            opacity: _isAtTop ? 0 : 1,
+                            duration: Duration(milliseconds: 300),
+                            child: Text(
+                              state.data?.title ?? '',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           ),
-                        ),
-                        centerTitle: true,
-                        snap: false,
-                        flexibleSpace: FlexibleSpaceBar(
                           centerTitle: true,
-                          expandedTitleScale: 1,
-                          collapseMode: CollapseMode.pin,
-                          background: Stack(
-                            children: [
-                              state.data?.thumbnail_url == null
-                                  ? Image.asset(
-                                      "assets/default-fallback-image.png",
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    )
-                                  : Image.network(
-                                      state.data?.thumbnail_url ?? '',
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
-                              Positioned(
-                                left: 8,
-                                bottom: 8,
-                                child: Chip(
-                                  avatar: Icon(Icons.folder_open_rounded),
-                                  label: Text(state.data?.topics?.name ?? ''),
-                                  backgroundColor: AppColors.white,
+                          snap: false,
+                          flexibleSpace: FlexibleSpaceBar(
+                            centerTitle: true,
+                            expandedTitleScale: 1,
+                            collapseMode: CollapseMode.pin,
+                            background: Stack(
+                              children: [
+                                state.data?.thumbnail_url == null
+                                    ? Image.asset(
+                                        "assets/default-fallback-image.png",
+                                        fit: BoxFit.cover,
+                                        height: double.infinity,
+                                        width: double.infinity,
+                                      )
+                                    : Image.network(
+                                        state.data?.thumbnail_url ?? '',
+                                        fit: BoxFit.cover,
+                                        height: double.infinity,
+                                        width: double.infinity,
+                                      ),
+                                Positioned(
+                                  left: 8,
+                                  bottom: 8,
+                                  child: Chip(
+                                    avatar: Icon(Icons.folder_open_rounded),
+                                    label: Text(state.data?.topics?.name ?? ''),
+                                    backgroundColor: AppColors.white,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 16,
-                            bottom: 32,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 16,
-                            children: [
-                              Text(
-                                state.data?.title ?? '',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
-                              ),
-                              Text(
-                                state.data?.description ?? '',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: AppColors.textSecondary),
-                              ),
-                              Transform.translate(
-                                offset: Offset(-3, 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  spacing: 8,
-                                  children: [
-                                    Chip(label: Text(state.data?.level ?? '')),
-                                    Chip(
-                                      label: Text(state.data?.duration ?? ''),
-                                    ),
-                                    Chip(
-                                      label: Text(
-                                        "${state.data?.conversation_length.toString()} turns",
+                        SliverToBoxAdapter(
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              top: 16,
+                              bottom: 32,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 16,
+                              children: [
+                                Text(
+                                  state.data?.title ?? '',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
+                                ),
+                                Text(
+                                  state.data?.description ?? '',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
                                       ),
-                                    ),
-                                  ],
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(16),
+                                Transform.translate(
+                                  offset: Offset(-3, 0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    spacing: 8,
+                                    children: [
+                                      Chip(
+                                        label: Text(state.data?.level ?? ''),
+                                      ),
+                                      Chip(
+                                        label: Text(state.data?.duration ?? ''),
+                                      ),
+                                      Chip(
+                                        label: Text(
+                                          "${state.data?.conversation_length.toString()} turns",
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  border: Border.all(color: AppColors.border),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.max,
-                                  spacing: 16,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "LAST",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      letterSpacing: 1.2,
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                              ),
-                                              Text(
-                                                "78",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineLarge
-                                                    ?.copyWith(
-                                                      color: AppColors.primary,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "BEST",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      letterSpacing: 1.2,
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                              ),
-                                              Text(
-                                                "85",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineLarge
-                                                    ?.copyWith(
-                                                      color:
-                                                          AppColors.highlight,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(16),
                                     ),
-                                    Chip(
-                                      backgroundColor:
-                                          AppColors.primaryContainer,
-                                      avatar: Icon(
-                                        Icons.add_circle,
-                                        color: AppColors.primary,
-                                        size: 16,
-                                      ),
-                                      label: Text(
-                                        "+7 · 3 tries",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
-                                            ?.copyWith(
-                                              color: AppColors.primary,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PraceticeModeForm(
-                                selectedMode: _selectedMode,
-                                onModeSelected: _onModeSelected,
-                              ),
-                              PracticeModePreview(selectedMode: _selectedMode),
-                              const HowItWorks(),
-                              const YoullBeScoredOn(),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.highlightContainer,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 10,
-                                  children: [
-                                    Icon(
-                                      Icons.lightbulb_outline,
-                                      size: 16,
-                                      color: AppColors.highlight,
-                                    ),
-                                    Expanded(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color:
-                                                    AppColors.textOnHighlight,
-                                              ),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisSize: MainAxisSize.max,
+                                    spacing: 16,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.max,
                                           children: [
-                                            TextSpan(
-                                              text: "Tip: ",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.highlight,
-                                              ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "LAST",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        letterSpacing: 1.2,
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                      ),
+                                                ),
+                                                Text(
+                                                  "78",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headlineLarge
+                                                      ?.copyWith(
+                                                        color:
+                                                            AppColors.primary,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
-                                            const TextSpan(
-                                              text:
-                                                  "Speak clearly. Pauses are fine — recording stops only when you tap again.",
+                                            const SizedBox(width: 16),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "BEST",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        letterSpacing: 1.2,
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                      ),
+                                                ),
+                                                Text(
+                                                  "85",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headlineLarge
+                                                      ?.copyWith(
+                                                        color:
+                                                            AppColors.highlight,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Chip(
+                                        backgroundColor:
+                                            AppColors.primaryContainer,
+                                        avatar: Icon(
+                                          Icons.add_circle,
+                                          color: AppColors.primary,
+                                          size: 16,
+                                        ),
+                                        label: Text(
+                                          "+7 · 3 tries",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                color: AppColors.primary,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    transformAlignment: AlignmentGeometry.xy(
-                      0,
-                      _isHideNavbar ? 1 : 0,
-                    ),
-                    transform: Matrix4.translationValues(
-                      0,
-                      _isHideNavbar ? 100 : 0,
-                      0,
-                    ),
-                    curve: Curves.ease,
-                    padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      border: Border(top: BorderSide(color: AppColors.border)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.mic_outlined),
-                            label: const Text("Start practice"),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.accent,
-                              foregroundColor: AppColors.white,
-                              elevation: 4,
-                              shadowColor: AppColors.accentLight.withAlpha(150),
-                              textStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                                PraceticeModeForm(
+                                  selectedMode: _selectedMode,
+                                  onModeSelected: _onModeSelected,
+                                ),
+                                PracticeModePreview(
+                                  selectedMode: _selectedMode,
+                                ),
+                                const HowItWorks(),
+                                const YoullBeScoredOn(),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.highlightContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    spacing: 10,
+                                    children: [
+                                      Icon(
+                                        Icons.lightbulb_outline,
+                                        size: 16,
+                                        color: AppColors.highlight,
+                                      ),
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      AppColors.textOnHighlight,
+                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: "Tip: ",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.highlight,
+                                                ),
+                                              ),
+                                              const TextSpan(
+                                                text:
+                                                    "Speak clearly. Pauses are fine — recording stops only when you tap again.",
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
-                            children: [
-                              TextSpan(text: "${_selectedMode.label} · up to "),
-                              TextSpan(
-                                text: "+45 XP",
-                                style: TextStyle(
-                                  color: AppColors.xp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      transformAlignment: AlignmentGeometry.xy(
+                        0,
+                        _isHideNavbar ? 1 : 0,
+                      ),
+                      transform: Matrix4.translationValues(
+                        0,
+                        _isHideNavbar ? 100 : 0,
+                        0,
+                      ),
+                      curve: Curves.ease,
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        border: Border(
+                          top: BorderSide(color: AppColors.border),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () {},
+                              icon: const Icon(Icons.mic_outlined),
+                              label: const Text("Start practice"),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.accent,
+                                foregroundColor: AppColors.white,
+                                elevation: 4,
+                                shadowColor: AppColors.accentLight.withAlpha(
+                                  150,
+                                ),
+                                textStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                              children: [
+                                TextSpan(
+                                  text: "${_selectedMode.label} · up to ",
+                                ),
+                                TextSpan(
+                                  text: "+45 XP",
+                                  style: TextStyle(
+                                    color: AppColors.xp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

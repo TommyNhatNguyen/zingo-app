@@ -5,11 +5,20 @@ class ApiResponse {
 
   ApiResponse({required this.success, this.data, this.error});
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
-    success: json['success'] ?? false,
-    data: json['data'],
-    error: json['error'],
-  );
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    if (json['data'] is bool) {
+      return ApiResponse(
+        success: json['success'] ?? false,
+        data: {'is_favorite': json['data']},
+        error: json['error'],
+      );
+    }
+    return ApiResponse(
+      success: json['success'] ?? false,
+      data: json['data'],
+      error: json['error'],
+    );
+  }
 
   factory ApiResponse.success(dynamic data) =>
       ApiResponse(success: true, data: data);
