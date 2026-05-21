@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
+import 'package:zingo/utils/capitalize_util.dart';
 
 class TopicCard extends StatelessWidget {
   final dialog_model.Dialog? dialog;
@@ -123,7 +124,12 @@ class TopicCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            dialog?.topics?.name ?? dialog?.title ?? "N/A",
+                            CapitalizeUtil.capitalize(
+                              text:
+                                  dialog?.topics?.name ??
+                                  dialog?.title ??
+                                  "N/A",
+                            ),
                             maxLines: 1,
                             softWrap: true,
                             overflow: TextOverflow.ellipsis,

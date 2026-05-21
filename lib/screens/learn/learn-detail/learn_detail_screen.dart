@@ -13,6 +13,7 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
 import 'package:zingo/screens/learn/widgets/favorite_dialog_trigger.dart';
+import 'package:zingo/utils/capitalize_util.dart';
 
 class LearnDetailScreen extends StatefulWidget {
   final String id;
@@ -120,7 +121,9 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                           opacity: _isAtTop ? 0 : 1,
                           duration: Duration(milliseconds: 300),
                           child: Text(
-                            state.data?.title ?? '',
+                            CapitalizeUtil.capitalize(
+                              text: state.data?.title ?? '',
+                            ),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -176,7 +179,9 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                             spacing: 16,
                             children: [
                               Text(
-                                state.data?.title ?? '',
+                                CapitalizeUtil.capitalize(
+                                  text: state.data?.title ?? '',
+                                ),
                                 style: Theme.of(
                                   context,
                                 ).textTheme.headlineMedium,
