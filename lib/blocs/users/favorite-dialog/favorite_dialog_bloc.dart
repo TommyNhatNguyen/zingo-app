@@ -9,7 +9,8 @@ class FavoriteDialogBloc
     extends Bloc<FavoriteDialogEvent, FavoriteDialogState> {
   final _service = UserFavoriteDialogService();
 
-  FavoriteDialogBloc() : super(FavoriteDialogState.initial()) {
+  FavoriteDialogBloc({bool initialIsFavorite = false})
+      : super(FavoriteDialogState(isFavorite: initialIsFavorite)) {
     on<FavoriteDialogAddEvent>((event, emit) async {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));

@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
-import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
@@ -142,11 +141,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       path: '/learn/:id',
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => DialogDetailBloc()),
-            BlocProvider(create: (_) => FavoriteDialogBloc()),
-          ],
+        return BlocProvider(
+          create: (_) => DialogDetailBloc(),
           child: LearnDetailScreen(id: id),
         );
       },
