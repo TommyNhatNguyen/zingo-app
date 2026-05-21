@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
@@ -34,7 +35,9 @@ class TopicCard extends StatelessWidget {
                         dialog?.thumbnail_url == null ||
                             dialog?.thumbnail_url?.isEmpty == true
                         ? AssetImage("assets/default-fallback-image.png")
-                        : NetworkImage(dialog?.thumbnail_url ?? ""),
+                        : CachedNetworkImageProvider(
+                            dialog?.thumbnail_url ?? "",
+                          ),
                     fit: BoxFit.cover,
                   ),
                 ),

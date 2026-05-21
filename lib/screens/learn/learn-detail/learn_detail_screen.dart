@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -195,19 +196,25 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                             collapseMode: CollapseMode.pin,
                             background: Stack(
                               children: [
-                                state.data?.thumbnail_url == null
-                                    ? Image.asset(
+                                CachedNetworkImage(
+                                  imageUrl: state.data?.thumbnail_url ?? '',
+                                  fit: BoxFit.cover,
+                                  height: double.infinity,
+                                  width: double.infinity,
+                                  placeholder: (context, url) => Skeletonizer(
+                                    enabled: true,
+                                    child: Container(
+                                      color: AppColors.background,
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
                                         "assets/default-fallback-image.png",
                                         fit: BoxFit.cover,
                                         height: double.infinity,
                                         width: double.infinity,
-                                      )
-                                    : Image.network(
-                                        state.data?.thumbnail_url ?? '',
-                                        fit: BoxFit.cover,
-                                        height: double.infinity,
-                                        width: double.infinity,
                                       ),
+                                ),
                                 Positioned(
                                   left: 8,
                                   bottom: 8,
