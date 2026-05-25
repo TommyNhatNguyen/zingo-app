@@ -412,6 +412,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                                   'practice_session_id':
                                       state.data?.practice_session_id ?? '',
                                   'dialog_id': widget.id,
+                                  'pracetice_mode': _selectedMode,
                                 },
                               );
                             },

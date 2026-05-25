@@ -66,6 +66,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
         final practiceSessionId =
             (state.extra as Map<String, dynamic>?)?['practice_session_id'];
         final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
+        final praceticeMode = (state.extra as Map<String, dynamic>?)?['pracetice_mode'];
         return NoTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
@@ -73,13 +74,15 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
               ..add(
                 DialogTurnsListByDialogFetchEvent(
                   payload: DialogTurnsByDialogIdPayload(
-                    dialogId: dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
+                    dialogId:
+                        dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
                   ),
                 ),
               ),
             child: PracticeScreen(
               practiceSessionId: practiceSessionId ?? '',
               dialogId: dialogId ?? '',
+              praceticeMode: praceticeMode ?? PracticeMode.readAloud,
             ),
           ),
         );
