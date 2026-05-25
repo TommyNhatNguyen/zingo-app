@@ -13,6 +13,7 @@ import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
+import 'package:zingo/models/dialog.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/home/home_screen.dart';
@@ -66,7 +67,10 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
         final practiceSessionId =
             (state.extra as Map<String, dynamic>?)?['practice_session_id'];
         final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
-        final praceticeMode = (state.extra as Map<String, dynamic>?)?['pracetice_mode'];
+        final praceticeMode =
+            (state.extra as Map<String, dynamic>?)?['pracetice_mode'];
+        final dialog =
+            (state.extra as Map<String, dynamic>?)?['dialog'] as Dialog?;
         return NoTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
@@ -83,6 +87,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
               practiceSessionId: practiceSessionId ?? '',
               dialogId: dialogId ?? '',
               praceticeMode: praceticeMode ?? PracticeMode.readAloud,
+              dialog: dialog,
             ),
           ),
         );

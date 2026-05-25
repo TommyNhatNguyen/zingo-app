@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
+import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/dialog_turn.dart';
 import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/services/cache_service.dart';
@@ -20,10 +22,12 @@ class PracticeScreen extends StatefulWidget {
     this.practiceSessionId = '1c11f53a-d653-4e1d-97e2-242e82ebe22b',
     this.dialogId = '13febbdf-a74c-4904-bc3b-c22bdec6a327',
     this.praceticeMode = PracticeMode.readAloud,
+    this.dialog,
   });
   final String practiceSessionId;
   final String dialogId;
   final PracticeMode praceticeMode;
+  final dialog_model.Dialog? dialog;
   @override
   State<PracticeScreen> createState() => _PracticeScreenState();
 }
@@ -45,6 +49,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ),
       ),
     );
+    print(widget.dialog);
   }
 
   void _toggleAudio(int index) async {
@@ -92,8 +97,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.practiceSessionId);
-    print(widget.dialogId);
     return BlocConsumer<
       DialogTurnsListByDialogBloc,
       DialogTurnsListByDialogState
@@ -119,7 +122,50 @@ class _PracticeScreenState extends State<PracticeScreen> {
       builder: (context, state) {
         final turns = state.data ?? [];
         return Scaffold(
-          appBar: AppBar(title: Text('Practice')),
+          appBar: AppBar(
+            centerTitle: false,
+            leading: IconButton(
+              onPressed: () => context.go("/learn"),
+              icon: Icon(Icons.arrow_back),
+            ),
+            automaticallyImplyLeading: false,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.dialog?.title ?? "N/A",
+                        style: Theme.of(context).textTheme.titleSmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "${1} of ${widget.dialog?.conversation_length ?? (((turns.length + 1) / 2)).round()} turns",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value:
+                      1 /
+                      (widget.dialog?.conversation_length ??
+                          (turns.length + 1)),
+                  borderRadius: BorderRadius.circular(36),
+                  backgroundColor: AppColors.divider,
+                  color: AppColors.primary,
+                  minHeight: 4,
+                ),
+              ],
+            ),
+          ),
           body: Chat(
             currentUserId: 'user1',
             resolveUser: (UserID id) async {
