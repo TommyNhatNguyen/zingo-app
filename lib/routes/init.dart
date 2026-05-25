@@ -4,18 +4,22 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
+import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
+import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/home/home_screen.dart';
 import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/learn/learn_screen.dart';
 import 'package:zingo/screens/onboarding/onboarding_screen.dart';
+import 'package:zingo/screens/practice/practice_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
 
@@ -34,27 +38,53 @@ class GoRouterRefreshStream extends ChangeNotifier {
 }
 
 GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
-  initialLocation: '/learn/ef8f3029-c801-4a6c-b0ff-0c957d736f63',
+  // initialLocation: '/login',
   // initialLocation: '/learn',
+  initialLocation: '/practice',
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
-    final location = state.matchedLocation;
-    final user = context.read<AuthBloc>().state.user;
-    final isSplashRoute = location == '/splash';
-    final isLoginRoute = location == '/login';
-    final isRegisterRoute = location == '/register';
+    // final location = state.matchedLocation;
+    // final user = context.read<AuthBloc>().state.user;
+    // final isSplashRoute = location == '/splash';
+    // final isLoginRoute = location == '/login';
+    // final isRegisterRoute = location == '/register';
 
-    if (user != null && isSplashRoute) {
-      return '/home';
-    }
+    // if (user != null && isSplashRoute) {
+    //   return '/home';
+    // }
 
-    if (user == null && !(isSplashRoute || isLoginRoute || isRegisterRoute)) {
-      return '/login';
-    }
+    // if (user == null && !(isSplashRoute || isLoginRoute || isRegisterRoute)) {
+    //   return '/login';
+    // }
 
-    return null;
+    // return null;
   },
   routes: [
+    GoRoute(
+      path: '/practice',
+      pageBuilder: (context, state) {
+        final practiceSessionId =
+            (state.extra as Map<String, dynamic>?)?['practice_session_id'];
+        final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (context) => DialogTurnsListByDialogBloc()
+              ..add(
+                DialogTurnsListByDialogFetchEvent(
+                  payload: DialogTurnsByDialogIdPayload(
+                    dialogId: dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
+                  ),
+                ),
+              ),
+            child: PracticeScreen(
+              practiceSessionId: practiceSessionId ?? '',
+              dialogId: dialogId ?? '',
+            ),
+          ),
+        );
+      },
+    ),
     GoRoute(
       path: '/splash',
       pageBuilder: (context, state) {

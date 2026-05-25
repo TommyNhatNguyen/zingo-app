@@ -10,7 +10,7 @@ DialogTurn _$DialogTurnFromJson(Map<String, dynamic> json) => DialogTurn(
   id: json['id'] as String,
   dialog_id: json['dialog_id'] as String,
   turn_order: (json['turn_order'] as num).toInt(),
-  speaker: json['speaker'] as String,
+  speaker: $enumDecode(_$SpeakerEnumMap, json['speaker']),
   line_text: json['line_text'] as String,
   context_note: json['context_note'] as String?,
   expected_answer: json['expected_answer'] as String?,
@@ -31,7 +31,7 @@ Map<String, dynamic> _$DialogTurnToJson(DialogTurn instance) =>
       'id': instance.id,
       'dialog_id': instance.dialog_id,
       'turn_order': instance.turn_order,
-      'speaker': instance.speaker,
+      'speaker': _$SpeakerEnumMap[instance.speaker]!,
       'line_text': instance.line_text,
       'context_note': instance.context_note,
       'expected_answer': instance.expected_answer,
@@ -40,3 +40,5 @@ Map<String, dynamic> _$DialogTurnToJson(DialogTurn instance) =>
       'updated_at': instance.updated_at?.toIso8601String(),
       'deleted_at': instance.deleted_at?.toIso8601String(),
     };
+
+const _$SpeakerEnumMap = {Speaker.ai: 'ai', Speaker.user: 'user'};

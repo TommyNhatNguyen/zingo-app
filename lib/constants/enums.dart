@@ -97,3 +97,26 @@ enum EnglishLevel {
     }
   }
 }
+
+enum Speaker {
+  ai,
+  user;
+
+  String get value {
+    switch (this) {
+      case Speaker.ai:
+        return 'ai';
+      case Speaker.user:
+        return 'user';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case Speaker.ai:
+        return 'AI';
+      case Speaker.user:
+        return 'User';
+    }
+  }
+}

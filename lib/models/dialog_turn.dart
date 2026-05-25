@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:zingo/constants/enums.dart';
 
 part 'dialog_turn.g.dart';
 
@@ -8,7 +9,7 @@ class DialogTurn extends Equatable {
   final String id;
   final String dialog_id;
   final int turn_order;
-  final String speaker;
+  final Speaker speaker;
   final String line_text;
   final String? context_note;
   final String? expected_answer;

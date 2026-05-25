@@ -1,18 +1,11 @@
 class ApiResponse {
   final bool success;
-  final Map<String, dynamic>? data;
+  final dynamic data;
   final String? error;
 
   ApiResponse({required this.success, this.data, this.error});
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    if (json['data'] is bool) {
-      return ApiResponse(
-        success: json['success'] ?? false,
-        data: {'is_favorite': json['data']},
-        error: json['error'],
-      );
-    }
     return ApiResponse(
       success: json['success'] ?? false,
       data: json['data'],

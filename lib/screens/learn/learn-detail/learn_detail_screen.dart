@@ -80,6 +80,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
         }
       },
       builder: (context, state) {
+        final hasPracticeSession = state.data?.practice_session_id != null;
         return Scaffold(
           body: Skeletonizer(
             enabled: state.requestStatus == RequestStatus.loading,
@@ -115,8 +116,9 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                         surfaceTintColor: AppColors.primaryContainer,
                         backgroundColor: AppColors.background,
                         expandedHeight: 200,
-                        floating: true,
+                        floating: false,
                         pinned: true,
+                        snap: false,
                         title: AnimatedOpacity(
                           opacity: _isAtTop ? 0 : 1,
                           duration: Duration(milliseconds: 300),
@@ -128,7 +130,6 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                           ),
                         ),
                         centerTitle: true,
-                        snap: false,
                         flexibleSpace: FlexibleSpaceBar(
                           centerTitle: true,
                           expandedTitleScale: 1,
@@ -404,14 +405,31 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.pushReplacement(
+                                '/practice',
+                                extra: {
+                                  'practice_session_id':
+                                      state.data?.practice_session_id ?? '',
+                                  'dialog_id': widget.id,
+                                },
+                              );
+                            },
                             icon: const Icon(Icons.mic_outlined),
-                            label: const Text("Start practice"),
+                            label: Text(
+                              hasPracticeSession
+                                  ? "Resume practice"
+                                  : "Start practice",
+                            ),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.accent,
+                              backgroundColor: hasPracticeSession
+                                  ? AppColors.primary
+                                  : AppColors.accent,
                               foregroundColor: AppColors.white,
                               elevation: 4,
-                              shadowColor: AppColors.accentLight.withAlpha(150),
+                              shadowColor: hasPracticeSession
+                                  ? AppColors.primaryLight.withAlpha(150)
+                                  : AppColors.accentLight.withAlpha(150),
                               textStyle: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

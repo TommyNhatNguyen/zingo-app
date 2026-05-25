@@ -31,6 +31,7 @@ Dialog _$DialogFromJson(Map<String, dynamic> json) => Dialog(
       ? null
       : Topic.fromJson(json['topics'] as Map<String, dynamic>),
   is_favorite: json['is_favorite'] as bool? ?? false,
+  practice_session_id: json['practice_session_id'] as String?,
 );
 
 Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
@@ -50,4 +51,5 @@ Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
   'deleted_at': instance.deleted_at?.toIso8601String(),
   'topics': instance.topics,
   'is_favorite': instance.is_favorite,
+  'practice_session_id': instance.practice_session_id,
 };

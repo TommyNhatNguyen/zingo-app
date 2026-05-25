@@ -7,7 +7,7 @@ abstract final class AppTheme {
   static ThemeData get light {
     const colorScheme = ColorScheme(
       brightness: Brightness.light,
-      primary: AppColors.primary,
+      primary: Color(0xFF0891B2),
       onPrimary: AppColors.textOnPrimary,
       primaryContainer: AppColors.primaryContainer,
       onPrimaryContainer: AppColors.primaryDark,
