@@ -15,6 +15,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Zingo uses speech recognition to evaluate your English responses.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Zingo needs your microphone to record your spoken responses to evaluate your English responses.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

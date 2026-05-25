@@ -31,6 +31,7 @@ dependencies:
   flutter_cache_manager: ^3.4.1
   just_audio: ^0.10.5
   lottie: ^3.3.3
+  speech_to_text: ^7.4.0
 
 dev_dependencies:
   flutter_test:
