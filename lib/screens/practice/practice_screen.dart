@@ -34,6 +34,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   final _chatController = InMemoryChatController();
   final List<AudioPlayer> _audioPlayers = [];
   final List<bool> _isPlaying = [];
+  final Set<int> _showContextNote = {};
   @override
   void initState() {
     super.initState();
@@ -194,6 +195,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                             child: Row(
                                               children: [
                                                 IconButton.filled(
+                                                  tooltip: 'Play audio',
                                                   onPressed: () =>
                                                       _toggleAudio(index),
                                                   icon:
@@ -214,6 +216,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                         ),
                                                 ),
                                                 IconButton.outlined(
+                                                  tooltip: 'Translate',
                                                   style: ButtonStyle(
                                                     backgroundColor:
                                                         WidgetStateProperty.all(
@@ -226,11 +229,55 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                     size: 20,
                                                   ),
                                                 ),
+                                                if (turn?.context_note != null)
+                                                  IconButton.outlined(
+                                                    tooltip: 'Context note',
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            _showContextNote
+                                                                    .contains(
+                                                                      index,
+                                                                    )
+                                                                ? AppColors
+                                                                      .primaryContainer
+                                                                : AppColors
+                                                                      .white,
+                                                          ),
+                                                    ),
+                                                    onPressed: () => setState(
+                                                      () {
+                                                        _showContextNote
+                                                                .contains(index)
+                                                            ? _showContextNote
+                                                                  .remove(index)
+                                                            : _showContextNote
+                                                                  .add(index);
+                                                      },
+                                                    ),
+                                                    icon: Icon(
+                                                      Icons.info_outline,
+                                                      size: 20,
+                                                    ),
+                                                  ),
                                               ],
                                             ),
                                           ),
                                         ],
                                       ),
+                                      if (_showContextNote.contains(index) &&
+                                          turn?.context_note != null) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          turn!.context_note!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -268,16 +315,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                       ).textTheme.bodyLarge,
                                     ),
                                     const SizedBox(height: 8),
-                                    Text(
-                                      "Context: ${turn?.context_note ?? 'no context'}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
@@ -290,6 +327,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           child: Row(
                                             children: [
                                               IconButton.filled(
+                                                tooltip: 'Play audio',
                                                 onPressed: () =>
                                                     _toggleAudio(index),
                                                 icon:
@@ -310,17 +348,61 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                       ),
                                               ),
                                               IconButton.outlined(
+                                                tooltip: 'Translate',
                                                 onPressed: () {},
                                                 icon: Icon(
                                                   Icons.translate_outlined,
                                                   size: 20,
                                                 ),
                                               ),
+                                              if (turn?.context_note != null)
+                                                IconButton.outlined(
+                                                  tooltip: 'Context note',
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStateProperty.all(
+                                                          _showContextNote
+                                                                  .contains(
+                                                                    index,
+                                                                  )
+                                                              ? AppColors
+                                                                    .primaryContainer
+                                                              : AppColors.white,
+                                                        ),
+                                                  ),
+                                                  onPressed: () => setState(() {
+                                                    _showContextNote.contains(
+                                                          index,
+                                                        )
+                                                        ? _showContextNote
+                                                              .remove(index)
+                                                        : _showContextNote.add(
+                                                            index,
+                                                          );
+                                                  }),
+                                                  icon: Icon(
+                                                    Icons.info_outline,
+                                                    size: 20,
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
+                                    if (_showContextNote.contains(index) &&
+                                        turn?.context_note != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        turn!.context_note!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
