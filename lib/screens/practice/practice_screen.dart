@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -7,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
@@ -38,14 +41,20 @@ class PracticeScreen extends StatefulWidget {
 class _PracticeScreenState extends State<PracticeScreen> {
   DialogTurnsListByDialogBloc get bloc =>
       context.read<DialogTurnsListByDialogBloc>();
+
   final _chatController = InMemoryChatController();
+  int get currentTurnIndex => _chatController.messages.length - 1;
+  String? _playingDialogTurnID;
+
+  final Map<String, File> _audioFiles = {};
+  final Map<String, String> _recognizedTexts = {};
+
   final _audioPlayer = AudioPlayer();
   final SpeechToText _speechToText = SpeechToText();
   final Set<int> _showContextNote = {};
-  int _isPlayingIndex = -1;
-  bool _speechEnabled = false;
+
   String _recognizedText = '';
-  int _currentTurnIndex = 0;
+  bool _speechEnabled = false;
   bool _isEndTurn = false;
 
   @override
@@ -59,15 +68,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _initSpeech();
   }
 
-  Future<void> _loadNextTurn() async {
-    final data = bloc.state.data;
-    if (data == null || data.isEmpty) return;
-    if (_currentTurnIndex + 1 >= data.length) {
-      setState(() => _isEndTurn = true);
-      return;
-    }
-    final turn = data[_currentTurnIndex];
-    final nextTurn = data[_currentTurnIndex + 1];
+  Future<void> _insertTurn({required DialogTurn turn}) async {
     await _chatController.insertMessage(
       TextMessage(
         id: turn.id,
@@ -75,72 +76,173 @@ class _PracticeScreenState extends State<PracticeScreen> {
         text: turn.line_text,
       ),
     );
-    if (turn.speaker == Speaker.ai) {
-      await _playSound(_currentTurnIndex);
-    }
-    await _chatController.insertMessage(
-      TextMessage(
-        id: nextTurn.id,
-        authorId: nextTurn.speaker.value,
-        text: nextTurn.line_text,
-      ),
-    );
-    setState(() => _currentTurnIndex += 2);
   }
 
-  Future<void> _playSound(int index) async {
-    if (_isPlayingIndex != -1) return;
-    setState(() => _isPlayingIndex = index);
-    if (_audioPlayer.playerState.playing) return;
-    if (bloc.state.data == null || bloc.state.data!.isEmpty) return;
-    final turn = bloc.state.data![index];
-    final file = await AudioCacheService.getFileOrDownload(
-      turn.tts_model_audio_url ?? '',
-    );
-    await _audioPlayer.setUrl(file.uri.toString());
-    await _audioPlayer.play();
+  Future<void> _playVoice({required String audioUrl}) async {
+    // Make sure the player is stopped and at the beginning
     await _audioPlayer.seek(Duration.zero);
     await _audioPlayer.pause();
-    setState(() => _isPlayingIndex = -1);
+    // Load and play
+    await _audioPlayer.setUrl(audioUrl);
+    await _audioPlayer.play();
+    // Reset and pause
+    await _audioPlayer.seek(Duration.zero);
+    await _audioPlayer.pause();
   }
 
-  void _initSpeech() async {
+  Future<bool> _playVoiceDialogTurn({required DialogTurn turn}) async {
+    if (_audioPlayer.playerState.playing ||
+        _playingDialogTurnID != null ||
+        turn.tts_model_audio_url == null) {
+      return false;
+    }
+    try {
+      var file = _audioFiles[turn.id];
+      if (file == null) {
+        file = await AudioCacheService.getFileOrDownload(
+          turn.tts_model_audio_url!,
+        );
+        if (!mounted) return false;
+        _audioFiles[turn.id] = file;
+      }
+      setState(() => _playingDialogTurnID = turn.id);
+      await _playVoice(audioUrl: file.uri.toString());
+    } finally {
+      if (mounted) setState(() => _playingDialogTurnID = null);
+    }
+    return true;
+  }
+
+  Future<void> _loadDialogTurns() async {
+    final turns = bloc.state.data ?? [];
+    if (turns.isEmpty || turns.length <= (currentTurnIndex + 1)) return;
+
+    final currentTurn = turns.elementAt(currentTurnIndex + 1);
+    await _insertTurn(turn: currentTurn);
+
+    if (currentTurn.speaker == Speaker.user) return;
+    if (currentTurn.speaker == Speaker.ai) {
+      await _playVoiceDialogTurn(turn: currentTurn);
+      await _loadDialogTurns();
+      return;
+    }
+  }
+
+  Future<void> _initSpeech() async {
     _speechEnabled = await _speechToText.initialize(
-      onError: (error) => debugPrint('STT error: $error'),
+      onError: (error) {
+        if (error.errorMsg == "error_no_match") {
+          Toastification().show(
+            context: context,
+            type: ToastificationType.warning,
+            style: ToastificationStyle.flat,
+            title: const Text('Speak to the microphone clearly'),
+            description: Text('Make sure your voice is clear and loud'),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
+        }
+        debugPrint('STT error: $error');
+        setState(() {});
+      },
       onStatus: (status) {
-        if (mounted) setState(() {});
+        debugPrint('STT status: $status');
+        debugPrint('STT status is listening: ${_speechToText.isListening}');
+        debugPrint('STT status has error: ${_speechToText.hasError}');
+        debugPrint('STT status has recognized: ${_speechToText.hasRecognized}');
+        debugPrint('STT status last status: ${_speechToText.lastStatus}');
+        debugPrint(
+          'STT status last sound level: ${_speechToText.lastSoundLevel}',
+        );
+        debugPrint('STT status is available: ${_speechToText.isAvailable}');
+        debugPrint("--------------------------------");
+        if (status == "done" &&
+            (!_speechToText.hasRecognized || _recognizedText.isEmpty) &&
+            _speechToText.lastSoundLevel <= 0) {
+          Toastification().show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            title: const Text('No speech recognized'),
+            description: Text('Please speak clearly and loudly'),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
+          return;
+        }
+        setState(() {});
       },
     );
-    if (mounted) setState(() {});
+    setState(() {});
   }
 
-  void _toggleListening() async {
-    if (_isPlayingIndex != -1) return;
-    if (_isEndTurn) return;
+  void _toggleSpeechListening() async {
+    if (_playingDialogTurnID != null) return;
+    final totalTurns =
+        bloc.state.data?.length ?? widget.dialog?.conversation_length ?? 0;
+    // If no turns, do nothing
+    if (totalTurns == 0) return;
+    // Retry init speech if not enabled
+    if (!_speechEnabled) {
+      await _initSpeech();
+      return;
+    }
     try {
       if (_speechToText.isListening) {
         await _speechToText.stop();
-        await _loadNextTurn();
-      } else {
-        setState(() => _recognizedText = '');
+        // Check if end turn
+        final isEndTurn = (currentTurnIndex + 1) == totalTurns;
+        if (isEndTurn) {
+          setState(() => _isEndTurn = true);
+        }
+        return;
+      }
+      if (_speechToText.isNotListening) {
+        setState(() {
+          _recognizedText = '';
+        });
         await _speechToText.listen(
           onResult: _onSpeechResult,
           listenOptions: SpeechListenOptions(
-            listenFor: const Duration(minutes: 2),
+            listenFor: const Duration(minutes: 1),
             pauseFor: const Duration(seconds: 5),
-            cancelOnError: false,
+            cancelOnError: true,
           ),
         );
+        return;
       }
     } catch (e) {
       debugPrint('STT error: $e');
+      Toastification().show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        title: const Text('Error while speaking'),
+        description: Text('Please try again'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+    } finally {
+      setState(() {});
     }
-    if (mounted) setState(() {});
   }
 
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    if (!mounted) return;
-    setState(() => _recognizedText = result.recognizedWords);
+  Future<void> _onSpeechResult(SpeechRecognitionResult result) async {
+    final currentTurn = bloc.state.data?[currentTurnIndex];
+    setState(() {
+      _recognizedText = result.recognizedWords;
+      _recognizedTexts[currentTurn!.id] = result.recognizedWords;
+    });
+
+    print("Current turn index: $currentTurnIndex");
+    if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: const Text('Speech recognized'),
+        description: Text('Loading next turn'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      await _loadDialogTurns();
+    }
   }
 
   @override
@@ -160,11 +262,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
       listener: (context, state) async {
         if (state.requestStatus == RequestStatus.success &&
             state.data != null) {
-          await _loadNextTurn();
+          await _loadDialogTurns();
         }
       },
       builder: (context, state) {
         final turns = state.data ?? [];
+        final totalTurns =
+            ((state.data?.length ?? widget.dialog?.conversation_length ?? 1) /
+                    2)
+                .ceil();
+        final currentTurn = ((currentTurnIndex + 1) / 2).ceil();
+        final progress = (currentTurn + 1) / (totalTurns + 1);
         return Scaffold(
           appBar: AppBar(
             centerTitle: false,
@@ -187,17 +295,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "1 of ${widget.dialog?.conversation_length ?? (((turns.length + 1) / 2)).round()} turns",
+                      "$currentTurn of $totalTurns turns",
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 LinearProgressIndicator(
-                  value:
-                      1 /
-                      (widget.dialog?.conversation_length ??
-                          (turns.length + 1)),
+                  value: progress,
                   borderRadius: BorderRadius.circular(36),
                   backgroundColor: AppColors.divider,
                   color: AppColors.primary,
@@ -227,13 +332,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           required isSentByMe,
                         }) {
                           final turn = turns.isNotEmpty ? turns[index] : null;
+                          final isPlaying =
+                              _playingDialogTurnID == turn?.id &&
+                              _playingDialogTurnID != null;
+
                           if (turn?.speaker == Speaker.ai) {
                             return _AiMessage(
                               turn: turn,
                               index: index,
-                              isPlaying: _isPlayingIndex == index,
+                              isPlaying: isPlaying,
                               showContextNote: _showContextNote.contains(index),
-                              onPlay: () => _playSound(index),
+                              onPlay: () => _playVoiceDialogTurn(turn: turn!),
                               onToggleContextNote: () => setState(() {
                                 _showContextNote.contains(index)
                                     ? _showContextNote.remove(index)
@@ -244,9 +353,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           return _UserMessage(
                             turn: turn,
                             index: index,
-                            isPlaying: _isPlayingIndex == index,
+                            isPlaying: isPlaying,
                             showContextNote: _showContextNote.contains(index),
-                            onPlay: () => _playSound(index),
+                            onPlay: () => _playVoiceDialogTurn(turn: turn!),
+                            recognizedText: turn != null
+                                ? _recognizedTexts[turn.id] ?? ''
+                                : '',
                             onToggleContextNote: () => setState(() {
                               _showContextNote.contains(index)
                                   ? _showContextNote.remove(index)
@@ -267,18 +379,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     IconButton.filledTonal(
                       onPressed: (_isEndTurn || !_speechEnabled)
                           ? null
-                          : _toggleListening,
-                      style: _speechToText.isListening
-                          ? ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                AppColors.accent,
-                              ),
-                            )
-                          : null,
+                          : _toggleSpeechListening,
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          _speechToText.isListening
+                              ? AppColors.accent
+                              : AppColors.accentLight,
+                        ),
+                      ),
                       icon: Icon(
                         _speechToText.isListening
                             ? Icons.mic
-                            : Icons.mic_outlined,
+                            : Icons.mic_none_outlined,
                         size: 40,
                       ),
                     ),
@@ -435,6 +547,7 @@ class _UserMessage extends StatelessWidget {
     required this.showContextNote,
     required this.onPlay,
     required this.onToggleContextNote,
+    required this.recognizedText,
   });
 
   final DialogTurn? turn;
@@ -443,7 +556,7 @@ class _UserMessage extends StatelessWidget {
   final bool showContextNote;
   final VoidCallback onPlay;
   final VoidCallback onToggleContextNote;
-
+  final String recognizedText;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -467,9 +580,53 @@ class _UserMessage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      turn?.line_text ?? '',
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    Text.rich(
+                      TextSpan(
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        children:
+                            turn?.line_text
+                                .split(" ")
+                                .map((word) {
+                                  final cleanWord = word.replaceAll(
+                                    RegExp(r'[^a-zA-Z0-9]'),
+                                    '',
+                                  );
+                                  final cleanRecognizedText = recognizedText
+                                      .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+                                  final isInRecognizedText =
+                                      cleanWord.isNotEmpty &&
+                                      cleanRecognizedText
+                                          .toLowerCase()
+                                          .contains(cleanWord.toLowerCase());
+                                  return [
+                                    TextSpan(
+                                      text: word,
+                                      style: isInRecognizedText
+                                          ? Theme.of(
+                                              context,
+                                            ).textTheme.bodyLarge?.copyWith(
+                                              color: AppColors.scoreHigh,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationStyle:
+                                                  TextDecorationStyle.dashed,
+                                            )
+                                          : Theme.of(
+                                              context,
+                                            ).textTheme.bodyLarge?.copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationStyle:
+                                                  TextDecorationStyle.dashed,
+                                            ),
+                                    ),
+                                    TextSpan(text: "  "),
+                                  ];
+                                })
+                                .expand((e) => e)
+                                .toList() ??
+                            [],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Transform.translate(
