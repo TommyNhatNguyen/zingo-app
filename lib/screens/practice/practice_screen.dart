@@ -5,6 +5,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_state.dart';
 import 'package:zingo/services/cache_service.dart';
 import 'package:zingo/services/speech_to_text_service.dart';
+import 'package:zingo/utils/debounce_util.dart';
 
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({
@@ -43,7 +45,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late final InMemoryChatController _chatController;
   late final PracticeScreenBloc _practiceScreenBloc;
   late final AudioPlayer _audioPlayer;
+  final ValueNotifier<String?> _recognizedText = ValueNotifier<String?>(null);
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
+  final DebounceUtil _debouncer = DebounceUtil(milliseconds: 300);
 
   @override
   void initState() {
@@ -127,9 +131,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     try {
       _practiceScreenBloc.add(PracticeScreenStartListeningEvent());
       await _speechToTextController.listen(
-        onResult: (result) {
-          print('Speaking Result: $result');
-        },
+        onResult: _onRecognizedText,
         listenOptions: SpeechListenOptions(
           listenFor: const Duration(minutes: 1),
           pauseFor: const Duration(seconds: 5),
@@ -142,10 +144,39 @@ class _PracticeScreenState extends State<PracticeScreen> {
       );
       print('Listening isAvailable: ${_speechToTextController.isAvailable}');
       _speechToTextController.statusListener = (status) {
-        print('Listening Status: $status');
+        print(
+          'Listening Status: $status ${_recognizedText.value} ${_practiceScreenBloc.state.isListening}',
+        );
+        if (status == "done" && _practiceScreenBloc.state.isListening) {
+          _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
+        }
+        if (status == "done" && !_practiceScreenBloc.state.isListening) {
+          if (_recognizedText.value == null) {
+            Toastification().show(
+              context: context,
+              type: ToastificationType.warning,
+              style: ToastificationStyle.flat,
+              title: const Text('Not recognized'),
+              description: Text("Please try to speak louder"),
+              autoCloseDuration: const Duration(seconds: 4),
+            );
+          }
+        }
       };
       _speechToTextController.errorListener = (error) {
         print('Listening Error: $error');
+        // if (_practiceScreenBloc.state.isListening &&
+        //     error.errorMsg == "error_no_match") {
+        //   _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
+        //   Toastification().show(
+        //     context: context,
+        //     type: ToastificationType.error,
+        //     style: ToastificationStyle.flat,
+        //     title: const Text('Not recognized'),
+        //     description: Text("Please try to speak louder"),
+        //     autoCloseDuration: const Duration(seconds: 4),
+        //   );
+        // }
       };
       print("--------------------------------");
     } catch (e) {
@@ -176,6 +207,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
         autoCloseDuration: const Duration(seconds: 4),
       );
     }
+  }
+
+  Future<void> _debounceToggleSpeaking() async {
+    if (_practiceScreenBloc.state.isListening) {
+      _debouncer.run(() => _stopSpeaking());
+    } else {
+      _debouncer.run(() => _startSpeaking());
+    }
+  }
+
+  void _onRecognizedText(SpeechRecognitionResult result) {
+    _recognizedText.value = result.recognizedWords;
   }
 
   void _continueToNextDialogTurn() {}
@@ -304,9 +347,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         tooltip: 'Start speaking',
                         onPressed: !speechToTextState.isEnabled
                             ? null
-                            : state.isListening
-                            ? _stopSpeaking
-                            : _startSpeaking,
+                            : _debounceToggleSpeaking,
                         icon: !speechToTextState.isEnabled
                             ? Icon(Icons.mic_off)
                             : state.isListening
