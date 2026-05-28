@@ -24,6 +24,11 @@ class _MainAppState extends State<MainApp> {
   final AuthBloc _authBloc = AuthBloc();
 
   @override
+  void initState() { 
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _authBloc.close();
     super.dispose();

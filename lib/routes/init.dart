@@ -20,6 +20,8 @@ import 'package:zingo/screens/home/home_screen.dart';
 import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/learn/learn_screen.dart';
 import 'package:zingo/screens/onboarding/onboarding_screen.dart';
+import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
+import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/practice_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
@@ -73,16 +75,24 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             (state.extra as Map<String, dynamic>?)?['dialog'] as Dialog?;
         return NoTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (context) => DialogTurnsListByDialogBloc()
-              ..add(
-                DialogTurnsListByDialogFetchEvent(
-                  payload: DialogTurnsByDialogIdPayload(
-                    dialogId:
-                        dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => DialogTurnsListByDialogBloc()
+                  ..add(
+                    DialogTurnsListByDialogFetchEvent(
+                      payload: DialogTurnsByDialogIdPayload(
+                        dialogId:
+                            dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
+                      ),
+                    ),
                   ),
-                ),
               ),
+              BlocProvider(
+                create: (context) =>
+                    PracticeScreenBloc()..add(PracticeScreenInitializeEvent()),
+              ),
+            ],
             child: PracticeScreen(
               practiceSessionId: practiceSessionId ?? '',
               dialogId: dialogId ?? '',
