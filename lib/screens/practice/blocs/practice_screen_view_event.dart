@@ -77,3 +77,13 @@ class PracticeScreenRecognizedTextEvent extends PracticeScreenEvent {
   @override
   List<Object?> get props => [recognizedText, dialogTurnId];
 }
+
+class PracticeScreenShouldPlayNextDialogTurnEvent extends PracticeScreenEvent {
+  final bool shouldPlayNextDialogTurn;
+  const PracticeScreenShouldPlayNextDialogTurnEvent({
+    required this.shouldPlayNextDialogTurn,
+  });
+
+  @override
+  List<Object?> get props => [shouldPlayNextDialogTurn];
+}

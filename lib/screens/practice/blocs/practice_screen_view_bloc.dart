@@ -13,6 +13,9 @@ class PracticeScreenBloc
     on<PracticeScreenStartListeningEvent>(_onStartListening);
     on<PracticeScreenStopListeningEvent>(_onStopListening);
     on<PracticeScreenRecognizedTextEvent>(_onRecognizedText);
+    on<PracticeScreenShouldPlayNextDialogTurnEvent>(
+      _onShouldPlayNextDialogTurn,
+    );
   }
 
   void _onInitialize(
@@ -35,6 +38,7 @@ class PracticeScreenBloc
         isEndTurn: event.payload.isEndTurn,
         error: event.payload.error,
         isListening: event.payload.isListening,
+        shouldPlayNextDialogTurn: event.payload.shouldPlayNextDialogTurn,
       ),
     );
   }
@@ -90,6 +94,15 @@ class PracticeScreenBloc
           event.dialogTurnId: event.recognizedText,
         },
       ),
+    );
+  }
+
+  void _onShouldPlayNextDialogTurn(
+    PracticeScreenShouldPlayNextDialogTurnEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(
+      state.copyWith(shouldPlayNextDialogTurn: event.shouldPlayNextDialogTurn),
     );
   }
 }

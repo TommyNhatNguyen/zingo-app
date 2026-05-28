@@ -6,6 +6,7 @@ class PracticeScreenViewState extends Equatable {
   final int currentTurnIndex;
   final String? playingDialogTurnID;
   final bool isListening;
+  final bool shouldPlayNextDialogTurn;
 
   final Map<String, String>? recognizedTexts;
   final bool? isEndTurn;
@@ -19,6 +20,7 @@ class PracticeScreenViewState extends Equatable {
     this.isEndTurn = false,
     this.error,
     this.isListening = false,
+    this.shouldPlayNextDialogTurn = false,
   });
 
   PracticeScreenViewState copyWith({
@@ -26,11 +28,11 @@ class PracticeScreenViewState extends Equatable {
     String? playingDialogTurnID,
     bool clearPlayingDialogTurnID = false,
     Map<String, String>? recognizedTexts,
-    int? totalTurns,
     List<DialogTurn>? turns,
     bool? isEndTurn,
     String? error,
     bool? isListening,
+    bool? shouldPlayNextDialogTurn,
   }) {
     return PracticeScreenViewState(
       currentTurnIndex: currentTurnIndex ?? this.currentTurnIndex,
@@ -42,6 +44,8 @@ class PracticeScreenViewState extends Equatable {
       isEndTurn: isEndTurn ?? this.isEndTurn,
       error: error ?? this.error,
       isListening: isListening ?? this.isListening,
+      shouldPlayNextDialogTurn:
+          shouldPlayNextDialogTurn ?? this.shouldPlayNextDialogTurn,
     );
   }
 
@@ -54,5 +58,6 @@ class PracticeScreenViewState extends Equatable {
     turns,
     error,
     isListening,
+    shouldPlayNextDialogTurn,
   ];
 }

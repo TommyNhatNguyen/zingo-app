@@ -154,16 +154,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
           pauseFor: const Duration(seconds: 5),
         ),
       );
-      print('Listening isListening: ${_speechToTextController.isListening}');
-      print('Listening hasError: ${_speechToTextController.hasError}');
-      print(
-        'Listening hasRecognized: ${_speechToTextController.hasRecognized}',
-      );
-      print('Listening isAvailable: ${_speechToTextController.isAvailable}');
       _speechToTextController.statusListener = (status) {
-        print(
-          'Listening Status: $status ${_recognizedText.value} ${_practiceScreenBloc.state.isListening}',
-        );
+        print('Listening Status: $status');
         if (status == "done" && _practiceScreenBloc.state.isListening) {
           _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
           Toastification().show(
@@ -224,17 +216,52 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Future<void> _debounceToggleSpeaking() async {
     if (_practiceScreenBloc.state.isListening) {
-      _debouncer.run(() => _stopSpeaking());
+      _debouncer.run(() async {
+        await _stopSpeaking();
+      });
     } else {
-      _debouncer.run(() => _startSpeaking());
+      _debouncer.run(() async {
+        await _startSpeaking();
+      });
     }
   }
 
   void _onRecognizedText(SpeechRecognitionResult result) {
     _recognizedText.value = result.recognizedWords;
+    if (result.finalResult &&
+        !_practiceScreenBloc.state.isListening &&
+        result.recognizedWords.isNotEmpty) {
+      final currentTurn = _practiceScreenBloc
+          .state
+          .turns?[_practiceScreenBloc.state.currentTurnIndex];
+      if (currentTurn == null) return;
+      _practiceScreenBloc.add(
+        PracticeScreenRecognizedTextEvent(
+          recognizedText: _recognizedText.value!,
+          dialogTurnId: currentTurn.id,
+        ),
+      );
+      _practiceScreenBloc.add(
+        PracticeScreenShouldPlayNextDialogTurnEvent(
+          shouldPlayNextDialogTurn: true,
+        ),
+      );
+    }
   }
 
-  void _continueToNextDialogTurn() {}
+  Future<void> _continueToNextDialogTurn() async {
+    final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
+    if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) return;
+    final nextTurn = _practiceScreenBloc.state.turns?[nextTurnIndex];
+    if (nextTurn == null) return;
+    _practiceScreenBloc.add(
+      PracticeScreenShouldPlayNextDialogTurnEvent(
+        shouldPlayNextDialogTurn: false,
+      ),
+    );
+    _recognizedText.value = null;
+    await _insertDialogTurn(turn: nextTurn, currentTurnIndex: nextTurnIndex);
+  }
 
   // -------------------------------------------------------------------------
   // Build
@@ -258,19 +285,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
           },
         ),
         BlocListener<PracticeScreenBloc, PracticeScreenViewState>(
+          listenWhen: (previous, current) {
+            return current.turns?.isNotEmpty ?? false;
+          },
           listener: (context, state) {
-            if (!state.isListening && _recognizedText.value != null) {
-              final turns = state.turns;
-              if (turns == null || state.currentTurnIndex >= turns.length)
-                return;
-              final currentTurn = turns[state.currentTurnIndex];
-              _practiceScreenBloc.add(
-                PracticeScreenRecognizedTextEvent(
-                  recognizedText: _recognizedText.value!,
-                  dialogTurnId: currentTurn.id,
-                ),
-              );
-            }
+            if (!state.isListening && _recognizedText.value != null) {}
           },
         ),
       ],
@@ -373,22 +392,39 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                       height: 100,
                       width: double.infinity,
-                      child: IconButton.filled(
-                        tooltip: 'Start speaking',
-                        onPressed:
-                            (!speechToTextState.isEnabled ||
-                                state.playingDialogTurnID != null)
-                            ? null
-                            : _debounceToggleSpeaking,
-                        icon:
-                            (!speechToTextState.isEnabled ||
-                                state.playingDialogTurnID != null)
-                            ? Icon(Icons.mic_off)
-                            : state.isListening
-                            ? Icon(Icons.mic_off, size: 40)
-                            : Icon(Icons.mic, size: 40),
-                      ),
+                      child: state.shouldPlayNextDialogTurn
+                          ? FilledButton(
+                              onPressed: _continueToNextDialogTurn,
+                              child: const Text("Continue"),
+                            )
+                          : IconButton.filled(
+                              tooltip: 'Start speaking',
+                              onPressed:
+                                  (!speechToTextState.isEnabled ||
+                                      state.playingDialogTurnID != null)
+                                  ? null
+                                  : _debounceToggleSpeaking,
+                              icon:
+                                  (!speechToTextState.isEnabled ||
+                                      state.playingDialogTurnID != null)
+                                  ? Icon(Icons.mic_off, size: 40)
+                                  : state.isListening
+                                  ? Lottie.asset(
+                                      'assets/sound_voice_waves.json',
+                                      width: 40,
+                                      height: 40,
+                                      repeat: true,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Icon(Icons.mic, size: 40),
+                            ),
                     );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _recognizedText,
+                  builder: (context, value, child) {
+                    return Text(_recognizedText.value ?? '');
                   },
                 ),
               ],
