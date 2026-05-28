@@ -358,29 +358,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             );
                             final isPlaying =
                                 state.playingDialogTurnID == turn.id;
-                            // if (turn.speaker == Speaker.ai) {
-                            return _AiMessage(
+                            if (turn.speaker == Speaker.ai) {
+                              return _AiMessage(
+                                turn: turn,
+                                index: index,
+                                isPlaying: isPlaying,
+                                onPlay: () => _playDialogTurnAudio(turn: turn),
+                              );
+                            }
+                            return _UserMessage(
                               turn: turn,
                               index: index,
                               isPlaying: isPlaying,
                               onPlay: () => _playDialogTurnAudio(turn: turn),
+                              recognizedText:
+                                  state.recognizedTexts?[turn.id] ?? '',
                             );
-                            // }
-                            // return _UserMessage(
-                            //   turn: turn,
-                            //   index: index,
-                            //   isPlaying: isPlaying,
-                            //   showContextNote: _showContextNote.contains(index),
-                            //   onPlay: () => _playVoiceDialogTurn(turn: turn!),
-                            //   recognizedText: turn != null
-                            //       ? (state.recognizedTexts?[turn.id] ?? '')
-                            //       : '',
-                            //   onToggleContextNote: () => setState(() {
-                            //     _showContextNote.contains(index)
-                            //         ? _showContextNote.remove(index)
-                            //         : _showContextNote.add(index);
-                            //   }),
-                            // );
                           },
                       composerBuilder: (context) => const SizedBox.shrink(),
                     ),
@@ -576,24 +569,32 @@ class _AiMessageState extends State<_AiMessage> {
   }
 }
 
-class _UserMessage extends StatelessWidget {
+class _UserMessage extends StatefulWidget {
   const _UserMessage({
     required this.turn,
     required this.index,
     required this.isPlaying,
-    required this.showContextNote,
     required this.onPlay,
-    required this.onToggleContextNote,
     required this.recognizedText,
   });
 
   final DialogTurn? turn;
   final int index;
   final bool isPlaying;
-  final bool showContextNote;
   final VoidCallback onPlay;
-  final VoidCallback onToggleContextNote;
   final String recognizedText;
+  @override
+  State<_UserMessage> createState() => _UserMessageState();
+}
+
+class _UserMessageState extends State<_UserMessage> {
+  bool _isShowContextNote = false;
+
+  void _toggleContextNote() {
+    setState(() {
+      _isShowContextNote = !_isShowContextNote;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -622,14 +623,14 @@ class _UserMessage extends StatelessWidget {
                       TextSpan(
                         style: Theme.of(context).textTheme.bodyLarge,
                         children:
-                            turn?.line_text
+                            widget.turn?.line_text
                                 .split(' ')
                                 .map((word) {
                                   final cleanWord = word.replaceAll(
                                     RegExp(r'[^a-zA-Z0-9]'),
                                     '',
                                   );
-                                  final cleanRecognized = recognizedText
+                                  final cleanRecognized = widget.recognizedText
                                       .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
                                   final matched =
                                       cleanWord.isNotEmpty &&
@@ -673,8 +674,8 @@ class _UserMessage extends StatelessWidget {
                         children: [
                           IconButton.filled(
                             tooltip: 'Play audio',
-                            onPressed: onPlay,
-                            icon: isPlaying
+                            onPressed: widget.onPlay,
+                            icon: widget.isPlaying
                                 ? Lottie.asset(
                                     'assets/sound_voice_waves.json',
                                     width: 20,
@@ -695,26 +696,27 @@ class _UserMessage extends StatelessWidget {
                               size: 20,
                             ),
                           ),
-                          if (turn?.context_note != null)
+                          if (widget.turn?.context_note != null)
                             IconButton.outlined(
                               tooltip: 'Context note',
                               style: ButtonStyle(
                                 backgroundColor: WidgetStateProperty.all(
-                                  showContextNote
+                                  _isShowContextNote
                                       ? AppColors.primaryContainer
                                       : AppColors.white,
                                 ),
                               ),
-                              onPressed: onToggleContextNote,
+                              onPressed: _toggleContextNote,
                               icon: const Icon(Icons.info_outline, size: 20),
                             ),
                         ],
                       ),
                     ),
-                    if (showContextNote && turn?.context_note != null) ...[
+                    if (_isShowContextNote &&
+                        widget.turn?.context_note != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        turn!.context_note!,
+                        widget.turn!.context_note!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontStyle: FontStyle.italic,
                         ),
