@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/speech-to-text/speech_to_text_bloc.dart';
+import 'package:zingo/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/config/app_theme.dart';
 import 'package:zingo/routes/init.dart';
 
@@ -21,23 +23,31 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  final AuthBloc _authBloc = AuthBloc();
+  late final AuthBloc _authBloc;
+  late final SpeechToTextBloc _speechToTextBloc;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
+    _authBloc = AuthBloc();
+    _speechToTextBloc = SpeechToTextBloc()
+      ..add(const SpeechToTextInitializeEvent());
   }
 
   @override
   void dispose() {
     _authBloc.close();
+    _speechToTextBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _authBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _authBloc),
+        BlocProvider.value(value: _speechToTextBloc),
+      ],
       child: MaterialApp.router(
         theme: AppTheme.light,
         routerConfig: buildRoutes(_authBloc),

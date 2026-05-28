@@ -3,16 +3,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
+import 'package:zingo/blocs/speech-to-text/speech_to_text_bloc.dart';
+import 'package:zingo/blocs/speech-to-text/speech_to_text_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/dialog_turn.dart';
 import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
+import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/services/cache_service.dart';
+import 'package:zingo/services/speech_to_text_service.dart';
 
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({
@@ -32,292 +40,145 @@ class PracticeScreen extends StatefulWidget {
 }
 
 class _PracticeScreenState extends State<PracticeScreen> {
-  // // Services — not state, live locally
-  final _chatController = InMemoryChatController();
-  // final _audioPlayer = AudioPlayer();
-  // SpeechToText get _speechToText => SpeechToTextService.instance;
-
-  // // Tracks message count so the submit button rebuilds when turns are inserted.
-  // final _messageCount = ValueNotifier<int>(0);
-
-  // // Context note visibility is pure UI — no need in the bloc
-  // final Set<int> _showContextNote = {};
-
-  // PracticeScreenBloc get bloc => context.read<PracticeScreenBloc>();
-  // DialogTurnsListByDialogBloc get dialogTurnsBloc =>
-  //     context.read<DialogTurnsListByDialogBloc>();
-
-  // int get currentTurnIndex => _chatController.messages.length - 1;
+  late final InMemoryChatController _chatController;
+  late final PracticeScreenBloc _practiceScreenBloc;
+  late final AudioPlayer _audioPlayer;
+  SpeechToText get _speechToTextController => SpeechToTextService.instance;
 
   @override
   void initState() {
     super.initState();
-    // dialogTurnsBloc.add(
-    //   DialogTurnsListByDialogFetchEvent(
-    //     payload: DialogTurnsByDialogIdPayload(dialogId: widget.dialogId),
-    //   ),
-    // );
-    // _initSpeech();
+    _chatController = InMemoryChatController();
+    _practiceScreenBloc = context.read<PracticeScreenBloc>();
+    _audioPlayer = AudioPlayer();
   }
 
   @override
   void dispose() {
-    // _chatController.dispose();
-    // _audioPlayer.dispose();
-    // _messageCount.dispose();
     super.dispose();
   }
 
-  void _insertDialogTurn() {}
-  void _playDialogTurnAudio() {}
-  void _stopDialogTurnAudio() {}
-  void _startSpeaking() {}
-  void _stopSpeaking() {}
+  Future<void> _insertDialogTurn({
+    required DialogTurn turn,
+    required int currentTurnIndex,
+  }) async {
+    await _chatController.insertMessage(
+      TextMessage(
+        id: turn.id,
+        authorId: turn.speaker.value,
+        text: turn.line_text,
+        metadata: turn.toJson(),
+      ),
+      index: currentTurnIndex,
+    );
+    _practiceScreenBloc.add(
+      PracticeScreenInsertDialogTurnEvent(
+        turn: turn,
+        currentTurnIndex: currentTurnIndex,
+      ),
+    );
+  }
+
+  Future<void> _playAudio({required String audioUrl}) async {
+    await _audioPlayer.setUrl(audioUrl);
+    await _audioPlayer.play();
+    await _audioPlayer.pause();
+    await _audioPlayer.seek(Duration.zero);
+  }
+
+  Future<void> _playDialogTurnAudio({required DialogTurn turn}) async {
+    final currentPlayingDialogTurnID =
+        _practiceScreenBloc.state.playingDialogTurnID;
+    if (currentPlayingDialogTurnID == turn.id) {
+      return;
+    }
+    if (turn.tts_model_audio_url == null) {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        title: const Text('Error'),
+        description: Text("This turn does not have an audio yet!"),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      return;
+    }
+
+    final file = await AudioCacheService.instance.getSingleFile(
+      turn.tts_model_audio_url!,
+    );
+
+    _practiceScreenBloc.add(
+      PracticeScreenPlayDialogTurnAudioEvent(
+        turn: turn,
+        clearPlayingDialogTurnID: false,
+      ),
+    );
+    await _playAudio(audioUrl: file.uri.toString());
+    _practiceScreenBloc.add(
+      PracticeScreenPlayDialogTurnAudioEvent(
+        turn: null,
+        clearPlayingDialogTurnID: true,
+      ),
+    );
+  }
+
+  Future<void> _startSpeaking() async {
+    try {
+      _practiceScreenBloc.add(PracticeScreenStartListeningEvent());
+      await _speechToTextController.listen(
+        onResult: (result) {
+          print('Speaking Result: $result');
+        },
+        listenOptions: SpeechListenOptions(
+          listenFor: const Duration(minutes: 1),
+          pauseFor: const Duration(seconds: 5),
+        ),
+      );
+      print('Listening isListening: ${_speechToTextController.isListening}');
+      print('Listening hasError: ${_speechToTextController.hasError}');
+      print(
+        'Listening hasRecognized: ${_speechToTextController.hasRecognized}',
+      );
+      print('Listening isAvailable: ${_speechToTextController.isAvailable}');
+      _speechToTextController.statusListener = (status) {
+        print('Listening Status: $status');
+      };
+      _speechToTextController.errorListener = (error) {
+        print('Listening Error: $error');
+      };
+      print("--------------------------------");
+    } catch (e) {
+      print('Error Starting Speaking: ${e.toString()}');
+      Toastification().show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        title: const Text('Error Starting Speaking'),
+        description: Text(e.toString()),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+    }
+  }
+
+  Future<void> _stopSpeaking() async {
+    try {
+      _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
+      await _speechToTextController.stop();
+    } catch (e) {
+      print('Error Stopping Speaking: ${e.toString()}');
+      Toastification().show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        title: const Text('Error Stopping Speaking'),
+        description: Text(e.toString()),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+    }
+  }
+
   void _continueToNextDialogTurn() {}
-
-  // -------------------------------------------------------------------------
-  // Audio / chat
-  // -------------------------------------------------------------------------
-
-  // Future<void> _insertTurn({required DialogTurn turn}) async {
-  //   await _chatController.insertMessage(
-  //     TextMessage(
-  //       id: turn.id,
-  //       authorId: turn.speaker.value,
-  //       text: turn.line_text,
-  //     ),
-  //   );
-  //   _messageCount.value = _chatController.messages.length;
-  // }
-
-  // Future<void> _playVoice({required String audioUrl}) async {
-  //   await _audioPlayer.seek(Duration.zero);
-  //   await _audioPlayer.pause();
-  //   await _audioPlayer.setUrl(audioUrl);
-  //   await _audioPlayer.play();
-  //   await _audioPlayer.seek(Duration.zero);
-  //   await _audioPlayer.pause();
-  // }
-
-  // Future<bool> _playVoiceDialogTurn({required DialogTurn turn}) async {
-  //   if (_audioPlayer.playerState.playing ||
-  //       bloc.state.playingDialogTurnID != null ||
-  //       turn.tts_model_audio_url == null) {
-  //     return false;
-  //   }
-  //   try {
-  //     var file = bloc.state.audioFiles?[turn.id];
-  //     if (file == null) {
-  //       final downloaded = await AudioCacheService.getFileOrDownload(
-  //         turn.tts_model_audio_url!,
-  //       );
-  //       if (!mounted) return false;
-  //       file = downloaded;
-  //       bloc.change((s) => s.copyWith(
-  //         audioFiles: {...?s.audioFiles, turn.id: downloaded},
-  //       ));
-  //     }
-  //     bloc.change((s) => s.copyWith(playingDialogTurnID: turn.id));
-  //     await _playVoice(audioUrl: file.uri.toString());
-  //   } finally {
-  //     if (mounted) {
-  //       bloc.change((s) => s.copyWith(clearPlayingDialogTurnID: true));
-  //     }
-  //   }
-  //   return true;
-  // }
-
-  // Future<void> _loadDialogTurns(List<DialogTurn> turns) async {
-  //   if (turns.isEmpty || turns.length <= (currentTurnIndex + 1)) return;
-
-  //   final nextTurn = turns.elementAt(currentTurnIndex + 1);
-  //   await _insertTurn(turn: nextTurn);
-
-  //   if (nextTurn.speaker == Speaker.user) return;
-  //   if (nextTurn.speaker == Speaker.ai) {
-  //     await _playVoiceDialogTurn(turn: nextTurn);
-  //     await _loadDialogTurns(turns);
-  //   }
-  // }
-
-  // -------------------------------------------------------------------------
-  // Speech
-  // -------------------------------------------------------------------------
-
-  // Future<void> _initSpeech() async {
-  //   if (SpeechToTextService.instance.isAvailable) {
-  //     if (mounted) bloc.change((s) => s.copyWith(speechEnabled: true));
-  //     return;
-  //   }
-  //   final enabled = await SpeechToTextService.initialize(
-  //     onError: (error) {
-  //       debugPrint('STT error: $error');
-  //     },
-  //     onStatus: (status) {
-  //       debugPrint(
-  //         'STT $status | listening:${_speechToText.isListening}'
-  //         ' | recognized:${_speechToText.hasRecognized}'
-  //         ' | sound:${_speechToText.lastSoundLevel}',
-  //       );
-  //       // Guard: skip toast during warm-up (no turns loaded yet).
-  //       final onUserTurn = currentTurnIndex >= 0;
-  //       if (status == 'done' &&
-  //           onUserTurn &&
-  //           !_speechToText.hasRecognized &&
-  //           bloc.state.recognizedText.isEmpty &&
-  //           _speechToText.lastSoundLevel <= 0) {
-  //         Toastification().show(
-  //           context: context,
-  //           type: ToastificationType.error,
-  //           style: ToastificationStyle.flat,
-  //           title: const Text('No speech recognized'),
-  //           description: const Text('Please speak clearly and loudly'),
-  //           autoCloseDuration: const Duration(seconds: 4),
-  //         );
-  //       }
-  //       bloc.change((s) => s.copyWith(isListening: _speechToText.isListening));
-  //     },
-  //   );
-
-  //   if (enabled) {
-  //     // Pre-warm AVAudioEngine so the first user-triggered listen() starts instantly.
-  //     await _speechToText.listen(
-  //       onResult: (_) {},
-  //       listenOptions: SpeechListenOptions(
-  //         listenFor: const Duration(seconds: 1),
-  //         pauseFor: const Duration(seconds: 1),
-  //       ),
-  //     );
-  //     await _speechToText.stop();
-  //   }
-
-  //   if (mounted) {
-  //     bloc.change((s) => s.copyWith(speechEnabled: enabled));
-  //   }
-  // }
-
-  // void _toggleSpeechListening() async {
-  //   if (bloc.state.playingDialogTurnID != null) return;
-  //   final totalTurns =
-  //       bloc.state.turns?.length ?? widget.dialog?.conversation_length ?? 0;
-  //   if (totalTurns == 0) return;
-
-  //   try {
-  //     if (_speechToText.isListening) {
-  //       // Manual stop: go straight to Finish if on the last turn.
-  //       if ((currentTurnIndex + 1) == totalTurns) {
-  //         bloc.change((s) => s.copyWith(isEndTurn: true));
-  //       }
-  //       bloc.change((s) => s.copyWith(recognizedText: ''));
-  //       await _speechToText.stop();
-  //       return;
-  //     }
-  //     if (_speechToText.isNotListening) {
-  //       await _speechToText.listen(
-  //         onResult: _onSpeechResult,
-  //         listenOptions: SpeechListenOptions(
-  //           listenFor: const Duration(minutes: 1),
-  //           pauseFor: const Duration(seconds: 5),
-  //           cancelOnError: true,
-  //           enableHapticFeedback: true,
-  //         ),
-  //       );
-  //       bloc.change((s) => s.copyWith(isListening: true));
-  //       return;
-  //     }
-  //   } catch (e) {
-  //     debugPrint('STT toggle error: $e');
-  //     Toastification().show(
-  //       context: context,
-  //       type: ToastificationType.error,
-  //       style: ToastificationStyle.flat,
-  //       title: const Text('Error while speaking'),
-  //       description: const Text('Please try again'),
-  //       autoCloseDuration: const Duration(seconds: 4),
-  //     );
-  //   }
-  // }
-
-  // Future<void> _onSpeechResult(SpeechRecognitionResult result) async {
-  //   if (currentTurnIndex < 0) return;
-  //   final currentTurn = bloc.state.turns?[currentTurnIndex];
-  //   if (currentTurn == null) return;
-
-  //   bloc.change((s) => s.copyWith(
-  //     recognizedText: result.recognizedWords,
-  //     recognizedTexts: {...?s.recognizedTexts, currentTurn.id: result.recognizedWords},
-  //   ));
-
-  //   if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
-  //     // Auto-stop after recognition so the Continue button can appear.
-  //     await _speechToText.stop();
-  //     if (mounted) bloc.change((s) => s.copyWith(recognizedText: ''));
-  //   }
-  // }
-
-  // -------------------------------------------------------------------------
-  // Submit button
-  // -------------------------------------------------------------------------
-
-  // Widget _buildSubmitButton() {
-  //   final turns = bloc.state.turns ?? [];
-
-  //   if (bloc.state.isEndTurn == true) {
-  //     return FilledButton.icon(
-  //       style: ButtonStyle(
-  //         backgroundColor: WidgetStateProperty.all(AppColors.scoreHigh),
-  //       ),
-  //       icon: const Icon(Icons.check_circle_outline),
-  //       onPressed: () => context.go('/learn'),
-  //       label: const Text('Finish practice'),
-  //     );
-  //   }
-
-  //   final currentTurn = (turns.isNotEmpty && currentTurnIndex >= 0)
-  //       ? turns.elementAt(currentTurnIndex)
-  //       : null;
-  //   final isPracticed =
-  //       currentTurn != null &&
-  //       bloc.state.recognizedTexts?[currentTurn.id]?.isNotEmpty == true;
-
-  //   if (isPracticed &&
-  //       bloc.state.recognizedText.isEmpty &&
-  //       bloc.state.playingDialogTurnID == null) {
-  //     return FilledButton(
-  //       style: ButtonStyle(
-  //         backgroundColor: WidgetStateProperty.all(AppColors.primary),
-  //       ),
-  //       onPressed: () async {
-  //         if ((currentTurnIndex + 1) >= turns.length) {
-  //           bloc.change((s) => s.copyWith(isEndTurn: true));
-  //           return;
-  //         }
-  //         await _loadDialogTurns(turns);
-  //       },
-  //       child: const Text('Continue'),
-  //     );
-  //   }
-
-  //   final isAllowSpeak =
-  //       bloc.state.speechEnabled && bloc.state.playingDialogTurnID == null;
-  //   return IconButton.filled(
-  //     onPressed: isAllowSpeak ? _toggleSpeechListening : null,
-  //     style: ButtonStyle(
-  //       backgroundColor: WidgetStateProperty.all(
-  //         isAllowSpeak ? AppColors.primary : AppColors.primaryLight,
-  //       ),
-  //     ),
-  //     icon: bloc.state.isListening
-  //         ? Lottie.asset(
-  //             'assets/sound_voice_waves.json',
-  //             width: 40,
-  //             height: 40,
-  //             repeat: true,
-  //             fit: BoxFit.cover,
-  //           )
-  //         : Icon(isAllowSpeak ? Icons.mic : Icons.mic_off, size: 40),
-  //   );
-  // }
 
   // -------------------------------------------------------------------------
   // Build
@@ -330,7 +191,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
         BlocListener<DialogTurnsListByDialogBloc, DialogTurnsListByDialogState>(
           listener: (context, state) async {
             if (state.requestStatus == RequestStatus.success &&
-                state.data != null) {}
+                state.data != null) {
+              _practiceScreenBloc.add(
+                PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
+              );
+              final firstTurn = state.data!.first;
+              await _insertDialogTurn(turn: firstTurn, currentTurnIndex: 0);
+            }
           },
         ),
       ],
@@ -394,28 +261,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             isRemoved,
                             required isSentByMe,
                           }) {
-                            // final turn = turns.isNotEmpty ? turns[index] : null;
-                            // final isPlaying =
-                            //     state.playingDialogTurnID != null &&
-                            //     state.playingDialogTurnID == turn?.id;
-
-                            return const SizedBox.shrink();
-
-                            // if (turn?.speaker == Speaker.ai) {
-                            //   return _AiMessage(
-                            //     turn: turn,
-                            //     index: index,
-                            //     isPlaying: isPlaying,
-                            //     showContextNote: _showContextNote.contains(
-                            //       index,
-                            //     ),
-                            //     onPlay: () => _playVoiceDialogTurn(turn: turn!),
-                            //     onToggleContextNote: () => setState(() {
-                            //       _showContextNote.contains(index)
-                            //           ? _showContextNote.remove(index)
-                            //           : _showContextNote.add(index);
-                            //     }),
-                            //   );
+                            final turn = DialogTurn.fromJson(
+                              message.metadata ?? {},
+                            );
+                            final isPlaying =
+                                state.playingDialogTurnID == turn.id;
+                            // if (turn.speaker == Speaker.ai) {
+                            return _AiMessage(
+                              turn: turn,
+                              index: index,
+                              isPlaying: isPlaying,
+                              onPlay: () => _playDialogTurnAudio(turn: turn),
+                            );
                             // }
                             // return _UserMessage(
                             //   turn: turn,
@@ -437,12 +294,27 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                  height: 100,
-                  width: double.infinity,
-                  // child: _buildSubmitButton(),
-                  child: const SizedBox.shrink(),
+                BlocBuilder<SpeechToTextBloc, SpeechToTextState>(
+                  builder: (context, speechToTextState) {
+                    return Container(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                      height: 100,
+                      width: double.infinity,
+                      child: IconButton.filled(
+                        tooltip: 'Start speaking',
+                        onPressed: !speechToTextState.isEnabled
+                            ? null
+                            : state.isListening
+                            ? _stopSpeaking
+                            : _startSpeaking,
+                        icon: !speechToTextState.isEnabled
+                            ? Icon(Icons.mic_off)
+                            : state.isListening
+                            ? Icon(Icons.mic_off, size: 40)
+                            : Icon(Icons.mic, size: 40),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -457,22 +329,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
 // Message widgets
 // ---------------------------------------------------------------------------
 
-class _AiMessage extends StatelessWidget {
+class _AiMessage extends StatefulWidget {
   const _AiMessage({
     required this.turn,
     required this.index,
     required this.isPlaying,
-    required this.showContextNote,
     required this.onPlay,
-    required this.onToggleContextNote,
   });
 
   final DialogTurn? turn;
   final int index;
   final bool isPlaying;
-  final bool showContextNote;
   final VoidCallback onPlay;
-  final VoidCallback onToggleContextNote;
+
+  @override
+  State<_AiMessage> createState() => _AiMessageState();
+}
+
+class _AiMessageState extends State<_AiMessage> {
+  bool _isShowContextNote = false;
+
+  void _toggleContextNote() {
+    setState(() {
+      _isShowContextNote = !_isShowContextNote;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -512,7 +393,7 @@ class _AiMessage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      turn?.line_text ?? '',
+                      widget.turn?.line_text ?? '',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
@@ -522,8 +403,8 @@ class _AiMessage extends StatelessWidget {
                         children: [
                           IconButton.filled(
                             tooltip: 'Play audio',
-                            onPressed: onPlay,
-                            icon: isPlaying
+                            onPressed: widget.onPlay,
+                            icon: widget.isPlaying
                                 ? Lottie.asset(
                                     'assets/sound_voice_waves.json',
                                     width: 20,
@@ -549,31 +430,30 @@ class _AiMessage extends StatelessWidget {
                               size: 20,
                             ),
                           ),
-                          if (turn?.context_note != null)
+                          if (widget.turn?.context_note != null)
                             IconButton.outlined(
                               tooltip: 'Context note',
                               style: ButtonStyle(
                                 backgroundColor: WidgetStateProperty.all(
-                                  showContextNote
+                                  _isShowContextNote
                                       ? AppColors.primaryContainer
                                       : AppColors.white,
                                 ),
                               ),
-                              onPressed: onToggleContextNote,
+                              onPressed: _toggleContextNote,
                               icon: const Icon(Icons.info_outline, size: 20),
                             ),
                         ],
                       ),
                     ),
-                    if (showContextNote && turn?.context_note != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        turn!.context_note!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
+                    const SizedBox(height: 8),
+                    _isShowContextNote
+                        ? Text(
+                            widget.turn?.context_note ?? '',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontStyle: FontStyle.italic),
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),

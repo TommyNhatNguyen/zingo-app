@@ -7,6 +7,11 @@ class PracticeScreenBloc
   PracticeScreenBloc() : super(const PracticeScreenViewState()) {
     on<PracticeScreenInitializeEvent>(_onInitialize);
     on<PracticeScreenChangeEvent>(_onChange);
+    on<PracticeScreenInsertDialogTurnEvent>(_onInsertDialogTurn);
+    on<PracticeScreenLoadDialogTurnsEvent>(_onLoadDialogTurns);
+    on<PracticeScreenPlayDialogTurnAudioEvent>(_onPlayDialogTurnAudio);
+    on<PracticeScreenStartListeningEvent>(_onStartListening);
+    on<PracticeScreenStopListeningEvent>(_onStopListening);
   }
 
   void _onInitialize(
@@ -22,18 +27,55 @@ class PracticeScreenBloc
   ) {
     emit(
       state.copyWith(
-        currentTurn: event.payload.currentTurn,
+        currentTurnIndex: event.payload.currentTurnIndex,
         playingDialogTurnID: event.payload.playingDialogTurnID,
         audioFiles: event.payload.audioFiles,
         recognizedTexts: event.payload.recognizedTexts,
-        totalTurns: event.payload.totalTurns,
         turns: event.payload.turns,
         isEndTurn: event.payload.isEndTurn,
         error: event.payload.error,
-        recognizedText: event.payload.recognizedText,
-        speechEnabled: event.payload.speechEnabled,
         isListening: event.payload.isListening,
       ),
     );
+  }
+
+  void _onLoadDialogTurns(
+    PracticeScreenLoadDialogTurnsEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(turns: event.turns));
+  }
+
+  void _onPlayDialogTurnAudio(
+    PracticeScreenPlayDialogTurnAudioEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        playingDialogTurnID: event.turn?.id,
+        clearPlayingDialogTurnID: event.clearPlayingDialogTurnID,
+      ),
+    );
+  }
+
+  void _onInsertDialogTurn(
+    PracticeScreenInsertDialogTurnEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(currentTurnIndex: event.currentTurnIndex));
+  }
+
+  void _onStartListening(
+    PracticeScreenStartListeningEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(isListening: true));
+  }
+
+  void _onStopListening(
+    PracticeScreenStopListeningEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(isListening: false));
   }
 }
