@@ -1,15 +1,12 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:zingo/models/dialog_turn.dart';
 
 class PracticeScreenViewState extends Equatable {
   final List<DialogTurn>? turns;
-  final int? currentTurnIndex;
+  final int currentTurnIndex;
   final String? playingDialogTurnID;
   final bool isListening;
 
-  final Map<String, File>? audioFiles;
   final Map<String, String>? recognizedTexts;
   final bool? isEndTurn;
   final String? error;
@@ -18,7 +15,6 @@ class PracticeScreenViewState extends Equatable {
     this.currentTurnIndex = 0,
     this.turns = const [],
     this.playingDialogTurnID,
-    this.audioFiles = const {},
     this.recognizedTexts = const {},
     this.isEndTurn = false,
     this.error,
@@ -29,7 +25,6 @@ class PracticeScreenViewState extends Equatable {
     int? currentTurnIndex,
     String? playingDialogTurnID,
     bool clearPlayingDialogTurnID = false,
-    Map<String, File>? audioFiles,
     Map<String, String>? recognizedTexts,
     int? totalTurns,
     List<DialogTurn>? turns,
@@ -42,7 +37,6 @@ class PracticeScreenViewState extends Equatable {
       playingDialogTurnID: clearPlayingDialogTurnID
           ? null
           : (playingDialogTurnID ?? this.playingDialogTurnID),
-      audioFiles: audioFiles ?? this.audioFiles,
       recognizedTexts: recognizedTexts ?? this.recognizedTexts,
       turns: turns ?? this.turns,
       isEndTurn: isEndTurn ?? this.isEndTurn,
@@ -55,7 +49,6 @@ class PracticeScreenViewState extends Equatable {
   List<Object?> get props => [
     currentTurnIndex,
     playingDialogTurnID,
-    audioFiles,
     recognizedTexts,
     isEndTurn,
     turns,

@@ -13,7 +13,6 @@ class PracticeScreenInitializeEvent extends PracticeScreenEvent {
   const PracticeScreenInitializeEvent();
 }
 
-/// Carry the full desired state — callers use bloc.state.copyWith(...) to build it.
 class PracticeScreenChangeEvent extends PracticeScreenEvent {
   final PracticeScreenViewState payload;
 
@@ -64,4 +63,17 @@ class PracticeScreenStartListeningEvent extends PracticeScreenEvent {
 
 class PracticeScreenStopListeningEvent extends PracticeScreenEvent {
   const PracticeScreenStopListeningEvent();
+}
+
+class PracticeScreenRecognizedTextEvent extends PracticeScreenEvent {
+  final String recognizedText;
+  final String dialogTurnId;
+
+  const PracticeScreenRecognizedTextEvent({
+    required this.recognizedText,
+    required this.dialogTurnId,
+  });
+
+  @override
+  List<Object?> get props => [recognizedText, dialogTurnId];
 }

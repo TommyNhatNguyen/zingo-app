@@ -81,6 +81,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
         currentTurnIndex: currentTurnIndex,
       ),
     );
+    if (turn.speaker == Speaker.user) return;
+
+    final nextTurnIndex = currentTurnIndex + 1;
+    if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) return;
+    final nextTurn = _practiceScreenBloc.state.turns?[nextTurnIndex];
+    if (turn.speaker == Speaker.ai) {
+      if (nextTurn == null) return;
+      await _playDialogTurnAudio(turn: turn);
+      _insertDialogTurn(turn: nextTurn, currentTurnIndex: nextTurnIndex);
+    }
   }
 
   Future<void> _playAudio({required String audioUrl}) async {
@@ -91,40 +101,47 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   Future<void> _playDialogTurnAudio({required DialogTurn turn}) async {
-    final currentPlayingDialogTurnID =
-        _practiceScreenBloc.state.playingDialogTurnID;
-    if (currentPlayingDialogTurnID == turn.id) {
-      return;
-    }
+    if (_practiceScreenBloc.state.playingDialogTurnID == turn.id) return;
+
     if (turn.tts_model_audio_url == null) {
       Toastification().show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.flat,
         title: const Text('Error'),
-        description: Text("This turn does not have an audio yet!"),
+        description: const Text("This turn does not have an audio yet!"),
         autoCloseDuration: const Duration(seconds: 4),
       );
       return;
     }
 
-    final file = await AudioCacheService.instance.getSingleFile(
-      turn.tts_model_audio_url!,
-    );
-
+    // Claim the ID before pausing so playingDialogTurnID never has a null gap
+    // between switching turns (which would flash the mic button enabled).
     _practiceScreenBloc.add(
       PracticeScreenPlayDialogTurnAudioEvent(
         turn: turn,
         clearPlayingDialogTurnID: false,
       ),
     );
-    await _playAudio(audioUrl: file.uri.toString());
-    _practiceScreenBloc.add(
-      PracticeScreenPlayDialogTurnAudioEvent(
-        turn: null,
-        clearPlayingDialogTurnID: true,
-      ),
+
+    await _audioPlayer.pause();
+    await _audioPlayer.seek(Duration.zero);
+
+    final file = await AudioCacheService.instance.getSingleFile(
+      turn.tts_model_audio_url!,
     );
+    await _playAudio(audioUrl: file.uri.toString());
+
+    // Only clear if this call is still the owner — a newer tap may have already
+    // claimed the ID, in which case clearing it would cause the same flash.
+    if (_practiceScreenBloc.state.playingDialogTurnID == turn.id) {
+      _practiceScreenBloc.add(
+        PracticeScreenPlayDialogTurnAudioEvent(
+          turn: null,
+          clearPlayingDialogTurnID: true,
+        ),
+      );
+    }
   }
 
   Future<void> _startSpeaking() async {
@@ -149,6 +166,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
         );
         if (status == "done" && _practiceScreenBloc.state.isListening) {
           _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
+          Toastification().show(
+            context: context,
+            type: ToastificationType.warning,
+            style: ToastificationStyle.flat,
+            title: const Text('Not recognized'),
+            description: Text("Please try to speak louder"),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
         }
         if (status == "done" && !_practiceScreenBloc.state.isListening) {
           if (_recognizedText.value == null) {
@@ -165,18 +190,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
       };
       _speechToTextController.errorListener = (error) {
         print('Listening Error: $error');
-        // if (_practiceScreenBloc.state.isListening &&
-        //     error.errorMsg == "error_no_match") {
-        //   _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
-        //   Toastification().show(
-        //     context: context,
-        //     type: ToastificationType.error,
-        //     style: ToastificationStyle.flat,
-        //     title: const Text('Not recognized'),
-        //     description: Text("Please try to speak louder"),
-        //     autoCloseDuration: const Duration(seconds: 4),
-        //   );
-        // }
       };
       print("--------------------------------");
     } catch (e) {
@@ -235,11 +248,28 @@ class _PracticeScreenState extends State<PracticeScreen> {
           listener: (context, state) async {
             if (state.requestStatus == RequestStatus.success &&
                 state.data != null) {
+              if (state.data!.isEmpty) return;
               _practiceScreenBloc.add(
                 PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
               );
               final firstTurn = state.data!.first;
               await _insertDialogTurn(turn: firstTurn, currentTurnIndex: 0);
+            }
+          },
+        ),
+        BlocListener<PracticeScreenBloc, PracticeScreenViewState>(
+          listener: (context, state) {
+            if (!state.isListening && _recognizedText.value != null) {
+              final turns = state.turns;
+              if (turns == null || state.currentTurnIndex >= turns.length)
+                return;
+              final currentTurn = turns[state.currentTurnIndex];
+              _practiceScreenBloc.add(
+                PracticeScreenRecognizedTextEvent(
+                  recognizedText: _recognizedText.value!,
+                  dialogTurnId: currentTurn.id,
+                ),
+              );
             }
           },
         ),
@@ -345,10 +375,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       width: double.infinity,
                       child: IconButton.filled(
                         tooltip: 'Start speaking',
-                        onPressed: !speechToTextState.isEnabled
+                        onPressed:
+                            (!speechToTextState.isEnabled ||
+                                state.playingDialogTurnID != null)
                             ? null
                             : _debounceToggleSpeaking,
-                        icon: !speechToTextState.isEnabled
+                        icon:
+                            (!speechToTextState.isEnabled ||
+                                state.playingDialogTurnID != null)
                             ? Icon(Icons.mic_off)
                             : state.isListening
                             ? Icon(Icons.mic_off, size: 40)

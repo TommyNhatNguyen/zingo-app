@@ -12,6 +12,7 @@ class PracticeScreenBloc
     on<PracticeScreenPlayDialogTurnAudioEvent>(_onPlayDialogTurnAudio);
     on<PracticeScreenStartListeningEvent>(_onStartListening);
     on<PracticeScreenStopListeningEvent>(_onStopListening);
+    on<PracticeScreenRecognizedTextEvent>(_onRecognizedText);
   }
 
   void _onInitialize(
@@ -29,7 +30,6 @@ class PracticeScreenBloc
       state.copyWith(
         currentTurnIndex: event.payload.currentTurnIndex,
         playingDialogTurnID: event.payload.playingDialogTurnID,
-        audioFiles: event.payload.audioFiles,
         recognizedTexts: event.payload.recognizedTexts,
         turns: event.payload.turns,
         isEndTurn: event.payload.isEndTurn,
@@ -77,5 +77,19 @@ class PracticeScreenBloc
     Emitter<PracticeScreenViewState> emit,
   ) {
     emit(state.copyWith(isListening: false));
+  }
+
+  void _onRecognizedText(
+    PracticeScreenRecognizedTextEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        recognizedTexts: {
+          ...?state.recognizedTexts,
+          event.dialogTurnId: event.recognizedText,
+        },
+      ),
+    );
   }
 }
