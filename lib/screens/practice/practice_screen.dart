@@ -7,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
 import 'package:zingo/config/app_colors.dart';
@@ -46,7 +47,9 @@ class PracticeScreen extends StatefulWidget {
 class _PracticeScreenState extends State<PracticeScreen> {
   late final InMemoryChatController _chatController;
   late final PracticeScreenBloc _practiceScreenBloc;
+  late final AuthBloc _authBloc;
   late final AudioPlayer _audioPlayer;
+  bool _isLoadingDialogTurns = true;
 
   final ValueNotifier<String?> _recognizedText = ValueNotifier<String?>(null);
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
@@ -65,6 +68,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     super.initState();
     _chatController = InMemoryChatController();
     _practiceScreenBloc = context.read<PracticeScreenBloc>();
+    _authBloc = context.read<AuthBloc>();
     _audioPlayer = AudioPlayer();
     _practiceScreenBloc.add(const PracticeScreenInitializeEvent());
   }
@@ -307,6 +311,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
+  Future<void> _onBack() async {
+    if (!mounted) return;
+    await _audioPlayer.stop();
+    await _speechToTextController.stop();
+    context.go('/learn');
+  }
+
   // ---------------------------------------------------------------------------
   // Build
   // ---------------------------------------------------------------------------
@@ -325,6 +336,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _practiceScreenBloc.add(
           PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
         );
+        setState(() {
+          _isLoadingDialogTurns = false;
+        });
         await _insertDialogTurn(turn: state.data!.first, currentTurnIndex: 0);
       },
       child: BlocBuilder<PracticeScreenBloc, PracticeScreenViewState>(
@@ -339,7 +353,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             appBar: AppBar(
               centerTitle: false,
               leading: IconButton(
-                onPressed: () => context.go('/learn'),
+                onPressed: _onBack,
                 icon: const Icon(Icons.arrow_back),
               ),
               automaticallyImplyLeading: false,
@@ -376,68 +390,76 @@ class _PracticeScreenState extends State<PracticeScreen> {
             body: Column(
               children: [
                 Expanded(
-                  child: Chat(
-                    currentUserId: 'user1',
-                    resolveUser: (UserID id) async =>
-                        User(id: id, name: 'John Doe'),
-                    chatController: _chatController,
-                    builders: Builders(
-                      chatMessageBuilder:
-                          (
-                            context,
-                            message,
-                            index,
-                            animation,
-                            child, {
-                            groupStatus,
-                            isRemoved,
-                            required isSentByMe,
-                          }) {
-                            final turn = DialogTurn.fromJson(
-                              message.metadata ?? {},
-                            );
-                            final isPlaying =
-                                state.playingDialogTurnID == turn.id;
+                  child: _isLoadingDialogTurns
+                      ? const Center(child: CircularProgressIndicator())
+                      : Chat(
+                          currentUserId: _authBloc.state.user?.uid ?? '',
+                          resolveUser: (UserID id) async => User(
+                            id: id,
+                            name: _authBloc.state.user?.displayName ?? '',
+                          ),
+                          chatController: _chatController,
+                          builders: Builders(
+                            chatMessageBuilder:
+                                (
+                                  context,
+                                  message,
+                                  index,
+                                  animation,
+                                  child, {
+                                  groupStatus,
+                                  isRemoved,
+                                  required isSentByMe,
+                                }) {
+                                  final turn = DialogTurn.fromJson(
+                                    message.metadata ?? {},
+                                  );
+                                  final isPlaying =
+                                      state.playingDialogTurnID == turn.id;
 
-                            if (turn.speaker == Speaker.ai) {
-                              return AiMessage(
-                                turn: turn,
-                                index: index,
-                                isPlaying: isPlaying,
-                                onPlay: () => _playDialogTurnAudio(turn: turn),
-                              );
-                            }
+                                  if (turn.speaker == Speaker.ai) {
+                                    return AiMessage(
+                                      turn: turn,
+                                      index: index,
+                                      isPlaying: isPlaying,
+                                      onPlay: () =>
+                                          _playDialogTurnAudio(turn: turn),
+                                    );
+                                  }
 
-                            // Active user turn: rebuilds on every STT word.
-                            if (turn.id == _activeTurnId) {
-                              return ListenableBuilder(
-                                listenable: Listenable.merge([
-                                  _recognizedText,
-                                  _activeMatchResult,
-                                ]),
-                                builder: (context, _) => UserMessage(
-                                  turn: turn,
-                                  index: index,
-                                  isPlaying: isPlaying,
-                                  onPlay: () =>
-                                      _playDialogTurnAudio(turn: turn),
-                                  tokens: _activeMatchResult.value?.tokens,
-                                ),
-                              );
-                            }
+                                  // Active user turn: rebuilds on every STT word.
+                                  if (turn.id == _activeTurnId) {
+                                    return ListenableBuilder(
+                                      listenable: Listenable.merge([
+                                        _recognizedText,
+                                        _activeMatchResult,
+                                      ]),
+                                      builder: (context, _) => UserMessage(
+                                        turn: turn,
+                                        index: index,
+                                        isPlaying: isPlaying,
+                                        onPlay: () =>
+                                            _playDialogTurnAudio(turn: turn),
+                                        tokens:
+                                            _activeMatchResult.value?.tokens,
+                                      ),
+                                    );
+                                  }
 
-                            // Completed user turn: static, uses final match result.
-                            return UserMessage(
-                              turn: turn,
-                              index: index,
-                              isPlaying: isPlaying,
-                              onPlay: () => _playDialogTurnAudio(turn: turn),
-                              tokens: _finalMatchResults[turn.id]?.tokens,
-                            );
-                          },
-                      composerBuilder: (context) => const SizedBox.shrink(),
-                    ),
-                  ),
+                                  // Completed user turn: static, uses final match result.
+                                  return UserMessage(
+                                    turn: turn,
+                                    index: index,
+                                    isPlaying: isPlaying,
+                                    onPlay: () =>
+                                        _playDialogTurnAudio(turn: turn),
+                                    tokens: _finalMatchResults[turn.id]?.tokens,
+                                  );
+                                },
+                            composerBuilder: (context) =>
+                                const SizedBox.shrink(),
+                          ),
+                        ),
                 ),
                 PracticeControlBar(
                   phase: state.phase,

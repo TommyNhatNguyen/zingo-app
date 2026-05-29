@@ -25,7 +25,7 @@ class LearnDetailScreen extends StatefulWidget {
 }
 
 class _LearnDetailScreenState extends State<LearnDetailScreen> {
-  PracticeMode _selectedMode = PracticeMode.freeSpeak;
+  PracticeMode _selectedMode = PracticeMode.readAloud;
   final ScrollController _scrollController = ScrollController();
   bool _isHideNavbar = false;
   bool _isAtTop = true;
@@ -719,7 +719,24 @@ class _PraceticeModeFormState extends State<PraceticeModeForm> {
                   ),
                 ),
                 child: InkWell(
-                  onTap: () => widget.onModeSelected(mode),
+                  onTap: () {
+                    if (mode == PracticeMode.freeSpeak) {
+                      Toastification().show(
+                        context: context,
+                        type: ToastificationType.info,
+                        style: ToastificationStyle.flat,
+                        alignment: AlignmentGeometry.bottomCenter,
+                        title: const Text('Info'),
+                        description: const Text(
+                          'This mode is not available yet',
+                        ),
+                        autoCloseDuration: const Duration(seconds: 4),
+                      );
+                      return;
+                    }
+                    ;
+                    widget.onModeSelected(mode);
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
