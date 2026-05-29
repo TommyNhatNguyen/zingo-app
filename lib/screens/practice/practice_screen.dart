@@ -219,11 +219,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _onRecognizedText(SpeechRecognitionResult result) {
     _recognizedText.value = result.recognizedWords;
-    final hasSpeech =
-        result.finalResult &&
-        !_practiceScreenBloc.state.isListening &&
-        result.recognizedWords.isNotEmpty;
-
+    final hasSpeech = result.finalResult && result.recognizedWords.isNotEmpty;
+  // Handle matching logic here
     if (hasSpeech) {
       final currentTurn = _practiceScreenBloc
           .state
@@ -258,6 +255,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
     _recognizedText.value = null;
     await _insertDialogTurn(turn: nextTurn, currentTurnIndex: nextTurnIndex);
+  }
+
+  void _onEndTurn() {
+    Toastification().show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flat,
+      title: const Text('Turn ended'),
+      description: const Text("The turn has been ended successfully"),
+      autoCloseDuration: const Duration(seconds: 4),
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -394,7 +402,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       width: double.infinity,
                       child: state.isEndTurn == true
                           ? FilledButton(
-                              onPressed: () {},
+                              onPressed: _onEndTurn,
                               child: const Text("End Turn"),
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.scoreHigh,
