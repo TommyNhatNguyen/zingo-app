@@ -55,11 +55,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _chatController = InMemoryChatController();
     _practiceScreenBloc = context.read<PracticeScreenBloc>();
     _audioPlayer = AudioPlayer();
+    _warmUpSpeech();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> _warmUpSpeech() async {
+    if (!_speechToTextController.isAvailable) return;
+    await _speechToTextController.listen(
+      onResult: (_) {},
+      listenOptions: SpeechListenOptions(
+        listenFor: const Duration(milliseconds: 500),
+        pauseFor: const Duration(milliseconds: 500),
+      ),
+    );
+    await _speechToTextController.stop();
   }
 
   Future<void> _insertDialogTurn({
@@ -366,13 +379,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                 onPlay: () => _playDialogTurnAudio(turn: turn),
                               );
                             }
-                            return _UserMessage(
-                              turn: turn,
-                              index: index,
-                              isPlaying: isPlaying,
-                              onPlay: () => _playDialogTurnAudio(turn: turn),
-                              recognizedText:
-                                  state.recognizedTexts?[turn.id] ?? '',
+                            return ValueListenableBuilder(
+                              valueListenable: _recognizedText,
+                              builder: (context, value, child) {
+                                return _UserMessage(
+                                  turn: turn,
+                                  index: index,
+                                  isPlaying: isPlaying,
+                                  onPlay: () =>
+                                      _playDialogTurnAudio(turn: turn),
+                                  recognizedText:
+                                      value ??
+                                      state.recognizedTexts?[turn.id] ??
+                                      '',
+                                );
+                              },
                             );
                           },
                       composerBuilder: (context) => const SizedBox.shrink(),
@@ -385,7 +406,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                       height: 100,
                       width: double.infinity,
-                      child: state.shouldPlayNextDialogTurn
+                      child: state.isEndTurn == true
+                          ? FilledButton(
+                              onPressed: () {},
+                              child: const Text("End Turn"),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.scoreHigh,
+                                foregroundColor: AppColors.white,
+                              ),
+                            )
+                          : state.shouldPlayNextDialogTurn
                           ? FilledButton(
                               onPressed: _continueToNextDialogTurn,
                               child: const Text("Continue"),

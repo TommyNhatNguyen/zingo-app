@@ -16,6 +16,7 @@ class PracticeScreenBloc
     on<PracticeScreenShouldPlayNextDialogTurnEvent>(
       _onShouldPlayNextDialogTurn,
     );
+    on<PracticeScreenEndTurnEvent>(_onEndTurn);
   }
 
   void _onInitialize(
@@ -104,5 +105,12 @@ class PracticeScreenBloc
     emit(
       state.copyWith(shouldPlayNextDialogTurn: event.shouldPlayNextDialogTurn),
     );
+  }
+
+  void _onEndTurn(
+    PracticeScreenEndTurnEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(isEndTurn: true));
   }
 }

@@ -87,3 +87,7 @@ class PracticeScreenShouldPlayNextDialogTurnEvent extends PracticeScreenEvent {
   @override
   List<Object?> get props => [shouldPlayNextDialogTurn];
 }
+
+class PracticeScreenEndTurnEvent extends PracticeScreenEvent {
+  const PracticeScreenEndTurnEvent();
+}

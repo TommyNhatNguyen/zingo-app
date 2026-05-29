@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_state.dart';
 import 'package:zingo/services/speech_to_text_service.dart';
@@ -24,17 +23,9 @@ class SpeechToTextBloc extends Bloc<SpeechToTextEvent, SpeechToTextState> {
     );
 
     if (enabled) {
-      // Pre-warm AVAudioEngine so the first listen() call in any screen starts instantly.
-      await SpeechToTextService.instance.listen(
-        listenOptions: SpeechListenOptions(
-          listenFor: const Duration(milliseconds: 100),
-          pauseFor: const Duration(milliseconds: 100),
-        ),
-      );
-      await SpeechToTextService.stop();
+      print("SpeechToTextBloc: isEnabled: $enabled");
+      print("--------------------------------");
+      emit(state.copyWith(isEnabled: enabled));
     }
-    print("SpeechToTextBloc: isEnabled: $enabled");
-    print("--------------------------------");
-    emit(state.copyWith(isEnabled: enabled));
   }
 }
