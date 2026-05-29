@@ -95,7 +95,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
     if (turn.speaker == Speaker.user) {
       _activeTurnId = turn.id;
-      _matchers[turn.id] = SentenceMatcher(turn.line_text);
+      _matchers[turn.id] = SentenceMatcher(turn.line_text, passThreshold: 0.4);
       _activeMatchResult.value = _matchers[turn.id]!.update('');
       return;
     }
@@ -168,16 +168,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
         }
         if (status == "done") {
           _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
-          if (_recognizedText.value == null) {
-            Toastification().show(
-              context: context,
-              type: ToastificationType.warning,
-              style: ToastificationStyle.flat,
-              title: const Text('Not recognized'),
-              description: Text("Please try to speak louder"),
-              autoCloseDuration: const Duration(seconds: 4),
-            );
-          }
           return;
         }
       };
@@ -237,12 +227,34 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _recognizedText.value = result.recognizedWords;
 
     if (_activeTurnId != null && _matchers.containsKey(_activeTurnId)) {
-      _activeMatchResult.value =
-          _matchers[_activeTurnId!]!.update(result.recognizedWords);
+      _activeMatchResult.value = _matchers[_activeTurnId!]!.update(
+        result.recognizedWords,
+      );
     }
 
     final hasSpeech = result.finalResult && result.recognizedWords.isNotEmpty;
     if (hasSpeech) {
+      // Require at least 40% word coverage to advance.
+      if (_activeMatchResult.value?.passed != true) {
+        // Reset so the next attempt starts clean.
+        _recognizedText.value = null;
+        if (_activeTurnId != null && _matchers.containsKey(_activeTurnId)) {
+          _matchers[_activeTurnId!]!.reset();
+          _activeMatchResult.value = _matchers[_activeTurnId!]!.update('');
+        }
+        Toastification().show(
+          context: context,
+          type: ToastificationType.warning,
+          style: ToastificationStyle.flat,
+          title: const Text('Keep trying!'),
+          description: const Text(
+            'Match at least 40% of the words to continue.',
+          ),
+          autoCloseDuration: const Duration(seconds: 4),
+        );
+        return;
+      }
+
       if (_activeTurnId != null && _activeMatchResult.value != null) {
         _finalMatchResults[_activeTurnId!] = _activeMatchResult.value!;
       }
@@ -403,8 +415,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                 _activeMatchResult,
                               ]),
                               builder: (context, child) {
-                                final isActiveTurn =
-                                    turn.id == _activeTurnId;
+                                final isActiveTurn = turn.id == _activeTurnId;
                                 final tokens = isActiveTurn
                                     ? _activeMatchResult.value?.tokens
                                     : _finalMatchResults[turn.id]?.tokens;
@@ -683,56 +694,55 @@ class _UserMessageState extends State<_UserMessage> {
                         style: Theme.of(context).textTheme.bodyLarge,
                         children: widget.tokens != null
                             ? widget.tokens!
-                                .expand(
-                                  (token) => [
-                                    TextSpan(
-                                      text: token.display,
-                                      style: token.state == WordState.matched
-                                          ? Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.copyWith(
+                                  .expand(
+                                    (token) => [
+                                      TextSpan(
+                                        text: token.display,
+                                        style: token.state == WordState.matched
+                                            ? Theme.of(
+                                                context,
+                                              ).textTheme.bodyLarge?.copyWith(
                                                 color: AppColors.scoreHigh,
                                                 decoration:
                                                     TextDecoration.underline,
                                                 decorationStyle:
                                                     TextDecorationStyle.dashed,
                                               )
-                                          : Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.copyWith(
+                                            : Theme.of(
+                                                context,
+                                              ).textTheme.bodyLarge?.copyWith(
                                                 decoration:
                                                     TextDecoration.underline,
                                                 decorationStyle:
                                                     TextDecorationStyle.dashed,
                                               ),
-                                    ),
-                                    const TextSpan(text: '  '),
-                                  ],
-                                )
-                                .toList()
+                                      ),
+                                      const TextSpan(text: '  '),
+                                    ],
+                                  )
+                                  .toList()
                             : widget.turn?.line_text
-                                    .split(' ')
-                                    .expand(
-                                      (word) => [
-                                        TextSpan(
-                                          text: word,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.copyWith(
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                decorationStyle:
-                                                    TextDecorationStyle.dashed,
-                                              ),
-                                        ),
-                                        const TextSpan(text: '  '),
-                                      ],
-                                    )
-                                    .toList() ??
-                                [],
+                                      .split(' ')
+                                      .expand(
+                                        (word) => [
+                                          TextSpan(
+                                            text: word,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.copyWith(
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  decorationStyle:
+                                                      TextDecorationStyle
+                                                          .dashed,
+                                                ),
+                                          ),
+                                          const TextSpan(text: '  '),
+                                        ],
+                                      )
+                                      .toList() ??
+                                  [],
                       ),
                     ),
                     const SizedBox(height: 8),
