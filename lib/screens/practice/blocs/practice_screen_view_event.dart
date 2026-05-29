@@ -13,15 +13,6 @@ class PracticeScreenInitializeEvent extends PracticeScreenEvent {
   const PracticeScreenInitializeEvent();
 }
 
-class PracticeScreenChangeEvent extends PracticeScreenEvent {
-  final PracticeScreenViewState payload;
-
-  const PracticeScreenChangeEvent({required this.payload});
-
-  @override
-  List<Object?> get props => [payload];
-}
-
 class PracticeScreenLoadDialogTurnsEvent extends PracticeScreenEvent {
   final List<DialogTurn> turns;
 
@@ -32,62 +23,28 @@ class PracticeScreenLoadDialogTurnsEvent extends PracticeScreenEvent {
 }
 
 class PracticeScreenInsertDialogTurnEvent extends PracticeScreenEvent {
-  final DialogTurn turn;
   final int currentTurnIndex;
 
-  const PracticeScreenInsertDialogTurnEvent({
-    required this.turn,
-    required this.currentTurnIndex,
-  });
+  const PracticeScreenInsertDialogTurnEvent({required this.currentTurnIndex});
 
   @override
-  List<Object?> get props => [turn, currentTurnIndex];
+  List<Object?> get props => [currentTurnIndex];
 }
 
-class PracticeScreenPlayDialogTurnAudioEvent extends PracticeScreenEvent {
-  final DialogTurn? turn;
-  final bool clearPlayingDialogTurnID;
+class PracticeScreenSetPhaseEvent extends PracticeScreenEvent {
+  final PracticePhase phase;
 
-  const PracticeScreenPlayDialogTurnAudioEvent({
-    this.turn,
-    this.clearPlayingDialogTurnID = false,
-  });
+  const PracticeScreenSetPhaseEvent(this.phase);
 
   @override
-  List<Object?> get props => [turn, clearPlayingDialogTurnID];
+  List<Object?> get props => [phase];
 }
 
-class PracticeScreenStartListeningEvent extends PracticeScreenEvent {
-  const PracticeScreenStartListeningEvent();
-}
+class PracticeScreenSetPlayingAudioEvent extends PracticeScreenEvent {
+  final String? turnId;
 
-class PracticeScreenStopListeningEvent extends PracticeScreenEvent {
-  const PracticeScreenStopListeningEvent();
-}
-
-class PracticeScreenRecognizedTextEvent extends PracticeScreenEvent {
-  final String recognizedText;
-  final String dialogTurnId;
-
-  const PracticeScreenRecognizedTextEvent({
-    required this.recognizedText,
-    required this.dialogTurnId,
-  });
+  const PracticeScreenSetPlayingAudioEvent({this.turnId});
 
   @override
-  List<Object?> get props => [recognizedText, dialogTurnId];
-}
-
-class PracticeScreenShouldPlayNextDialogTurnEvent extends PracticeScreenEvent {
-  final bool shouldPlayNextDialogTurn;
-  const PracticeScreenShouldPlayNextDialogTurnEvent({
-    required this.shouldPlayNextDialogTurn,
-  });
-
-  @override
-  List<Object?> get props => [shouldPlayNextDialogTurn];
-}
-
-class PracticeScreenEndTurnEvent extends PracticeScreenEvent {
-  const PracticeScreenEndTurnEvent();
+  List<Object?> get props => [turnId];
 }

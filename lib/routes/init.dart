@@ -96,7 +96,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             child: PracticeScreen(
               practiceSessionId: practiceSessionId ?? '',
               dialogId: dialogId ?? '',
-              praceticeMode: praceticeMode ?? PracticeMode.readAloud,
+              practiceMode: praceticeMode ?? PracticeMode.readAloud,
               dialog: dialog,
             ),
           ),

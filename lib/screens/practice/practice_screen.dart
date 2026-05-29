@@ -4,14 +4,11 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
-import 'package:zingo/blocs/speech-to-text/speech_to_text_bloc.dart';
-import 'package:zingo/blocs/speech-to-text/speech_to_text_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
@@ -20,6 +17,9 @@ import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/screens/practice/widgets/ai_message.dart';
+import 'package:zingo/screens/practice/widgets/practice_control_bar.dart';
+import 'package:zingo/screens/practice/widgets/user_message.dart';
 import 'package:zingo/services/cache_service.dart';
 import 'package:zingo/services/matching_text_service.dart';
 import 'package:zingo/services/speech_to_text_service.dart';
@@ -30,12 +30,13 @@ class PracticeScreen extends StatefulWidget {
     super.key,
     this.practiceSessionId = '1c11f53a-d653-4e1d-97e2-242e82ebe22b',
     this.dialogId = '13febbdf-a74c-4904-bc3b-c22bdec6a327',
-    this.praceticeMode = PracticeMode.readAloud,
+    this.practiceMode = PracticeMode.readAloud,
     this.dialog,
   });
+
   final String practiceSessionId;
   final String dialogId;
-  final PracticeMode praceticeMode;
+  final PracticeMode practiceMode;
   final dialog_model.Dialog? dialog;
 
   @override
@@ -49,13 +50,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   final ValueNotifier<String?> _recognizedText = ValueNotifier<String?>(null);
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
-  final DebounceUtil _debouncer = DebounceUtil(milliseconds: 150);
+  final DebounceUtil _debouncer = DebounceUtil(milliseconds: 200);
 
-  // Matching — one SentenceMatcher per user turn, keyed by turn.id.
   final Map<String, SentenceMatcher> _matchers = {};
   final Map<String, MatchResult> _finalMatchResults = {};
   final ValueNotifier<MatchResult?> _activeMatchResult = ValueNotifier(null);
   String? _activeTurnId;
+
+  bool get _hasActiveMatcher =>
+      _activeTurnId != null && _matchers.containsKey(_activeTurnId);
 
   @override
   void initState() {
@@ -63,6 +66,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _chatController = InMemoryChatController();
     _practiceScreenBloc = context.read<PracticeScreenBloc>();
     _audioPlayer = AudioPlayer();
+    _practiceScreenBloc.add(const PracticeScreenInitializeEvent());
   }
 
   @override
@@ -73,6 +77,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _activeMatchResult.dispose();
     super.dispose();
   }
+
+  // ---------------------------------------------------------------------------
+  // Turn sequencing
+  // ---------------------------------------------------------------------------
 
   Future<void> _insertDialogTurn({
     required DialogTurn turn,
@@ -88,11 +96,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       index: currentTurnIndex,
     );
     _practiceScreenBloc.add(
-      PracticeScreenInsertDialogTurnEvent(
-        turn: turn,
-        currentTurnIndex: currentTurnIndex,
-      ),
+      PracticeScreenInsertDialogTurnEvent(currentTurnIndex: currentTurnIndex),
     );
+
     if (turn.speaker == Speaker.user) {
       _activeTurnId = turn.id;
       _matchers[turn.id] = SentenceMatcher(turn.line_text, passThreshold: 0.4);
@@ -100,15 +106,32 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return;
     }
 
+    // AI turn: play audio then chain the next turn.
+    final turns = _practiceScreenBloc.state.turns;
     final nextTurnIndex = currentTurnIndex + 1;
-    if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) return;
-    final nextTurn = _practiceScreenBloc.state.turns?[nextTurnIndex];
-    if (turn.speaker == Speaker.ai) {
-      if (nextTurn == null) return;
-      await _playDialogTurnAudio(turn: turn);
-      _insertDialogTurn(turn: nextTurn, currentTurnIndex: nextTurnIndex);
-    }
+    if (turns == null || nextTurnIndex >= turns.length) return;
+    await _playDialogTurnAudio(turn: turn);
+    await _insertDialogTurn(
+      turn: turns[nextTurnIndex],
+      currentTurnIndex: nextTurnIndex,
+    );
   }
+
+  Future<void> _continueToNextDialogTurn() async {
+    final turns = _practiceScreenBloc.state.turns;
+    final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
+    if (turns == null || nextTurnIndex >= turns.length) return;
+    _practiceScreenBloc.add(PracticeScreenSetPhaseEvent(PracticePhase.idle));
+    _recognizedText.value = null;
+    await _insertDialogTurn(
+      turn: turns[nextTurnIndex],
+      currentTurnIndex: nextTurnIndex,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Audio playback
+  // ---------------------------------------------------------------------------
 
   Future<void> _playAudio({required String audioUrl}) async {
     await _audioPlayer.setUrl(audioUrl);
@@ -121,57 +144,58 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (_practiceScreenBloc.state.playingDialogTurnID == turn.id) return;
 
     if (turn.tts_model_audio_url == null) {
+      if (!mounted) return;
       Toastification().show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.flat,
         title: const Text('Error'),
-        description: const Text("This turn does not have an audio yet!"),
+        description: const Text('This turn does not have an audio yet!'),
         autoCloseDuration: const Duration(seconds: 4),
       );
       return;
     }
 
     _practiceScreenBloc.add(
-      PracticeScreenPlayDialogTurnAudioEvent(
-        turn: turn,
-        clearPlayingDialogTurnID: false,
-      ),
+      PracticeScreenSetPlayingAudioEvent(turnId: turn.id),
     );
 
     await _audioPlayer.pause();
     await _audioPlayer.seek(Duration.zero);
-
     final file = await AudioCacheService.instance.getSingleFile(
       turn.tts_model_audio_url!,
     );
     await _playAudio(audioUrl: file.uri.toString());
 
+    if (!mounted) return;
     if (_practiceScreenBloc.state.playingDialogTurnID == turn.id) {
-      _practiceScreenBloc.add(
-        PracticeScreenPlayDialogTurnAudioEvent(
-          turn: null,
-          clearPlayingDialogTurnID: true,
-        ),
-      );
+      _practiceScreenBloc.add(const PracticeScreenSetPlayingAudioEvent());
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Speech-to-text
+  // ---------------------------------------------------------------------------
+
   Future<void> _startSpeaking() async {
-    // if (_isSpeechToTextStared) return;
     try {
       _speechToTextController.statusListener = (status) {
-        print('Listening Status: $status');
-        if (status == "listening") {
-          _practiceScreenBloc.add(PracticeScreenStartListeningEvent());
-          return;
-        }
-        if (status == "done") {
-          _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
-          return;
+        if (!mounted) return;
+        print("Status: $status");
+        if (status == 'listening') {
+          _practiceScreenBloc.add(
+            PracticeScreenSetPhaseEvent(PracticePhase.listening),
+          );
+        } else if (status == 'done') {
+          _practiceScreenBloc.add(
+            PracticeScreenSetPhaseEvent(PracticePhase.idle),
+          );
         }
       };
       _speechToTextController.errorListener = (error) {
+        _practiceScreenBloc.add(
+          PracticeScreenSetPhaseEvent(PracticePhase.idle),
+        );
         print('Listening Error: $error');
       };
       await _speechToTextController.listen(
@@ -181,9 +205,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
           pauseFor: const Duration(seconds: 5),
         ),
       );
-      print("--------------------------------");
     } catch (e) {
-      print('Error Starting Speaking: ${e.toString()}');
+      print('Error Starting Speaking: $e');
+      if (!mounted) return;
       Toastification().show(
         context: context,
         type: ToastificationType.error,
@@ -199,7 +223,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
     try {
       await _speechToTextController.stop();
     } catch (e) {
-      print('Error Stopping Speaking: ${e.toString()}');
+      print('Error Stopping Speaking: $e');
+      if (!mounted) return;
       Toastification().show(
         context: context,
         type: ToastificationType.error,
@@ -211,86 +236,64 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
-  Future<void> _debounceToggleSpeaking() async {
-    if (_practiceScreenBloc.state.isListening) {
-      _debouncer.run(() async {
-        await _stopSpeaking();
-      });
+  void _debounceToggleSpeaking() {
+    final isListening =
+        _practiceScreenBloc.state.phase == PracticePhase.listening;
+    if (isListening) {
+      _debouncer.run(() => _stopSpeaking());
     } else {
-      _debouncer.run(() async {
-        await _startSpeaking();
-      });
+      _debouncer.run(() => _startSpeaking());
     }
   }
 
   void _onRecognizedText(SpeechRecognitionResult result) {
+    if (!mounted) return;
     _recognizedText.value = result.recognizedWords;
 
-    if (_activeTurnId != null && _matchers.containsKey(_activeTurnId)) {
+    if (_hasActiveMatcher) {
       _activeMatchResult.value = _matchers[_activeTurnId!]!.update(
         result.recognizedWords,
       );
     }
 
-    final hasSpeech = result.finalResult && result.recognizedWords.isNotEmpty;
-    if (hasSpeech) {
-      // Require at least 40% word coverage to advance.
-      if (_activeMatchResult.value?.passed != true) {
-        // Reset so the next attempt starts clean.
-        _recognizedText.value = null;
-        if (_activeTurnId != null && _matchers.containsKey(_activeTurnId)) {
-          _matchers[_activeTurnId!]!.reset();
-          _activeMatchResult.value = _matchers[_activeTurnId!]!.update('');
-        }
-        Toastification().show(
-          context: context,
-          type: ToastificationType.warning,
-          style: ToastificationStyle.flat,
-          title: const Text('Keep trying!'),
-          description: const Text(
-            'Match at least 40% of the words to continue.',
-          ),
-          autoCloseDuration: const Duration(seconds: 4),
-        );
-        return;
-      }
+    if (!result.finalResult || result.recognizedWords.isEmpty) return;
 
-      if (_activeTurnId != null && _activeMatchResult.value != null) {
-        _finalMatchResults[_activeTurnId!] = _activeMatchResult.value!;
+    if (_activeMatchResult.value?.passed != true) {
+      _recognizedText.value = null;
+      _practiceScreenBloc.add(PracticeScreenSetPhaseEvent(PracticePhase.idle));
+      if (_hasActiveMatcher) {
+        _matchers[_activeTurnId!]!.reset();
+        _activeMatchResult.value = _matchers[_activeTurnId!]!.update('');
       }
-      final currentTurn = _practiceScreenBloc
-          .state
-          .turns?[_practiceScreenBloc.state.currentTurnIndex];
-      _practiceScreenBloc.add(
-        PracticeScreenRecognizedTextEvent(
-          recognizedText: _recognizedText.value!,
-          dialogTurnId: currentTurn!.id,
-        ),
+      Toastification().show(
+        context: context,
+        type: ToastificationType.warning,
+        style: ToastificationStyle.flat,
+        title: const Text('Keep trying!'),
+        description: const Text('Match at least 40% of the words to continue.'),
+        autoCloseDuration: const Duration(seconds: 4),
       );
-
-      final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
-      if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) {
-        _practiceScreenBloc.add(PracticeScreenEndTurnEvent());
-      } else {
-        _practiceScreenBloc.add(
-          PracticeScreenShouldPlayNextDialogTurnEvent(
-            shouldPlayNextDialogTurn: true,
-          ),
-        );
-      }
+      return;
     }
-  }
 
-  Future<void> _continueToNextDialogTurn() async {
+    if (_activeTurnId != null && _activeMatchResult.value != null) {
+      _finalMatchResults[_activeTurnId!] = _activeMatchResult.value!;
+    }
+
+    final turns = _practiceScreenBloc.state.turns;
+    final currentTurn = turns?[_practiceScreenBloc.state.currentTurnIndex];
+    if (currentTurn == null) return;
+
     final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
-    final nextTurn = _practiceScreenBloc.state.turns![nextTurnIndex];
-    _practiceScreenBloc.add(
-      PracticeScreenShouldPlayNextDialogTurnEvent(
-        shouldPlayNextDialogTurn: false,
-      ),
-    );
-    _recognizedText.value = null;
-    await _insertDialogTurn(turn: nextTurn, currentTurnIndex: nextTurnIndex);
+    if (nextTurnIndex >= (turns?.length ?? 0)) {
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.finished),
+      );
+    } else {
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.awaitingContinue),
+      );
+    }
   }
 
   void _onEndTurn() {
@@ -299,45 +302,39 @@ class _PracticeScreenState extends State<PracticeScreen> {
       type: ToastificationType.success,
       style: ToastificationStyle.flat,
       title: const Text('Turn ended'),
-      description: const Text("The turn has been ended successfully"),
+      description: const Text('The turn has been ended successfully'),
       autoCloseDuration: const Duration(seconds: 4),
     );
   }
 
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // Build
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<DialogTurnsListByDialogBloc, DialogTurnsListByDialogState>(
-          listener: (context, state) async {
-            if (state.requestStatus == RequestStatus.success &&
-                state.data != null &&
-                state.data!.isNotEmpty) {
-              _practiceScreenBloc.add(
-                PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
-              );
-              await _insertDialogTurn(
-                turn: state.data!.first,
-                currentTurnIndex: 0,
-              );
-            }
-          },
-        ),
-        BlocListener<PracticeScreenBloc, PracticeScreenViewState>(
-          listenWhen: (previous, current) {
-            return current.turns?.isNotEmpty ?? false;
-          },
-          listener: (context, state) {
-            if (!state.isListening && _recognizedText.value != null) {}
-          },
-        ),
-      ],
+    return BlocListener<
+      DialogTurnsListByDialogBloc,
+      DialogTurnsListByDialogState
+    >(
+      listenWhen: (prev, curr) =>
+          prev.requestStatus != curr.requestStatus &&
+          curr.requestStatus == RequestStatus.success,
+      listener: (context, state) async {
+        if (state.data == null || state.data!.isEmpty) return;
+        _practiceScreenBloc.add(
+          PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
+        );
+        await _insertDialogTurn(turn: state.data!.first, currentTurnIndex: 0);
+      },
       child: BlocBuilder<PracticeScreenBloc, PracticeScreenViewState>(
         builder: (context, state) {
+          final turns = state.turns;
+          final turnsLength = turns?.length ?? 0;
+          final progress = turnsLength == 0
+              ? 0.0
+              : ((state.currentTurnIndex + 1) / turnsLength).clamp(0.0, 1.0);
+
           return Scaffold(
             appBar: AppBar(
               centerTitle: false,
@@ -360,14 +357,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${0} of ${0} turns',
+                        '${state.currentTurnIndex + 1} of $turnsLength turns',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   LinearProgressIndicator(
-                    value: 0,
+                    value: progress,
                     borderRadius: BorderRadius.circular(36),
                     backgroundColor: AppColors.divider,
                     color: AppColors.primary,
@@ -401,425 +398,59 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             );
                             final isPlaying =
                                 state.playingDialogTurnID == turn.id;
+
                             if (turn.speaker == Speaker.ai) {
-                              return _AiMessage(
+                              return AiMessage(
                                 turn: turn,
                                 index: index,
                                 isPlaying: isPlaying,
                                 onPlay: () => _playDialogTurnAudio(turn: turn),
                               );
                             }
-                            return ListenableBuilder(
-                              listenable: Listenable.merge([
-                                _recognizedText,
-                                _activeMatchResult,
-                              ]),
-                              builder: (context, child) {
-                                final isActiveTurn = turn.id == _activeTurnId;
-                                final tokens = isActiveTurn
-                                    ? _activeMatchResult.value?.tokens
-                                    : _finalMatchResults[turn.id]?.tokens;
-                                return _UserMessage(
+
+                            // Active user turn: rebuilds on every STT word.
+                            if (turn.id == _activeTurnId) {
+                              return ListenableBuilder(
+                                listenable: Listenable.merge([
+                                  _recognizedText,
+                                  _activeMatchResult,
+                                ]),
+                                builder: (context, _) => UserMessage(
                                   turn: turn,
                                   index: index,
                                   isPlaying: isPlaying,
                                   onPlay: () =>
                                       _playDialogTurnAudio(turn: turn),
-                                  recognizedText:
-                                      _recognizedText.value ??
-                                      state.recognizedTexts?[turn.id] ??
-                                      '',
-                                  tokens: tokens,
-                                );
-                              },
+                                  tokens: _activeMatchResult.value?.tokens,
+                                ),
+                              );
+                            }
+
+                            // Completed user turn: static, uses final match result.
+                            return UserMessage(
+                              turn: turn,
+                              index: index,
+                              isPlaying: isPlaying,
+                              onPlay: () => _playDialogTurnAudio(turn: turn),
+                              tokens: _finalMatchResults[turn.id]?.tokens,
                             );
                           },
                       composerBuilder: (context) => const SizedBox.shrink(),
                     ),
                   ),
                 ),
-                BlocBuilder<SpeechToTextBloc, SpeechToTextState>(
-                  builder: (context, speechToTextState) {
-                    return Container(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                      height: 100,
-                      width: double.infinity,
-                      child: state.isEndTurn == true
-                          ? FilledButton(
-                              onPressed: _onEndTurn,
-                              child: const Text("End Turn"),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.scoreHigh,
-                                foregroundColor: AppColors.white,
-                              ),
-                            )
-                          : state.shouldPlayNextDialogTurn
-                          ? FilledButton(
-                              onPressed: _continueToNextDialogTurn,
-                              child: const Text("Continue"),
-                            )
-                          : IconButton.filled(
-                              tooltip: 'Start speaking',
-                              onPressed:
-                                  (!speechToTextState.isEnabled ||
-                                      state.playingDialogTurnID != null)
-                                  ? null
-                                  : _debounceToggleSpeaking,
-                              icon:
-                                  (!speechToTextState.isEnabled ||
-                                      state.playingDialogTurnID != null)
-                                  ? Icon(Icons.mic_off, size: 40)
-                                  : state.isListening
-                                  ? Lottie.asset(
-                                      'assets/sound_voice_waves.json',
-                                      width: 40,
-                                      height: 40,
-                                      repeat: true,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Icon(Icons.mic, size: 40),
-                            ),
-                    );
-                  },
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _recognizedText,
-                  builder: (context, value, child) {
-                    return Text(_recognizedText.value ?? '');
-                  },
+                PracticeControlBar(
+                  phase: state.phase,
+                  isAudioPlaying: state.playingDialogTurnID != null,
+                  recognizedText: _recognizedText,
+                  onToggleSpeaking: _debounceToggleSpeaking,
+                  onContinue: () => _continueToNextDialogTurn(),
+                  onEndTurn: _onEndTurn,
                 ),
               ],
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Message widgets
-// ---------------------------------------------------------------------------
-
-class _AiMessage extends StatefulWidget {
-  const _AiMessage({
-    required this.turn,
-    required this.index,
-    required this.isPlaying,
-    required this.onPlay,
-  });
-
-  final DialogTurn? turn;
-  final int index;
-  final bool isPlaying;
-  final VoidCallback onPlay;
-
-  @override
-  State<_AiMessage> createState() => _AiMessageState();
-}
-
-class _AiMessageState extends State<_AiMessage> {
-  bool _isShowContextNote = false;
-
-  void _toggleContextNote() {
-    setState(() {
-      _isShowContextNote = !_isShowContextNote;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryContainer,
-              border: Border.all(color: AppColors.border),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Icon(
-              Icons.smart_toy_outlined,
-              size: 20,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: FractionallySizedBox(
-              widthFactor: 0.8,
-              alignment: Alignment.centerLeft,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryContainer,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.turn?.line_text ?? '',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Transform.translate(
-                      offset: const Offset(-4, 0),
-                      child: Row(
-                        children: [
-                          IconButton.filled(
-                            tooltip: 'Play audio',
-                            onPressed: widget.onPlay,
-                            icon: widget.isPlaying
-                                ? Lottie.asset(
-                                    'assets/sound_voice_waves.json',
-                                    width: 20,
-                                    height: 20,
-                                    repeat: true,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Icon(
-                                    Icons.volume_up_outlined,
-                                    size: 20,
-                                  ),
-                          ),
-                          IconButton.outlined(
-                            tooltip: 'Translate',
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                AppColors.white,
-                              ),
-                            ),
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.translate_outlined,
-                              size: 20,
-                            ),
-                          ),
-                          if (widget.turn?.context_note != null)
-                            IconButton.outlined(
-                              tooltip: 'Context note',
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                  _isShowContextNote
-                                      ? AppColors.primaryContainer
-                                      : AppColors.white,
-                                ),
-                              ),
-                              onPressed: _toggleContextNote,
-                              icon: const Icon(Icons.info_outline, size: 20),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _isShowContextNote
-                        ? Text(
-                            widget.turn?.context_note ?? '',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(fontStyle: FontStyle.italic),
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserMessage extends StatefulWidget {
-  const _UserMessage({
-    required this.turn,
-    required this.index,
-    required this.isPlaying,
-    required this.onPlay,
-    required this.recognizedText,
-    this.tokens,
-  });
-
-  final DialogTurn? turn;
-  final int index;
-  final bool isPlaying;
-  final VoidCallback onPlay;
-  final String recognizedText;
-  final List<TokenResult>? tokens;
-  @override
-  State<_UserMessage> createState() => _UserMessageState();
-}
-
-class _UserMessageState extends State<_UserMessage> {
-  bool _isShowContextNote = false;
-
-  void _toggleContextNote() {
-    setState(() {
-      _isShowContextNote = !_isShowContextNote;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: FractionallySizedBox(
-              widthFactor: 0.8,
-              alignment: Alignment.centerRight,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        children: widget.tokens != null
-                            ? widget.tokens!
-                                  .expand(
-                                    (token) => [
-                                      TextSpan(
-                                        text: token.display,
-                                        style: token.state == WordState.matched
-                                            ? Theme.of(
-                                                context,
-                                              ).textTheme.bodyLarge?.copyWith(
-                                                color: AppColors.scoreHigh,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                decorationStyle:
-                                                    TextDecorationStyle.dashed,
-                                              )
-                                            : Theme.of(
-                                                context,
-                                              ).textTheme.bodyLarge?.copyWith(
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                decorationStyle:
-                                                    TextDecorationStyle.dashed,
-                                              ),
-                                      ),
-                                      const TextSpan(text: '  '),
-                                    ],
-                                  )
-                                  .toList()
-                            : widget.turn?.line_text
-                                      .split(' ')
-                                      .expand(
-                                        (word) => [
-                                          TextSpan(
-                                            text: word,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.copyWith(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  decorationStyle:
-                                                      TextDecorationStyle
-                                                          .dashed,
-                                                ),
-                                          ),
-                                          const TextSpan(text: '  '),
-                                        ],
-                                      )
-                                      .toList() ??
-                                  [],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Transform.translate(
-                      offset: const Offset(-4, 0),
-                      child: Row(
-                        children: [
-                          IconButton.filled(
-                            tooltip: 'Play audio',
-                            onPressed: widget.onPlay,
-                            icon: widget.isPlaying
-                                ? Lottie.asset(
-                                    'assets/sound_voice_waves.json',
-                                    width: 20,
-                                    height: 20,
-                                    repeat: true,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Icon(
-                                    Icons.volume_up_outlined,
-                                    size: 20,
-                                  ),
-                          ),
-                          IconButton.outlined(
-                            tooltip: 'Translate',
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.translate_outlined,
-                              size: 20,
-                            ),
-                          ),
-                          if (widget.turn?.context_note != null)
-                            IconButton.outlined(
-                              tooltip: 'Context note',
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                  _isShowContextNote
-                                      ? AppColors.primaryContainer
-                                      : AppColors.white,
-                                ),
-                              ),
-                              onPressed: _toggleContextNote,
-                              icon: const Icon(Icons.info_outline, size: 20),
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (_isShowContextNote &&
-                        widget.turn?.context_note != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.turn!.context_note!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryContainer,
-              border: Border.all(color: AppColors.border),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Icon(
-              Icons.person_outline,
-              size: 20,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
       ),
     );
   }
