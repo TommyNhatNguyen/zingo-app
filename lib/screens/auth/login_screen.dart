@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
@@ -8,6 +7,8 @@ import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
+import 'package:zingo/screens/auth/widgets/login_with_google_button.dart';
+import 'package:zingo/screens/auth/widgets/logo_info.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,12 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isShowPassword = false;
-
-  void _toggleShowPassword() {
-    setState(() {
-      _isShowPassword = !_isShowPassword;
-    });
-  }
 
   @override
   void dispose() {
@@ -43,14 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  void _loginWithGoogle(BuildContext context) {
-    context.read<AuthBloc>().add(AuthLoginWithGoogle());
-  }
-
-  void _register() {
-    context.go("/register");
   }
 
   @override
@@ -96,34 +83,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
                   children: [
                     const SizedBox(height: 36),
-                    Center(
-                      child: SvgPicture.asset(
-                        "assets/logo_icon.svg",
-                        width: 100,
-                        height: 100,
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Zingo",
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: Text(
-                              "Boost your english skills with bite size dialogs",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    const LogoInfo(),
                     const SizedBox(height: 36),
                     TextFormField(
                       controller: _emailController,
@@ -134,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: "Enter your email",
                       ),
                     ),
-                    const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
@@ -142,7 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefixIcon: const Icon(Icons.lock),
                         hintText: "Enter your password",
                         suffixIcon: IconButton(
-                          onPressed: _toggleShowPassword,
+                          onPressed: () => setState(() {
+                            _isShowPassword = !_isShowPassword;
+                          }),
                           icon: Icon(
                             _isShowPassword
                                 ? Icons.visibility
@@ -152,51 +116,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       obscureText: !_isShowPassword,
                     ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : () => _login(context),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text("Login"),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Expanded(child: Divider(thickness: 1)),
-                        const SizedBox(width: 8),
-                        Text("Or sign in with"),
-                        const SizedBox(width: 8),
-                        const Expanded(child: Divider(thickness: 1)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: isLoading
-                            ? null
-                            : () => _loginWithGoogle(context),
-                        icon: SvgPicture.network(
-                          "https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg",
-                          fit: BoxFit.contain,
-                          width: 24,
-                          height: 24,
-                        ),
-                        label: const Text("Sign in with Google"),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    _buildLoginButton(isLoading, context),
+                    _buildDivider(),
+                    const LoginWithGoogleButton(),
                     TextButton(
-                      onPressed: isLoading ? null : () => _register(),
+                      onPressed: isLoading
+                          ? null
+                          : () => context.go("/register"),
                       child: Text.rich(
                         TextSpan(
                           children: [
@@ -218,6 +144,33 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       },
+    );
+  }
+
+  Row _buildDivider() {
+    return Row(
+      spacing: 8,
+      children: [
+        const Expanded(child: Divider()),
+        Text("Or sign in with"),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+
+  Widget _buildLoginButton(bool isLoading, BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : () => _login(context),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text("Login"),
+      ),
     );
   }
 }

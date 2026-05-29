@@ -1,39 +1,39 @@
-/// sentence_matcher.dart
-///
-/// Duolingo-style spoken-sentence matcher for a Flutter English app.
-///
-/// Design:
-///   • Order-independent coverage. The learner can say words in any order;
-///     each target word is matched the first time it's heard and STAYS matched
-///     (sticky). The attempt passes once coverage reaches a threshold that is
-///     deliberately below 100%.
-///   • Per-word predicate is a 3-tier union, cheapest/surest first:
-///         exact  ->  Double Metaphone (sound-alike)  ->  Dice >= 0.7 (spelling)
-///     Any tier passing counts as a match. Words of 1-2 letters use exact only,
-///     because short metaphone codes collide with too much.
-///   • Contractions are NOT expanded. "I've" normalizes to "ive" and matches a
-///     recognized "I've" on the exact tier, keeping a clean 1:1 word mapping.
-///
-/// No external dependencies. Pair with the `speech_to_text` package:
-///
-///   final matcher = SentenceMatcher("I've a brown wallet taken from Jake's bag");
-///   final stopwatch = Stopwatch();
-///   _speech.listen(
-///     partialResults: true,
-///     localeId: 'en_US',
-///     onResult: (r) {
-///       if (!stopwatch.isRunning) stopwatch.start();
-///       final m = matcher.update(r.recognizedWords); // cumulative transcript
-///       setState(() {
-///         _tokens = m.tokens;          // per-word states for the highlight UI
-///         _completion = m.completion;  // 0.0 .. 1.0 for the progress bar
-///         _passed = m.passed;          // coverage >= threshold
-///         _wpm = SentenceMatcher.wordsPerMinute(m.matchedCount, stopwatch.elapsed);
-///       });
-///     },
-///   );
-///
-/// Run `dart run sentence_matcher.dart` to see the worked example at the bottom.
+// / sentence_matcher.dart
+// /
+// / Duolingo-style spoken-sentence matcher for a Flutter English app.
+// /
+// / Design:
+// /   • Order-independent coverage. The learner can say words in any order;
+// /     each target word is matched the first time it's heard and STAYS matched
+// /     (sticky). The attempt passes once coverage reaches a threshold that is
+// /     deliberately below 100%.
+// /   • Per-word predicate is a 3-tier union, cheapest/surest first:
+// /         exact  ->  Double Metaphone (sound-alike)  ->  Dice >= 0.7 (spelling)
+// /     Any tier passing counts as a match. Words of 1-2 letters use exact only,
+// /     because short metaphone codes collide with too much.
+// /   • Contractions are NOT expanded. "I've" normalizes to "ive" and matches a
+// /     recognized "I've" on the exact tier, keeping a clean 1:1 word mapping.
+// /
+// / No external dependencies. Pair with the `speech_to_text` package:
+// /
+// /   final matcher = SentenceMatcher("I've a brown wallet taken from Jake's bag");
+// /   final stopwatch = Stopwatch();
+// /   _speech.listen(
+// /     partialResults: true,
+// /     localeId: 'en_US',
+// /     onResult: (r) {
+// /       if (!stopwatch.isRunning) stopwatch.start();
+// /       final m = matcher.update(r.recognizedWords); // cumulative transcript
+// /       setState(() {
+// /         _tokens = m.tokens;          // per-word states for the highlight UI
+// /         _completion = m.completion;  // 0.0 .. 1.0 for the progress bar
+// /         _passed = m.passed;          // coverage >= threshold
+// /         _wpm = SentenceMatcher.wordsPerMinute(m.matchedCount, stopwatch.elapsed);
+// /       });
+// /     },
+// /   );
+// /
+// / Run `dart run sentence_matcher.dart` to see the worked example at the bottom.
 
 enum WordState { pending, matched }
 
