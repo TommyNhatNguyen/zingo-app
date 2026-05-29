@@ -7,6 +7,7 @@ import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
+import 'package:zingo/screens/auth/widgets/auth_divider.dart';
 import 'package:zingo/screens/auth/widgets/login_with_google_button.dart';
 import 'package:zingo/screens/auth/widgets/logo_info.dart';
 
@@ -85,9 +86,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 8,
                   children: [
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 28),
                     const LogoInfo(),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 28),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -117,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: !_isShowPassword,
                     ),
                     _buildLoginButton(isLoading, context),
-                    _buildDivider(),
+                    const AuthDivider(),
                     const LoginWithGoogleButton(),
                     TextButton(
                       onPressed: isLoading
@@ -144,17 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       },
-    );
-  }
-
-  Row _buildDivider() {
-    return Row(
-      spacing: 8,
-      children: [
-        const Expanded(child: Divider()),
-        Text("Or sign in with"),
-        const Expanded(child: Divider()),
-      ],
     );
   }
 

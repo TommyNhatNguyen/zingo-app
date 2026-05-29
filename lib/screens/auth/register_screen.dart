@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
@@ -11,6 +10,9 @@ import 'package:zingo/blocs/users/get/users_event.dart';
 import 'package:zingo/blocs/users/get/users_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
+import 'package:zingo/screens/auth/widgets/auth_divider.dart';
+import 'package:zingo/screens/auth/widgets/login_with_google_button.dart';
+import 'package:zingo/screens/auth/widgets/register_info.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -109,35 +111,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 8,
                       children: [
-                        const SizedBox(height: 36),
-                        Center(
-                          child: SvgPicture.asset(
-                            "assets/logo_zingo.svg",
-                            width: 100,
-                            height: 100,
-                          ),
-                        ),
-                        Center(
-                          child: Column(
-                            children: [
-                              Text(
-                                "Create an account",
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 200,
-                                child: Text(
-                                  "Let's start using Zingo and boost your english skills with bite size dialogs",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 36),
+                        const SizedBox(height: 28),
+                        const RegisterInfo(),
+                        const SizedBox(height: 28),
                         TextFormField(
                           controller: _usernameController,
                           decoration: const InputDecoration(
@@ -152,7 +130,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 8),
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -168,7 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 8),
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
@@ -187,7 +163,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 8),
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: true,
@@ -206,25 +181,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => _register(context),
-                            child: isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text("Register"),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                        _buildRegisterButton(isLoading, context),
+                        const AuthDivider(),
+                        const LoginWithGoogleButton(),
                         TextButton(
                           onPressed: isLoading
                               ? null
@@ -253,6 +212,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  SizedBox _buildRegisterButton(bool isLoading, BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : () => _register(context),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text("Register"),
       ),
     );
   }
