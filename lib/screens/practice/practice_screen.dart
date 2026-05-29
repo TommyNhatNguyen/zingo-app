@@ -45,9 +45,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late final InMemoryChatController _chatController;
   late final PracticeScreenBloc _practiceScreenBloc;
   late final AudioPlayer _audioPlayer;
+
   final ValueNotifier<String?> _recognizedText = ValueNotifier<String?>(null);
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
-  final DebounceUtil _debouncer = DebounceUtil(milliseconds: 300);
+  final DebounceUtil _debouncer = DebounceUtil(milliseconds: 150);
 
   @override
   void initState() {
@@ -55,24 +56,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _chatController = InMemoryChatController();
     _practiceScreenBloc = context.read<PracticeScreenBloc>();
     _audioPlayer = AudioPlayer();
-    _warmUpSpeech();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> _warmUpSpeech() async {
-    if (!_speechToTextController.isAvailable) return;
-    await _speechToTextController.listen(
-      onResult: (_) {},
-      listenOptions: SpeechListenOptions(
-        listenFor: const Duration(milliseconds: 500),
-        pauseFor: const Duration(milliseconds: 500),
-      ),
-    );
-    await _speechToTextController.stop();
   }
 
   Future<void> _insertDialogTurn({
@@ -128,8 +116,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return;
     }
 
-    // Claim the ID before pausing so playingDialogTurnID never has a null gap
-    // between switching turns (which would flash the mic button enabled).
     _practiceScreenBloc.add(
       PracticeScreenPlayDialogTurnAudioEvent(
         turn: turn,
@@ -145,8 +131,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
     await _playAudio(audioUrl: file.uri.toString());
 
-    // Only clear if this call is still the owner — a newer tap may have already
-    // claimed the ID, in which case clearing it would cause the same flash.
     if (_practiceScreenBloc.state.playingDialogTurnID == turn.id) {
       _practiceScreenBloc.add(
         PracticeScreenPlayDialogTurnAudioEvent(
@@ -158,29 +142,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   Future<void> _startSpeaking() async {
+    // if (_isSpeechToTextStared) return;
     try {
-      _practiceScreenBloc.add(PracticeScreenStartListeningEvent());
-      await _speechToTextController.listen(
-        onResult: _onRecognizedText,
-        listenOptions: SpeechListenOptions(
-          listenFor: const Duration(minutes: 1),
-          pauseFor: const Duration(seconds: 5),
-        ),
-      );
       _speechToTextController.statusListener = (status) {
         print('Listening Status: $status');
-        if (status == "done" && _practiceScreenBloc.state.isListening) {
-          _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
-          Toastification().show(
-            context: context,
-            type: ToastificationType.warning,
-            style: ToastificationStyle.flat,
-            title: const Text('Not recognized'),
-            description: Text("Please try to speak louder"),
-            autoCloseDuration: const Duration(seconds: 4),
-          );
+        if (status == "listening") {
+          _practiceScreenBloc.add(PracticeScreenStartListeningEvent());
+          return;
         }
-        if (status == "done" && !_practiceScreenBloc.state.isListening) {
+        if (status == "done") {
+          _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
           if (_recognizedText.value == null) {
             Toastification().show(
               context: context,
@@ -191,11 +162,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
               autoCloseDuration: const Duration(seconds: 4),
             );
           }
+          return;
         }
       };
       _speechToTextController.errorListener = (error) {
         print('Listening Error: $error');
       };
+      await _speechToTextController.listen(
+        onResult: _onRecognizedText,
+        listenOptions: SpeechListenOptions(
+          listenFor: const Duration(minutes: 1),
+          pauseFor: const Duration(seconds: 5),
+        ),
+      );
       print("--------------------------------");
     } catch (e) {
       print('Error Starting Speaking: ${e.toString()}');
@@ -212,7 +191,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Future<void> _stopSpeaking() async {
     try {
-      _practiceScreenBloc.add(PracticeScreenStopListeningEvent());
       await _speechToTextController.stop();
     } catch (e) {
       print('Error Stopping Speaking: ${e.toString()}');
@@ -241,32 +219,38 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _onRecognizedText(SpeechRecognitionResult result) {
     _recognizedText.value = result.recognizedWords;
-    if (result.finalResult &&
+    final hasSpeech =
+        result.finalResult &&
         !_practiceScreenBloc.state.isListening &&
-        result.recognizedWords.isNotEmpty) {
+        result.recognizedWords.isNotEmpty;
+
+    if (hasSpeech) {
       final currentTurn = _practiceScreenBloc
           .state
           .turns?[_practiceScreenBloc.state.currentTurnIndex];
-      if (currentTurn == null) return;
       _practiceScreenBloc.add(
         PracticeScreenRecognizedTextEvent(
           recognizedText: _recognizedText.value!,
-          dialogTurnId: currentTurn.id,
+          dialogTurnId: currentTurn!.id,
         ),
       );
-      _practiceScreenBloc.add(
-        PracticeScreenShouldPlayNextDialogTurnEvent(
-          shouldPlayNextDialogTurn: true,
-        ),
-      );
+
+      final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
+      if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) {
+        _practiceScreenBloc.add(PracticeScreenEndTurnEvent());
+      } else {
+        _practiceScreenBloc.add(
+          PracticeScreenShouldPlayNextDialogTurnEvent(
+            shouldPlayNextDialogTurn: true,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _continueToNextDialogTurn() async {
     final nextTurnIndex = _practiceScreenBloc.state.currentTurnIndex + 1;
-    if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) return;
-    final nextTurn = _practiceScreenBloc.state.turns?[nextTurnIndex];
-    if (nextTurn == null) return;
+    final nextTurn = _practiceScreenBloc.state.turns![nextTurnIndex];
     _practiceScreenBloc.add(
       PracticeScreenShouldPlayNextDialogTurnEvent(
         shouldPlayNextDialogTurn: false,
@@ -287,13 +271,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
         BlocListener<DialogTurnsListByDialogBloc, DialogTurnsListByDialogState>(
           listener: (context, state) async {
             if (state.requestStatus == RequestStatus.success &&
-                state.data != null) {
-              if (state.data!.isEmpty) return;
+                state.data != null &&
+                state.data!.isNotEmpty) {
               _practiceScreenBloc.add(
                 PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
               );
-              final firstTurn = state.data!.first;
-              await _insertDialogTurn(turn: firstTurn, currentTurnIndex: 0);
+              await _insertDialogTurn(
+                turn: state.data!.first,
+                currentTurnIndex: 0,
+              );
             }
           },
         ),
