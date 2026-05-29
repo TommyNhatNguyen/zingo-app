@@ -21,6 +21,7 @@ import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_state.dart';
 import 'package:zingo/services/cache_service.dart';
+import 'package:zingo/services/matching_text_service.dart';
 import 'package:zingo/services/speech_to_text_service.dart';
 import 'package:zingo/utils/debounce_util.dart';
 
@@ -50,6 +51,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
   final DebounceUtil _debouncer = DebounceUtil(milliseconds: 150);
 
+  // Matching — one SentenceMatcher per user turn, keyed by turn.id.
+  final Map<String, SentenceMatcher> _matchers = {};
+  final Map<String, MatchResult> _finalMatchResults = {};
+  final ValueNotifier<MatchResult?> _activeMatchResult = ValueNotifier(null);
+  String? _activeTurnId;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +67,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   void dispose() {
+    _chatController.dispose();
+    _audioPlayer.dispose();
+    _recognizedText.dispose();
+    _activeMatchResult.dispose();
     super.dispose();
   }
 
@@ -82,7 +93,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
         currentTurnIndex: currentTurnIndex,
       ),
     );
-    if (turn.speaker == Speaker.user) return;
+    if (turn.speaker == Speaker.user) {
+      _activeTurnId = turn.id;
+      _matchers[turn.id] = SentenceMatcher(turn.line_text);
+      _activeMatchResult.value = _matchers[turn.id]!.update('');
+      return;
+    }
 
     final nextTurnIndex = currentTurnIndex + 1;
     if (nextTurnIndex >= _practiceScreenBloc.state.turns!.length) return;
@@ -219,9 +235,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _onRecognizedText(SpeechRecognitionResult result) {
     _recognizedText.value = result.recognizedWords;
+
+    if (_activeTurnId != null && _matchers.containsKey(_activeTurnId)) {
+      _activeMatchResult.value =
+          _matchers[_activeTurnId!]!.update(result.recognizedWords);
+    }
+
     final hasSpeech = result.finalResult && result.recognizedWords.isNotEmpty;
-  // Handle matching logic here
     if (hasSpeech) {
+      if (_activeTurnId != null && _activeMatchResult.value != null) {
+        _finalMatchResults[_activeTurnId!] = _activeMatchResult.value!;
+      }
       final currentTurn = _practiceScreenBloc
           .state
           .turns?[_practiceScreenBloc.state.currentTurnIndex];
@@ -373,9 +397,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                 onPlay: () => _playDialogTurnAudio(turn: turn),
                               );
                             }
-                            return ValueListenableBuilder(
-                              valueListenable: _recognizedText,
-                              builder: (context, value, child) {
+                            return ListenableBuilder(
+                              listenable: Listenable.merge([
+                                _recognizedText,
+                                _activeMatchResult,
+                              ]),
+                              builder: (context, child) {
+                                final isActiveTurn =
+                                    turn.id == _activeTurnId;
+                                final tokens = isActiveTurn
+                                    ? _activeMatchResult.value?.tokens
+                                    : _finalMatchResults[turn.id]?.tokens;
                                 return _UserMessage(
                                   turn: turn,
                                   index: index,
@@ -383,9 +415,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                   onPlay: () =>
                                       _playDialogTurnAudio(turn: turn),
                                   recognizedText:
-                                      value ??
+                                      _recognizedText.value ??
                                       state.recognizedTexts?[turn.id] ??
                                       '',
+                                  tokens: tokens,
                                 );
                               },
                             );
@@ -600,6 +633,7 @@ class _UserMessage extends StatefulWidget {
     required this.isPlaying,
     required this.onPlay,
     required this.recognizedText,
+    this.tokens,
   });
 
   final DialogTurn? turn;
@@ -607,6 +641,7 @@ class _UserMessage extends StatefulWidget {
   final bool isPlaying;
   final VoidCallback onPlay;
   final String recognizedText;
+  final List<TokenResult>? tokens;
   @override
   State<_UserMessage> createState() => _UserMessageState();
 }
@@ -646,49 +681,58 @@ class _UserMessageState extends State<_UserMessage> {
                     Text.rich(
                       TextSpan(
                         style: Theme.of(context).textTheme.bodyLarge,
-                        children:
-                            widget.turn?.line_text
-                                .split(' ')
-                                .map((word) {
-                                  final cleanWord = word.replaceAll(
-                                    RegExp(r'[^a-zA-Z0-9]'),
-                                    '',
-                                  );
-                                  final cleanRecognized = widget.recognizedText
-                                      .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
-                                  final matched =
-                                      cleanWord.isNotEmpty &&
-                                      cleanRecognized.toLowerCase().contains(
-                                        cleanWord.toLowerCase(),
-                                      );
-                                  return [
+                        children: widget.tokens != null
+                            ? widget.tokens!
+                                .expand(
+                                  (token) => [
                                     TextSpan(
-                                      text: word,
-                                      style: matched
-                                          ? Theme.of(
-                                              context,
-                                            ).textTheme.bodyLarge?.copyWith(
-                                              color: AppColors.scoreHigh,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationStyle:
-                                                  TextDecorationStyle.dashed,
-                                            )
-                                          : Theme.of(
-                                              context,
-                                            ).textTheme.bodyLarge?.copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationStyle:
-                                                  TextDecorationStyle.dashed,
-                                            ),
+                                      text: token.display,
+                                      style: token.state == WordState.matched
+                                          ? Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                color: AppColors.scoreHigh,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationStyle:
+                                                    TextDecorationStyle.dashed,
+                                              )
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationStyle:
+                                                    TextDecorationStyle.dashed,
+                                              ),
                                     ),
                                     const TextSpan(text: '  '),
-                                  ];
-                                })
-                                .expand((e) => e)
-                                .toList() ??
-                            [],
+                                  ],
+                                )
+                                .toList()
+                            : widget.turn?.line_text
+                                    .split(' ')
+                                    .expand(
+                                      (word) => [
+                                        TextSpan(
+                                          text: word,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationStyle:
+                                                    TextDecorationStyle.dashed,
+                                              ),
+                                        ),
+                                        const TextSpan(text: '  '),
+                                      ],
+                                    )
+                                    .toList() ??
+                                [],
                       ),
                     ),
                     const SizedBox(height: 8),
