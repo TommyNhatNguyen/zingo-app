@@ -153,9 +153,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Future<void> _playDialogTurnAudio({required DialogTurn turn}) async {
     if (!mounted) return;
-    // If the turn is already playing, do nothing.
     if (_currentPlayingTurnId == turn.id) return;
-    // If the turn does not have an audio, show an error.
     if (turn.tts_model_audio_url == null) {
       Toastification().show(
         context: context,
@@ -168,21 +166,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return;
     }
 
-    // Set the playing turn ID.
     _practiceScreenBloc.add(
       PracticeScreenSetPlayingAudioEvent(turnId: turn.id),
     );
     _practiceScreenBloc.add(
       PracticeScreenSetPhaseEvent(PracticePhase.disabled),
     );
-    // Play the audio.
     await _audioPlayer.pause();
     await _audioPlayer.seek(Duration.zero);
     final file = await AudioCacheService.instance.getSingleFile(
       turn.tts_model_audio_url!,
     );
     await _playAudio(audioUrl: file.uri.toString());
-    // Clear the playing turn ID, if the turn is still playing.
     if (_currentPlayingTurnId == turn.id) {
       _practiceScreenBloc.add(const PracticeScreenSetPlayingAudioEvent());
       _practiceScreenBloc.add(PracticeScreenSetPhaseEvent(PracticePhase.idle));
@@ -193,38 +188,93 @@ class _PracticeScreenState extends State<PracticeScreen> {
   // Speech-to-text
   // ---------------------------------------------------------------------------
 
+  /// Single source of truth for phase transitions after a user speaking turn.
+  /// Idempotent — safe to call from both [_onRecognizedText] (on finalResult,
+  /// which fires early) and [_handleListening] ("done" status, safety net).
+  void _processResult() {
+    if (!mounted) return;
+    final phase = _practiceScreenBloc.state.phase;
+    if (phase == PracticePhase.awaitingContinue ||
+        phase == PracticePhase.finished ||
+        phase == PracticePhase.awaitingRetry) {
+      return;
+    }
+
+    final matchResult = _activeMatchResult.value;
+
+    if (matchResult == null) {
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.awaitingRetry),
+      );
+      return;
+    }
+
+    if (!matchResult.passed) {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.warning,
+        style: ToastificationStyle.flat,
+        title: const Text('Keep trying!'),
+        description: Text(
+          'Your accuracy is only ${(matchResult.completion * 100).round()}%. Please try again.',
+        ),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      _matchers[_activeTurnId!]!.reset();
+      _activeMatchResult.value = _matchers[_activeTurnId!]!.update('');
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.awaitingRetry),
+      );
+      return;
+    }
+
+    if (_activeTurnId != null) {
+      _finalMatchResults[_activeTurnId!] = matchResult;
+    }
+
+    final nextTurnIndex = _currentTurnIndex + 1;
+    final isLastTurn = nextTurnIndex >= totalTurns;
+
+    if (isLastTurn) {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: const Text('Dialog complete! 🎉'),
+        description: const Text("You've finished the dialog. Great job!"),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.finished),
+      );
+    } else {
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: const Text('Nice! Keep going 👍'),
+        description: const Text('Tap Continue to move to the next turn.'),
+        autoCloseDuration: const Duration(seconds: 3),
+      );
+      _practiceScreenBloc.add(
+        PracticeScreenSetPhaseEvent(PracticePhase.awaitingContinue),
+      );
+    }
+  }
+
   void _handleListening(String status) {
     if (status == 'listening') {
       _practiceScreenBloc.add(
         PracticeScreenSetPhaseEvent(PracticePhase.listening),
       );
-    } else if (status == "done") {
-      if (totalTurns == 0) return;
-      final nextTurnIndex = _currentTurnIndex + 1;
-      // Case 1: Last turn
-      if (nextTurnIndex >= totalTurns) {
-        _practiceScreenBloc.add(
-          PracticeScreenSetPhaseEvent(PracticePhase.finished),
-        );
-        return;
-      }
-      // Case 2: Retry
-      final shouldRetry = _onValidatedMatchResult();
-      if (shouldRetry) {
-        return;
-      } else {
-        // Case 3: Continue
-        _practiceScreenBloc.add(
-          PracticeScreenSetPhaseEvent(PracticePhase.awaitingContinue),
-        );
-      }
+    } else if (status == 'done') {
+      _processResult(); // safety net — idempotent if finalResult already handled it
     }
   }
 
   Future<void> _startSpeaking() async {
     _speechToTextController.statusListener = (status) {
       if (!mounted) return;
-      print("Status: $status");
       _handleListening(status);
     };
     await _speechToTextController.listen(
@@ -241,86 +291,36 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _debounceToggleSpeaking() {
-    final shouldStart = [
-      PracticePhase.idle,
-      PracticePhase.awaitingRetry,
-    ].contains(_practiceScreenBloc.state.phase);
+    final phase = _practiceScreenBloc.state.phase;
+    final shouldStart =
+        phase == PracticePhase.idle || phase == PracticePhase.awaitingRetry;
     if (shouldStart) {
       _debouncer.run(() => _startSpeaking());
-    } else {
+    } else if (phase == PracticePhase.listening) {
       _debouncer.run(() => _stopSpeaking());
     }
   }
 
-  bool _onValidatedMatchResult() {
-    print("Validated match result: ${_activeMatchResult.value}");
-    print("Passed: ${_speechToTextController.lastStatus}");
-    if (_speechToTextController.lastStatus == "done") {
-      // Case 1: Match result is null
-      if (_activeMatchResult.value == null) {
-        _practiceScreenBloc.add(
-          PracticeScreenSetPhaseEvent(PracticePhase.awaitingRetry),
-        );
-        return true;
-      }
-      // Case 2: Match result is not passed
-      if (!_activeMatchResult.value!.passed) {
-        Toastification().show(
-          context: context,
-          type: ToastificationType.warning,
-          style: ToastificationStyle.flat,
-          title: const Text('Keep trying!'),
-          description: Text(
-            'Your accuracy in only ${(_activeMatchResult.value!.completion * 100).round()}%. Please try again.',
-          ),
-          autoCloseDuration: const Duration(seconds: 4),
-        );
-        _matchers[_activeTurnId!]!.reset();
-        _activeMatchResult.value = _matchers[_activeTurnId!]!.update('');
-        _practiceScreenBloc.add(
-          PracticeScreenSetPhaseEvent(PracticePhase.awaitingRetry),
-        );
-        return true;
-      }
-      // Case 3: Match result is passed
-      if (_activeTurnId != null && _activeMatchResult.value != null) {
-        _finalMatchResults[_activeTurnId!] = _activeMatchResult.value!;
-        return false;
-      }
-    }
-    return true;
-  }
-
   void _onRecognizedText(SpeechRecognitionResult result) {
-    print("Recognized words: ${result.recognizedWords}");
     if (!mounted) return;
-
-    // Has user's speaking turn: update the match result.
     if (_hasActiveMatcher) {
       _activeMatchResult.value = _matchers[_activeTurnId]?.update(
         result.recognizedWords,
       );
     }
     if (result.finalResult) {
-      _onValidatedMatchResult();
+      _processResult();
     }
   }
 
   void _onEndTurn() {
-    Toastification().show(
-      context: context,
-      type: ToastificationType.success,
-      style: ToastificationStyle.flat,
-      title: const Text('Turn ended'),
-      description: const Text('The turn has been ended successfully'),
-      autoCloseDuration: const Duration(seconds: 4),
-    );
+    context.go('/learn');
   }
 
   Future<void> _onBack() async {
-    if (!mounted) return;
     await _audioPlayer.stop();
     await _speechToTextController.stop();
+    if (!mounted) return;
     context.go('/learn');
   }
 
