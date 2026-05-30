@@ -178,6 +178,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             description: Text('Please try again'),
             autoCloseDuration: const Duration(seconds: 4),
           );
+          _pageViewController.animateToPage(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         }
       },
       builder: (context, state) {
