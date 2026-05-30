@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:toastification/toastification.dart';
-import 'package:zingo/blocs/auth/auth_bloc.dart';
-import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_state.dart';
-import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart' as app_enums;
-import 'package:zingo/constants/notification_time.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
-import 'package:zingo/widgets/card_select.dart';
+import 'package:zingo/screens/users/widgets/daily_goal.dart';
+import 'package:zingo/screens/users/widgets/logout_button.dart';
+import 'package:zingo/screens/users/widgets/reminder_time.dart';
+import 'package:zingo/screens/users/widgets/user_profile_header.dart';
 import 'package:zingo/widgets/pickers/english_level_picker.dart';
 import 'package:zingo/widgets/pickers/favorite_topics_picker.dart';
 import 'package:zingo/widgets/pickers/languages_picker.dart';
-import 'package:zingo/widgets/pickers/time_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -33,8 +32,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   TimeOfDay? _notificationTime;
   Set<String> _topicCodes = <String>{};
   bool _hydrated = false;
-
-  // Snapshot of loaded values used to compute diffs at save time.
   app_enums.EnglishLevel? _initialCefr;
   Set<String> _initialTopics = <String>{};
 
@@ -130,7 +127,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _hydrateFrom(state);
 
         if (state.saveStatus == app_enums.RequestStatus.success) {
-          // Refresh diff snapshot so subsequent saves are minimal.
           _initialCefr = _cefr;
           _initialTopics = _topicCodes.toSet();
           Toastification().show(
@@ -142,6 +138,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             autoCloseDuration: const Duration(seconds: 3),
           );
         }
+
         if (state.saveStatus == app_enums.RequestStatus.error ||
             state.loadStatus == app_enums.RequestStatus.error) {
           Toastification().show(
@@ -157,153 +154,93 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       builder: (context, state) {
         final isLoading = state.loadStatus == app_enums.RequestStatus.loading;
         final isSaving = state.saveStatus == app_enums.RequestStatus.loading;
-
         return Scaffold(
-          appBar: AppBar(title: const Text('Settings')),
-          body: isLoading && !_hydrated
-              ? const Center(child: CircularProgressIndicator())
-              : SafeArea(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                    children: [
-                      _buildHeader(context, state),
-                      const SizedBox(height: 24),
-                      _buildDisplayName(context),
-                      const SizedBox(height: 24),
-                      _buildEnglishLevel(context),
-                      const SizedBox(height: 24),
-                      _buildLanguageSection(
-                        context: context,
-                        title: 'Native language',
-                        subtitle: "We'll tailor tips and translations.",
-                        selected: _motherLanguage,
-                        onChanged: (code) =>
-                            setState(() => _motherLanguage = code),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildLanguageSection(
-                        context: context,
-                        title: 'Display language',
-                        subtitle: 'Language used across the app.',
-                        selected: _displayLanguage,
-                        onChanged: (code) =>
-                            setState(() => _displayLanguage = code),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildDailyGoal(context),
-                      const SizedBox(height: 24),
-                      _buildReminderTime(context),
-                      const SizedBox(height: 24),
-                      _buildTopics(context),
-                      const SizedBox(height: 24),
-                      _buildLogoutButton(context, isSaving),
-                    ],
+          appBar: AppBar(title: const Text('Profile settings')),
+          body: Skeletonizer(
+            enabled: isLoading,
+            child: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                children: [
+                  const UserProfileHeader(),
+                  const SizedBox(height: 24),
+                  _buildDisplayName(context),
+                  const SizedBox(height: 24),
+                  _buildEnglishLevel(context),
+                  const SizedBox(height: 24),
+                  _buildLanguageSection(
+                    context: context,
+                    title: 'Native language',
+                    subtitle: "We'll tailor tips and translations.",
+                    selected: _motherLanguage,
+                    onChanged: (code) => setState(() => _motherLanguage = code),
                   ),
-                ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: SizedBox(
-                height: 52,
-                child: FilledButton(
-                  onPressed: isSaving || isLoading
-                      ? null
-                      : () => _onSave(context),
-                  child: isSaving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Save changes'),
-                ),
+                  const SizedBox(height: 24),
+                  _buildLanguageSection(
+                    context: context,
+                    title: 'Display language',
+                    subtitle: 'Language used across the app.',
+                    selected: _displayLanguage,
+                    onChanged: (code) =>
+                        setState(() => _displayLanguage = code),
+                  ),
+                  const SizedBox(height: 24),
+                  DailyGoal(
+                    dailyGoal: PracticeGoal.all.firstWhere(
+                      (goal) => goal.value == _dailyGoal,
+                    ),
+                    onChange: (goal) => setState(() => _dailyGoal = goal.value),
+                  ),
+                  const SizedBox(height: 24),
+                  ReminderTime(
+                    notificationTime: _notificationTime ?? TimeOfDay.now(),
+                    onChange: (time) =>
+                        setState(() => _notificationTime = time),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildTopics(context),
+                  const SizedBox(height: 24),
+                  LogoutButton(disabled: isSaving || isLoading),
+                ],
               ),
             ),
+          ),
+          bottomNavigationBar: _buildSaveChangesButton(
+            isSaving,
+            isLoading,
+            context,
           ),
         );
       },
     );
   }
 
-  Widget _buildHeader(BuildContext context, UserSettingsState state) {
-    final user = state.user;
-    final username = user?.username ?? 'You';
-    final email = user?.email ?? '';
-    final initial = username.isNotEmpty ? username[0].toUpperCase() : '?';
-    final textTheme = Theme.of(context).textTheme;
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: AppColors.divider),
-      ),
-      color: AppColors.surface,
+  SafeArea _buildSaveChangesButton(
+    bool isSaving,
+    bool isLoading,
+    BuildContext context,
+  ) {
+    return SafeArea(
+      top: false,
+      bottom: true,
+      minimum: const EdgeInsets.only(bottom: 16),
       child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.primaryContainer,
-                  child: Text(
-                    initial,
-                    style: textTheme.headlineMedium?.copyWith(
-                      color: AppColors.primaryDark,
-                      fontWeight: FontWeight.w800,
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        child: SizedBox(
+          height: 52,
+          child: FilledButton(
+            onPressed: isSaving || isLoading ? null : () => _onSave(context),
+            child: isSaving
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        username,
-                        style: textTheme.headlineMedium,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        email,
-                        style: textTheme.bodySmall,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _StatPill(
-                  label: user?.cefr_level ?? 'A1',
-                  background: AppColors.primaryContainer,
-                  foreground: AppColors.primaryDark,
-                ),
-                _StatPill(
-                  label: '${user?.xp ?? 0} XP',
-                  background: AppColors.highlightContainer,
-                  foreground: AppColors.xp,
-                  icon: Icons.star_rounded,
-                ),
-                _StatPill(
-                  label: '${user?.streak ?? 0} day streak',
-                  background: AppColors.accentContainer,
-                  foreground: AppColors.streak,
-                  icon: Icons.local_fire_department_rounded,
-                ),
-              ],
-            ),
-          ],
+                  )
+                : const Text('Save changes'),
+          ),
         ),
       ),
     );
@@ -383,124 +320,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildDailyGoal(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle(
-          context,
-          title: 'Daily goal',
-          subtitle: 'How many dialogs do you want to practice each day?',
-        ),
-        RadioGroup<int>(
-          groupValue: _dailyGoal,
-          onChanged: (value) => setState(() => _dailyGoal = value ?? 1),
-          child: Column(
-            children: [
-              for (final goal in PracticeGoal.all)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: InkWell(
-                    onTap: () => setState(() => _dailyGoal = goal.value),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Card.outlined(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppColors.divider),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              goal.emoji,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.copyWith(fontSize: 24),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    goal.label,
-                                    style: Theme.of(context).textTheme.bodyLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    goal.description,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Radio<int>(value: goal.value),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReminderTime(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle(
-          context,
-          title: 'Reminder time',
-          subtitle: "We'll nudge you so you never break your streak.",
-        ),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 2.4,
-          crossAxisCount: 2,
-          children: NotificationTime.all.map((nt) {
-            return CardSelect(
-              emoji: nt.emoji,
-              label: nt.label,
-              isSelected: _notificationTime == nt.value,
-              onTap: () => setState(
-                () => _notificationTime = _notificationTime == nt.value
-                    ? null
-                    : nt.value,
-              ),
-              labelStyle: Theme.of(context).textTheme.bodySmall,
-              labelMaxLines: 2,
-              checkIconSize: 16,
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Or pick a custom time',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 8),
-        TimePicker(
-          value: _notificationTime,
-          onConfirm: (time) =>
-              setState(() => _notificationTime = time ?? _notificationTime),
-        ),
-      ],
-    );
-  }
-
   Widget _buildTopics(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,69 +334,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           onChanged: (next) => setState(() => _topicCodes = next),
         ),
       ],
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context, bool isSaving) {
-    return SizedBox(
-      height: 52,
-      child: OutlinedButton.icon(
-        onPressed: isSaving
-            ? null
-            : () => context.read<AuthBloc>().add(const AuthLoggedOut()),
-        icon: const Icon(Icons.logout, color: AppColors.scoreLow),
-        label: Text(
-          'Log out',
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(color: AppColors.scoreLow),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.scoreLow,
-          side: const BorderSide(color: AppColors.divider),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatPill extends StatelessWidget {
-  final String label;
-  final Color background;
-  final Color foreground;
-  final IconData? icon;
-
-  const _StatPill({
-    required this.label,
-    required this.background,
-    required this.foreground,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 16, color: foreground),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: foreground,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

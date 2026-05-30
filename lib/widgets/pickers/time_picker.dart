@@ -16,7 +16,7 @@ class TimePicker extends StatelessWidget {
   Future<void> _showTimePickerDialog(BuildContext context) async {
     TimeOfDay? time = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: value ?? TimeOfDay.now(),
     );
     if (time != null) {
       onConfirm(time);
