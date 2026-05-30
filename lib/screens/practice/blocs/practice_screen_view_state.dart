@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:zingo/models/dialog_turn.dart';
 
-enum PracticePhase { idle, listening, awaitingContinue, finished }
+enum PracticePhase { idle, listening, awaitingRetry, awaitingContinue, finished, disabled }
 
 class PracticeScreenViewState extends Equatable {
   final List<DialogTurn>? turns;
@@ -34,5 +34,10 @@ class PracticeScreenViewState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [turns, currentTurnIndex, playingDialogTurnID, phase];
+  List<Object?> get props => [
+    turns,
+    currentTurnIndex,
+    playingDialogTurnID,
+    phase,
+  ];
 }

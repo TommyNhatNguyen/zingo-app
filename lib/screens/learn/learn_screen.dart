@@ -38,7 +38,7 @@ class _LearnScreenState extends State<LearnScreen> {
               ),
             ],
           ),
-          body: SafeArea(
+          body: SafeArea( 
             child: SingleChildScrollView(
               child: Column(
                 children: [
