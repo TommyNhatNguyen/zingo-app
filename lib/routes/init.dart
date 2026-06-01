@@ -8,6 +8,7 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
@@ -42,10 +43,10 @@ class GoRouterRefreshStream extends ChangeNotifier {
 
 GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/onboarding',
-  initialLocation: '/learn',
+  // initialLocation: '/learn',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
-  // initialLocation: '/login',
+  initialLocation: '/login',
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     // final location = state.matchedLocation;
@@ -180,8 +181,11 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       pageBuilder: (context, state) {
         return NoTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (context) => DialogListBloc(),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (context) => DialogListBloc()),
+              BlocProvider(create: (context) => ListActiveDialogsBloc()),
+            ],
             child: const LearnScreen(),
           ),
         );
