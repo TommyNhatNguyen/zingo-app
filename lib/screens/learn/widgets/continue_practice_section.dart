@@ -8,7 +8,7 @@ import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_di
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
-import 'package:zingo/screens/learn/learn_screen.dart';
+import 'package:zingo/screens/learn/widgets/empty_section.dart';
 import 'package:zingo/screens/learn/widgets/topic_card.dart';
 
 class ContinuePracticeSection extends StatefulWidget {
