@@ -7,6 +7,7 @@ import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/screens/learn/widgets/continue_practice_section.dart';
+import 'package:zingo/screens/learn/widgets/favorite_section.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -55,40 +56,8 @@ class _LearnScreenState extends State<LearnScreen> {
                   children: [
                     // In-progress dialogs
                     ContinuePracticeSection(),
-                    // Your Favorites
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 8,
-                      children: [
-                        Row(
-                          spacing: 8,
-                          children: [
-                            Icon(Icons.favorite),
-                            Text(
-                              "Your favorites",
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        EmptySection(
-                          icon: Icon(Icons.favorite),
-                          title: Text(
-                            "No favorites yet",
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            "Add your favorite topics to continue practicing",
-                            softWrap: true,
-                          ),
-                          backgroundColor: AppColors.white,
-                          borderColor: AppColors.favoriteLight,
-                          iconColor: AppColors.favoriteContainer,
-                        ),
-                      ],
-                    ),
+                    // Your Favorites
+                    FavoriteSection(),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,

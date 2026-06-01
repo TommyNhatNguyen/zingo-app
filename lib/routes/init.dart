@@ -9,6 +9,7 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
+import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
@@ -185,6 +186,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             providers: [
               BlocProvider(create: (context) => DialogListBloc()),
               BlocProvider(create: (context) => ListActiveDialogsBloc()),
+              BlocProvider(create: (context) => ListFavoriteDialogsBloc()),
             ],
             child: const LearnScreen(),
           ),
