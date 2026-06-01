@@ -17,6 +17,13 @@ abstract final class AppColors {
   static const Color highlight = Color(0xFFFFB800);
   static const Color highlightContainer = Color(0xFFFFF8E0);
 
+  // ── Favorites — pink theme for favorites ──────────────────────────────────
+  // energetic, friendly, and vivid for favorites
+  static const Color favorite = Color(0xFFFF3D86);
+  static const Color favoriteLight = Color(0xFFFF86B3);
+  static const Color favoriteContainer = Color(0xFFFFEEF4);
+  static const Color favoriteOn = Color(0xFFFFFFFF);
+
   // ── Backgrounds & surfaces ─────────────────────────────────────────────────
   // barely-cyan tint — inviting and fresh, not clinical white
   static const Color background = Color(0xFFF5FCFD);
@@ -33,17 +40,17 @@ abstract final class AppColors {
   static const Color textOnHighlight = Color(0xFF0C2D36);
 
   // ── Semantic — score bars & feedback ──────────────────────────────────────
-  static const Color scoreHigh = Color(0xFF22C55E);   // 80–100 green
-  static const Color scoreMid = Color(0xFFF59E0B);    // 50–79 amber
-  static const Color scoreLow = Color(0xFFEF4444);    // 0–49 red
+  static const Color scoreHigh = Color(0xFF22C55E); // 80–100 green
+  static const Color scoreMid = Color(0xFFF59E0B); // 50–79 amber
+  static const Color scoreLow = Color(0xFFEF4444); // 0–49 red
 
   // ── Gamification ──────────────────────────────────────────────────────────
-  static const Color streak = Color(0xFFFF7043);       // orange flame
-  static const Color xp = Color(0xFFFFB800);           // gold coins
-  static const Color badge = Color(0xFF22C55E);        // green achievement
+  static const Color streak = Color(0xFFFF7043); // orange flame
+  static const Color xp = Color(0xFFFFB800); // gold coins
+  static const Color badge = Color(0xFF22C55E); // green achievement
 
   // ── Utility ───────────────────────────────────────────────────────────────
   static const Color divider = Color(0xFFDFF2F5);
   static const Color border = Color(0xFFC8E8ED);
-  static const Color shadow = Color(0x1A0891B2);       // primary at 10% opacity
+  static const Color shadow = Color(0x1A0891B2); // primary at 10% opacity
 }
