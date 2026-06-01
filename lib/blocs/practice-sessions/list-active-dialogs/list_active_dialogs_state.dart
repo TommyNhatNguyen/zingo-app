@@ -4,35 +4,35 @@ import 'package:zingo/models/dialog.dart';
 
 class ListActiveDialogsState extends Equatable {
   const ListActiveDialogsState({
-    this.dialogs,
+    this.data,
     this.requestStatus = RequestStatus.initial,
     this.error,
   });
 
-  final List<Dialog>? dialogs;
+  final List<Dialog>? data;
   final RequestStatus requestStatus;
   final String? error;
 
   factory ListActiveDialogsState.initial() {
     return const ListActiveDialogsState(
-      dialogs: [],
+      data: [],
       requestStatus: RequestStatus.initial,
       error: null,
     );
   }
 
   ListActiveDialogsState copyWith({
-    List<Dialog>? dialogs,
+    List<Dialog>? data,
     RequestStatus? requestStatus,
     String? error,
   }) {
     return ListActiveDialogsState(
-      dialogs: dialogs ?? this.dialogs,
+      data: data ?? this.data,
       requestStatus: requestStatus ?? this.requestStatus,
       error: error ?? this.error,
     );
   }
 
   @override
-  List<Object?> get props => [dialogs, requestStatus, error];
+  List<Object?> get props => [data, requestStatus, error];
 }

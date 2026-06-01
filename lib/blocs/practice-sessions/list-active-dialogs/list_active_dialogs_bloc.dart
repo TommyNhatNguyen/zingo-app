@@ -26,7 +26,7 @@ class ListActiveDialogsBloc
         event.payload,
       );
       emit(
-        state.copyWith(dialogs: dialogs, requestStatus: RequestStatus.success),
+        state.copyWith(data: dialogs, requestStatus: RequestStatus.success),
       );
     } on DioException catch (e) {
       emit(
