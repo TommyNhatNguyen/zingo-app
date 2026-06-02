@@ -23,7 +23,7 @@ class TopicCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: 16 / 9,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -119,9 +119,7 @@ class TopicCard extends StatelessWidget {
                         child: Text(
                           CapitalizeUtil.capitalize(
                             text:
-                                dialog?.topics?.name ??
-                                dialog?.title ??
-                                "N/A",
+                                dialog?.topics?.name ?? dialog?.title ?? "N/A",
                           ),
                           maxLines: 1,
                           softWrap: true,

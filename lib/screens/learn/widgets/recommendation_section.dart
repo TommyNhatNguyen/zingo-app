@@ -51,68 +51,74 @@ class _RecommendationSectionState extends State<RecommendationSection> {
         final isLoadingMore = state.requestStatus == RequestStatus.loadingMore;
         final items = state.data ?? [];
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
-            Column(
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
-                Row(
-                  spacing: 6,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.auto_awesome,
-                      size: 18,
-                      color: AppColors.highlight,
+                    Row(
+                      spacing: 6,
+                      children: [
+                        Icon(
+                          Icons.auto_awesome,
+                          size: 18,
+                          color: AppColors.highlight,
+                        ),
+                        Text(
+                          "Recommended for you",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                     Text(
-                      "Recommended for you",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      "Based on your level and recent practice",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
-                Text(
-                  "Based on your level and recent practice",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                Skeletonizer(
+                  enabled: isLoading,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8,
+                    children: isLoading
+                        ? List.generate(
+                            3,
+                            (_) => const _RecommendationCard(dialog: null),
+                          )
+                        : items
+                              .map((d) => _RecommendationCard(dialog: d))
+                              .toList(),
                   ),
                 ),
+                if (!isLoading && state.hasMore)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: isLoadingMore ? null : () => _loadMore(state),
+                      iconAlignment: IconAlignment.end,
+                      icon: isLoadingMore
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.expand_more),
+                      label: const Text("Load more"),
+                    ),
+                  ),
               ],
             ),
-            Skeletonizer(
-              enabled: isLoading,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 8,
-                children: isLoading
-                    ? List.generate(
-                        3,
-                        (_) => const _RecommendationCard(dialog: null),
-                      )
-                    : items.map((d) => _RecommendationCard(dialog: d)).toList(),
-              ),
-            ),
-            if (!isLoading && state.hasMore)
-              Center(
-                child: TextButton.icon(
-                  onPressed: isLoadingMore ? null : () => _loadMore(state),
-                  iconAlignment: IconAlignment.end,
-                  icon: isLoadingMore
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.expand_more),
-                  label: const Text("Load more"),
-                ),
-              ),
-          ],
+          ),
         );
       },
     );
