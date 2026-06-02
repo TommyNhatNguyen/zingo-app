@@ -61,6 +61,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
   final Map<String, MatchResult> _finalMatchResults = {};
   final ValueNotifier<MatchResult?> _activeMatchResult = ValueNotifier(null);
   String? _activeTurnId;
+  bool _isMicTransitioning = false;
+  ToastificationItem? _micTransitioningToast;
 
   String? get _currentPlayingTurnId =>
       _practiceScreenBloc.state.playingDialogTurnID;
@@ -290,14 +292,52 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await _speechToTextController.stop();
   }
 
+  void _dismissMicTransitioningToast() {
+    if (_micTransitioningToast != null) {
+      Toastification().dismiss(_micTransitioningToast!);
+      _micTransitioningToast = null;
+    }
+  }
+
   void _debounceToggleSpeaking() {
+    if (_isMicTransitioning) {
+      _micTransitioningToast ??= Toastification().show(
+        context: context,
+        style: ToastificationStyle.flat,
+        title: const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(),
+        ),
+        description: const Text('The microphone is transitioning...'),
+      );
+      return;
+    }
     final phase = _practiceScreenBloc.state.phase;
     final shouldStart =
         phase == PracticePhase.idle || phase == PracticePhase.awaitingRetry;
     if (shouldStart) {
-      _debouncer.run(() => _startSpeaking());
+      _debouncer.run(() {
+        if (_isMicTransitioning) return;
+        setState(() => _isMicTransitioning = true);
+        _startSpeaking().whenComplete(() {
+          if (mounted) {
+            setState(() => _isMicTransitioning = false);
+            _dismissMicTransitioningToast();
+          }
+        });
+      });
     } else if (phase == PracticePhase.listening) {
-      _debouncer.run(() => _stopSpeaking());
+      _debouncer.run(() {
+        if (_isMicTransitioning) return;
+        setState(() => _isMicTransitioning = true);
+        _stopSpeaking().whenComplete(() {
+          if (mounted) {
+            setState(() => _isMicTransitioning = false);
+            _dismissMicTransitioningToast();
+          }
+        });
+      });
     }
   }
 
@@ -309,7 +349,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       );
     }
     if (result.finalResult) {
-      _processResult();
+      // _processResult();
     }
   }
 

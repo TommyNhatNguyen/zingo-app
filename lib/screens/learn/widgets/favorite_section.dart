@@ -44,7 +44,7 @@ class _FavoriteSectionState extends State<FavoriteSection> {
             Row(
               spacing: 8,
               children: [
-                Icon(Icons.favorite),
+                Icon(Icons.favorite, color: AppColors.favorite),
                 Text(
                   "Your favorites",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -72,21 +72,16 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                 iconColor: AppColors.favoriteContainer,
               )
             else
-              Material(
-                color: Colors.transparent,
-                child: SizedBox(
-                  height: 180,
-                  child: Skeletonizer(
-                    enabled: state.requestStatus == RequestStatus.loading,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: state.data?.length ?? 0,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (_, index) {
-                        return TopicCard(dialog: state.data?[index]);
-                      },
-                    ),
+              Skeletonizer(
+                enabled: state.requestStatus == RequestStatus.loading,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    spacing: 12,
+                    children: (state.data ?? [])
+                        .map((d) => TopicCard(dialog: d))
+                        .toList(),
                   ),
                 ),
               ),

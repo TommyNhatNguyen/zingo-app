@@ -20,14 +20,11 @@ class TopicCard extends StatelessWidget {
       child: SizedBox(
         width: 160,
         child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Flexible(
-              flex: 1,
-              fit: FlexFit.tight,
+            AspectRatio(
+              aspectRatio: 4 / 3,
               child: Container(
-                height: double.infinity,
-                width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: AppColors.primaryContainer,
@@ -103,53 +100,47 @@ class TopicCard extends StatelessWidget {
                 ),
               ),
             ),
-            Flexible(
-              flex: 1,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(top: 4, left: 4, bottom: 4),
-                decoration: BoxDecoration(color: Colors.transparent),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.folder_open_rounded,
-                          color: AppColors.textOnHighlight,
-                          size: 10,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            CapitalizeUtil.capitalize(
-                              text:
-                                  dialog?.topics?.name ??
-                                  dialog?.title ??
-                                  "N/A",
-                            ),
-                            maxLines: 1,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(fontSize: 10),
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 4, bottom: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.folder_open_rounded,
+                        color: AppColors.textOnHighlight,
+                        size: 10,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          CapitalizeUtil.capitalize(
+                            text:
+                                dialog?.topics?.name ??
+                                dialog?.title ??
+                                "N/A",
                           ),
+                          maxLines: 1,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(fontSize: 10),
                         ),
-                      ],
-                    ),
-
-                    Text(
-                      dialog?.title ?? dialog?.description ?? "N/A",
-                      softWrap: true,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    dialog?.title ?? dialog?.description ?? "N/A",
+                    softWrap: true,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ),
           ],
