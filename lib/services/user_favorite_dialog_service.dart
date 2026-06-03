@@ -9,7 +9,7 @@ class UserFavoriteDialogService {
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
-    final isFavorite = result.data?['is_favorite'] ?? false;
+    final isFavorite = result.data ?? false;
     if (result.success) {
       return isFavorite;
     } else {

@@ -25,9 +25,9 @@ class LearnDetailScreen extends StatefulWidget {
 
 class _LearnDetailScreenState extends State<LearnDetailScreen> {
   final ScrollController _scrollController = ScrollController();
+  PracticeMode _selectedMode = PracticeMode.readAloud;
   bool _isHideNavbar = false;
   bool _isAtTop = true;
-  PracticeMode _selectedMode = PracticeMode.readAloud;
 
   DialogDetailBloc get bloc => context.read<DialogDetailBloc>();
 
@@ -86,7 +86,6 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
         }
       },
       builder: (context, state) {
-        final hasPracticeSession = state.data?.practice_session_id != null;
         return Scaffold(
           body: Skeletonizer(
             enabled: state.requestStatus == RequestStatus.loading,
@@ -215,20 +214,12 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                               );
                             },
                             icon: const Icon(Icons.mic_outlined),
-                            label: Text(
-                              hasPracticeSession
-                                  ? "Resume practice"
-                                  : "Start practice",
-                            ),
+                            label: Text("Start practice"),
                             style: FilledButton.styleFrom(
-                              backgroundColor: hasPracticeSession
-                                  ? AppColors.primary
-                                  : AppColors.accent,
+                              backgroundColor: AppColors.accent,
                               foregroundColor: AppColors.white,
                               elevation: 4,
-                              shadowColor: hasPracticeSession
-                                  ? AppColors.primaryLight.withAlpha(150)
-                                  : AppColors.accentLight.withAlpha(150),
+                              shadowColor: AppColors.accentLight.withAlpha(150),
                               textStyle: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

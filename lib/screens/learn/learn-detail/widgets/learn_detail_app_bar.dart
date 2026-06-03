@@ -36,7 +36,7 @@ class _LearnDetailAppBarState extends State<LearnDetailAppBar> {
         FavoriteDialogTrigger(
           key: ObjectKey(widget.data),
           dialogId: widget.data?.id ?? '',
-          initialIsFavorite: widget.data?.is_favorite ?? false,
+          isFavorite: widget.data?.is_favorite ?? false,
         ),
       ],
       automaticallyImplyLeading: false,
