@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,7 +11,7 @@ import 'package:zingo/blocs/dialog/detail/dialog_detail_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
-import 'package:zingo/screens/learn/widgets/favorite_dialog_trigger.dart';
+import 'package:zingo/screens/learn/learn-detail/widgets/learn_detail_app_bar.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
 class LearnDetailScreen extends StatefulWidget {
@@ -25,32 +24,23 @@ class LearnDetailScreen extends StatefulWidget {
 }
 
 class _LearnDetailScreenState extends State<LearnDetailScreen> {
-  PracticeMode _selectedMode = PracticeMode.readAloud;
   final ScrollController _scrollController = ScrollController();
   bool _isHideNavbar = false;
   bool _isAtTop = true;
+  PracticeMode _selectedMode = PracticeMode.readAloud;
+
   DialogDetailBloc get bloc => context.read<DialogDetailBloc>();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels <= 180) {
-        setState(() => _isAtTop = true);
-      } else {
-        setState(() => _isAtTop = false);
-      }
-
-      if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
-        if (!_isHideNavbar) setState(() => _isHideNavbar = true);
-      } else if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.forward) {
-        if (_isHideNavbar) setState(() => _isHideNavbar = false);
-      }
-    });
+    _scrollController.addListener(_handleScroll);
     bloc.add(
-      DialogDetailFetchEvent(payload: DialogDetailPayload(id: widget.id)),
+      DialogDetailFetchEvent(
+        payload: DialogDetailPayload(
+          id: widget.id ?? "13febbdf-a74c-4904-bc3b-c22bdec6a327",
+        ),
+      ),
     );
   }
 
@@ -58,6 +48,22 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _handleScroll() {
+    if (_scrollController.position.pixels <= 180) {
+      setState(() => _isAtTop = true);
+    } else {
+      setState(() => _isAtTop = false);
+    }
+
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      if (!_isHideNavbar) setState(() => _isHideNavbar = true);
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      if (_isHideNavbar) setState(() => _isHideNavbar = false);
+    }
   }
 
   void _onModeSelected(PracticeMode mode) {
@@ -90,82 +96,8 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                   child: CustomScrollView(
                     controller: _scrollController,
                     slivers: [
-                      SliverAppBar(
-                        leading: IconButton(
-                          onPressed: () => context.pop(),
-                          icon: Icon(Icons.arrow_back),
-                          style: IconButton.styleFrom(
-                            backgroundColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                          ),
-                        ),
-                        actionsPadding: const EdgeInsets.only(right: 8),
-                        actions: [
-                          FavoriteDialogTrigger(
-                            key: ObjectKey(state.data),
-                            dialogId: widget.id,
-                            initialIsFavorite: state.data?.is_favorite ?? false,
-                          ),
-                        ],
-                        automaticallyImplyLeading: false,
-                        automaticallyImplyActions: false,
-                        elevation: 0.5,
-                        shadowColor: AppColors.background.withAlpha(200),
-                        surfaceTintColor: AppColors.primaryContainer,
-                        backgroundColor: AppColors.background,
-                        expandedHeight: 200,
-                        floating: false,
-                        pinned: true,
-                        snap: false,
-                        title: AnimatedOpacity(
-                          opacity: _isAtTop ? 0 : 1,
-                          duration: Duration(milliseconds: 300),
-                          child: Text(
-                            CapitalizeUtil.capitalize(
-                              text: state.data?.title ?? '',
-                            ),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                        centerTitle: true,
-                        flexibleSpace: FlexibleSpaceBar(
-                          centerTitle: true,
-                          expandedTitleScale: 1,
-                          collapseMode: CollapseMode.pin,
-                          background: Stack(
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: state.data?.thumbnail_url ?? '',
-                                fit: BoxFit.cover,
-                                height: double.infinity,
-                                width: double.infinity,
-                                placeholder: (context, url) => Skeletonizer(
-                                  enabled: true,
-                                  child: Container(color: AppColors.background),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    Image.asset(
-                                      "assets/default-fallback-image.png",
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
-                              ),
-                              Positioned(
-                                left: 8,
-                                bottom: 8,
-                                child: Chip(
-                                  avatar: Icon(Icons.folder_open_rounded),
-                                  label: Text(state.data?.topics?.name ?? ''),
-                                  backgroundColor: AppColors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      LearnDetailAppBar(data: state.data, isAtTop: _isAtTop),
+                      // Content
                       SliverToBoxAdapter(
                         child: Container(
                           padding: const EdgeInsets.only(
@@ -177,145 +109,10 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            spacing: 16,
+                            spacing: 8,
                             children: [
-                              Text(
-                                CapitalizeUtil.capitalize(
-                                  text: state.data?.title ?? '',
-                                ),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
-                              ),
-                              Text(
-                                state.data?.description ?? '',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: AppColors.textSecondary),
-                              ),
-                              Transform.translate(
-                                offset: Offset(-3, 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  spacing: 8,
-                                  children: [
-                                    Chip(label: Text(state.data?.level ?? '')),
-                                    Chip(
-                                      label: Text(state.data?.duration ?? ''),
-                                    ),
-                                    Chip(
-                                      label: Text(
-                                        "${state.data?.conversation_length.toString()} turns",
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(16),
-                                  ),
-                                  border: Border.all(color: AppColors.border),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.max,
-                                  spacing: 16,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "LAST",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      letterSpacing: 1.2,
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                              ),
-                                              Text(
-                                                "78",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineLarge
-                                                    ?.copyWith(
-                                                      color: AppColors.primary,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "BEST",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      letterSpacing: 1.2,
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                              ),
-                                              Text(
-                                                "85",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineLarge
-                                                    ?.copyWith(
-                                                      color:
-                                                          AppColors.highlight,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Chip(
-                                      backgroundColor:
-                                          AppColors.primaryContainer,
-                                      avatar: Icon(
-                                        Icons.add_circle,
-                                        color: AppColors.primary,
-                                        size: 16,
-                                      ),
-                                      label: Text(
-                                        "+7 · 3 tries",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
-                                            ?.copyWith(
-                                              color: AppColors.primary,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              _buildTitle(state, context),
+                              _buildScoring(state, context),
                               PraceticeModeForm(
                                 selectedMode: _selectedMode,
                                 onModeSelected: _onModeSelected,
@@ -470,6 +267,119 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
           ),
         );
       },
+    );
+  }
+
+  Container _buildScoring(DialogDetailState state, BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
+        spacing: 16,
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "LAST",
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.2,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      "78",
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "BEST",
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.2,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      "85",
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppColors.highlight,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Chip(
+            backgroundColor: AppColors.primaryContainer,
+            avatar: Icon(Icons.add_circle, color: AppColors.primary, size: 16),
+            label: Text(
+              "+7 · 3 tries",
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle(DialogDetailState state, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      spacing: 4,
+      children: [
+        Text(
+          CapitalizeUtil.capitalize(text: state.data?.title ?? ''),
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        Text(
+          state.data?.description ?? '',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
+        Transform.translate(
+          offset: Offset(-3, 0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              Chip(label: Text(state.data?.level ?? '')),
+              Chip(label: Text(state.data?.duration ?? '')),
+              Chip(
+                label: Text(
+                  "${state.data?.conversation_length.toString()} turns",
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

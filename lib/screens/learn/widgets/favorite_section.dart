@@ -67,21 +67,24 @@ class _FavoriteSectionState extends State<FavoriteSection> {
               ),
               if ((state.data == null || state.data?.isEmpty == true) &&
                   state.requestStatus != RequestStatus.loading)
-                EmptySection(
-                  icon: Icon(Icons.favorite),
-                  title: Text(
-                    "No favorites yet",
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: EmptySection(
+                    icon: Icon(Icons.favorite),
+                    title: Text(
+                      "No favorites yet",
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                    subtitle: Text(
+                      "Add your favorite topics to continue practicing",
+                      softWrap: true,
+                    ),
+                    backgroundColor: AppColors.white,
+                    borderColor: AppColors.favoriteLight,
+                    iconColor: AppColors.favoriteContainer,
                   ),
-                  subtitle: Text(
-                    "Add your favorite topics to continue practicing",
-                    softWrap: true,
-                  ),
-                  backgroundColor: AppColors.white,
-                  borderColor: AppColors.favoriteLight,
-                  iconColor: AppColors.favoriteContainer,
                 )
               else
                 Skeletonizer(

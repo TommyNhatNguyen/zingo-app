@@ -9,7 +9,7 @@ class PracticeSessionsService {
   ) async {
     try {
       final response = await dio.get(
-        '/v1/practice-sessions/active-dialogs/${payload.userId}',
+        '/v1/practice-sessions/uncompleted/${payload.userId}',
       );
       final result = ApiResponse.fromJson(response.data);
       if (result.success) {

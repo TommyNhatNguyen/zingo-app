@@ -168,7 +168,7 @@ class _RecommendationCard extends StatelessWidget {
                               ),
                       ),
                     ),
-                    if (dialog?.duration != null)
+                    if (dialog?.cefr_level != null)
                       Positioned(
                         right: 6,
                         bottom: 6,
@@ -182,7 +182,7 @@ class _RecommendationCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
-                            dialog!.duration,
+                            dialog?.cefr_level ?? '',
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   color: AppColors.white,
@@ -224,7 +224,7 @@ class _RecommendationCard extends StatelessWidget {
                         ],
                       ),
                     Text(
-                      dialog?.title ?? '',
+                      CapitalizeUtil.capitalize(text: dialog?.title ?? ''),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -244,7 +244,7 @@ class _RecommendationCard extends StatelessWidget {
                     Row(
                       spacing: 6,
                       children: [
-                        if (dialog?.cefr_level != null)
+                        if (dialog?.duration != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -255,7 +255,7 @@ class _RecommendationCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Text(
-                              dialog!.cefr_level!,
+                              CapitalizeUtil.capitalize(text: dialog!.duration),
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
                                     color: AppColors.primaryDark,

@@ -58,33 +58,33 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
             ),
             if ((state.data == null || state.data?.isEmpty == true) &&
                 state.requestStatus != RequestStatus.loading)
-              EmptySection(
-                icon: Icon(Icons.coffee),
-                title: Text(
-                  "No sessions in progress",
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text("Start a new session to continue practicing"),
-                backgroundColor: AppColors.white,
-                borderColor: AppColors.border,
-                iconColor: AppColors.primaryContainer,
-              )
-            else
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Skeletonizer(
-                  enabled: state.requestStatus == RequestStatus.loading,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      spacing: 12,
-                      children: (state.data ?? [])
-                          .map((d) => TopicCard(dialog: d))
-                          .toList(),
-                    ),
+                child: EmptySection(
+                  icon: Icon(Icons.coffee),
+                  title: Text(
+                    "No sessions in progress",
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text("Start a new session to continue practicing"),
+                  backgroundColor: AppColors.white,
+                  borderColor: AppColors.border,
+                  iconColor: AppColors.primaryContainer,
+                ),
+              )
+            else
+              Skeletonizer(
+                enabled: state.requestStatus == RequestStatus.loading,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    spacing: 12,
+                    children: (state.data ?? [])
+                        .map((d) => TopicCard(dialog: d))
+                        .toList(),
                   ),
                 ),
               ),
