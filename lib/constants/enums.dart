@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum RequestStatus {
   initial,
   loading,
@@ -96,6 +98,26 @@ enum EnglishLevel {
         return 'C2';
     }
   }
+}
+
+enum PracticeMode {
+  freeSpeak,
+  readAloud;
+
+  String get label => switch (this) {
+    PracticeMode.freeSpeak => "Free speak",
+    PracticeMode.readAloud => "Read aloud",
+  };
+
+  String get description => switch (this) {
+    PracticeMode.freeSpeak => "Sample shown - say it your way",
+    PracticeMode.readAloud => "Read the sample out loud",
+  };
+
+  IconData get icon => switch (this) {
+    PracticeMode.freeSpeak => Icons.lightbulb_outline,
+    PracticeMode.readAloud => Icons.description,
+  };
 }
 
 enum Speaker {

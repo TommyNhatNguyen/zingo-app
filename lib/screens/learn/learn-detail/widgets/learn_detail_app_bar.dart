@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
-import 'package:zingo/screens/learn/widgets/favorite_dialog_trigger.dart';
+import 'package:zingo/screens/learn/learn-detail/widgets/favorite_dialog_trigger.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
 class LearnDetailAppBar extends StatefulWidget {
