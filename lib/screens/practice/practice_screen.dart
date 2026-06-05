@@ -16,7 +16,6 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/dialog_turn.dart';
-import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_state.dart';
@@ -354,7 +353,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _onEndTurn() {
-    context.go('/learn');
+    print(_matchers.values.toList());
+    print(_finalMatchResults.values.toList());
+    final passedResults = _finalMatchResults.values.where(
+      (result) => result.passed,
+    );
+    final passResultsStrings = passedResults.map((result) {
+      final matchedTokens = result.tokens.where((token) => token.state == WordState.matched);
+      return matchedTokens.map((token) => token.display).join(' ');
+    });
+    print(passResultsStrings.toList());
+    // context.go('/learn');
   }
 
   Future<void> _onBack() async {
