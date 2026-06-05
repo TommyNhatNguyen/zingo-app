@@ -1,4 +1,5 @@
 import 'package:zingo/config/dio_http.dart';
+import 'package:zingo/dtos/practice-sessions/complete_session_payload.dart';
 import 'package:zingo/dtos/practice-sessions/create_session_payload.dart';
 import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/interfaces/api_response.dart';
@@ -32,6 +33,25 @@ class PracticeSessionsService {
     try {
       final response = await dio.post(
         '/v1/practice-sessions',
+        data: payload.toJson(),
+      );
+      final result = ApiResponse.fromJson(response.data);
+      if (result.success) {
+        return PracticeSession.fromJson(result.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<PracticeSession?> completeSession(
+    CompleteSessionPayload payload,
+  ) async {
+    try {
+      final response = await dio.post(
+        '/v1/practice-sessions/complete',
         data: payload.toJson(),
       );
       final result = ApiResponse.fromJson(response.data);
