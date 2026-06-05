@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/models/dialog.dart' as dialog_model;
 
 class DialogDetailScoring extends StatelessWidget {
-  const DialogDetailScoring({super.key});
+  const DialogDetailScoring({super.key, this.dialog});
+
+  final dialog_model.Dialog? dialog;
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +37,12 @@ class DialogDetailScoring extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "78",
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      "${dialog?.progress?.latest_score?.toStringAsFixed(0) ?? 0}",
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                   ],
                 ),
@@ -56,13 +58,12 @@ class DialogDetailScoring extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "85",
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge?.copyWith(
-                        color: AppColors.highlight,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      "${dialog?.progress?.highest_score?.toStringAsFixed(0) ?? 0}",
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppColors.highlight,
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                   ],
                 ),
@@ -71,9 +72,9 @@ class DialogDetailScoring extends StatelessWidget {
           ),
           Chip(
             backgroundColor: AppColors.primaryContainer,
-            avatar: Icon(Icons.add_circle, color: AppColors.primary, size: 16),
+            avatar: Icon(Icons.repeat_rounded),
             label: Text(
-              "+7 · 3 tries",
+              "${dialog?.progress?.attempts ?? 0} tries",
               style: Theme.of(
                 context,
               ).textTheme.labelSmall?.copyWith(color: AppColors.primary),

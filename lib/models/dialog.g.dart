@@ -32,6 +32,9 @@ Dialog _$DialogFromJson(Map<String, dynamic> json) => Dialog(
       : Topic.fromJson(json['topics'] as Map<String, dynamic>),
   is_favorite: json['is_favorite'] as bool? ?? false,
   practice_session_id: json['practice_session_id'] as String?,
+  progress: json['progress'] == null
+      ? null
+      : DialogProgress.fromJson(json['progress'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
@@ -52,4 +55,19 @@ Map<String, dynamic> _$DialogToJson(Dialog instance) => <String, dynamic>{
   'topics': instance.topics,
   'is_favorite': instance.is_favorite,
   'practice_session_id': instance.practice_session_id,
+  'progress': instance.progress,
 };
+
+DialogProgress _$DialogProgressFromJson(Map<String, dynamic> json) =>
+    DialogProgress(
+      highest_score: (json['highest_score'] as num).toDouble(),
+      latest_score: (json['latest_score'] as num).toDouble(),
+      attempts: (json['attempts'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$DialogProgressToJson(DialogProgress instance) =>
+    <String, dynamic>{
+      'highest_score': instance.highest_score,
+      'latest_score': instance.latest_score,
+      'attempts': instance.attempts,
+    };

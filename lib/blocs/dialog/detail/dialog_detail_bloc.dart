@@ -14,10 +14,7 @@ class DialogDetailBloc extends Bloc<DialogDetailEvent, DialogDetailState> {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
         final result = await _service.getDialogDetail(event.payload);
         emit(
-          state.copyWith(
-            requestStatus: RequestStatus.success,
-            data: result,
-          ),
+          state.copyWith(requestStatus: RequestStatus.success, data: result),
         );
       } on DioException catch (e) {
         emit(

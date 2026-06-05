@@ -4,6 +4,7 @@ import 'package:zingo/models/topic.dart';
 
 part 'dialog.g.dart';
 
+
 @JsonSerializable()
 class Dialog extends Equatable {
   final String id;
@@ -23,6 +24,7 @@ class Dialog extends Equatable {
   final Topic? topics;
   final bool is_favorite;
   final String? practice_session_id;
+  final DialogProgress? progress;
 
   const Dialog({
     required this.id,
@@ -42,6 +44,7 @@ class Dialog extends Equatable {
     this.topics,
     this.is_favorite = false,
     this.practice_session_id,
+    this.progress,
   });
 
   factory Dialog.fromJson(Map<String, dynamic> json) => _$DialogFromJson(json);
@@ -67,5 +70,27 @@ class Dialog extends Equatable {
     topics,
     is_favorite,
     practice_session_id,
+    progress,
   ];
+}
+
+@JsonSerializable()
+class DialogProgress extends Equatable {
+  final double highest_score;
+  final double latest_score;
+  final int attempts;
+
+  const DialogProgress({
+    required this.highest_score,
+    required this.latest_score,
+    required this.attempts,
+  });
+
+  factory DialogProgress.fromJson(Map<String, dynamic> json) =>
+      _$DialogProgressFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DialogProgressToJson(this);
+
+  @override
+  List<Object?> get props => [highest_score, latest_score, attempts];
 }

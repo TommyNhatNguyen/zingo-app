@@ -113,7 +113,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                             spacing: 8,
                             children: [
                               DialogDetailTitle(dialog: state.data),
-                              const DialogDetailScoring(),
+                             DialogDetailScoring(dialog: state.data),
                               PracticeModeForm(
                                 selectedMode: _selectedMode,
                                 onModeSelected: _onModeSelected,

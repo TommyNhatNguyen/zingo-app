@@ -15,6 +15,7 @@ import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
+import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/models/dialog.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
