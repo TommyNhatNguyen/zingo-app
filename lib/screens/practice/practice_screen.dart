@@ -10,10 +10,14 @@ import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
+import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_event.dart';
+import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_state.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/practice-sessions/complete_session_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/dialog_turn.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
@@ -299,6 +303,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _debounceToggleSpeaking() {
+    print("here");
     if (_isMicTransitioning) {
       _micTransitioningToast ??= Toastification().show(
         context: context,
@@ -353,17 +358,33 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _onEndTurn() {
-    print(_matchers.values.toList());
-    print(_finalMatchResults.values.toList());
-    final passedResults = _finalMatchResults.values.where(
-      (result) => result.passed,
+    final turns = _practiceScreenBloc.state.turns;
+    if (turns == null) return;
+
+    final turnOrderById = {for (final t in turns) t.id: t.turn_order};
+
+    final answers = _finalMatchResults.entries.map((entry) {
+      final matchedTokens = entry.value.tokens.where(
+        (token) => token.state == WordState.matched,
+      );
+      final answerText = matchedTokens.map((token) => token.display).join(' ');
+      return SessionAnswer(
+        turn_order: turnOrderById[entry.key] ?? 0,
+        answer_text: answerText,
+        passed: entry.value.passed,
+        pass_threshold: _retryThreshold,
+      );
+    }).toList();
+
+    context.read<CompletePracticeBloc>().add(
+      CompletePracticeSubmit(
+        payload: CompleteSessionPayload(
+          id: widget.practiceSessionId,
+          answers: answers,
+          current_turn_order: _currentTurnIndex + 1,
+        ),
+      ),
     );
-    final passResultsStrings = passedResults.map((result) {
-      final matchedTokens = result.tokens.where((token) => token.state == WordState.matched);
-      return matchedTokens.map((token) => token.display).join(' ');
-    });
-    print(passResultsStrings.toList());
-    // context.go('/learn');
   }
 
   Future<void> _onBack() async {
@@ -381,6 +402,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        BlocListener<CompletePracticeBloc, CompletePracticeState>(
+          listenWhen: (prev, curr) => prev.requestStatus != curr.requestStatus,
+          listener: (context, state) {
+            if (state.requestStatus == RequestStatus.success) {
+              context.go('/learn');
+            } else if (state.requestStatus == RequestStatus.error) {
+              Toastification().show(
+                context: context,
+                type: ToastificationType.error,
+                style: ToastificationStyle.flat,
+                title: const Text('Error'),
+                description: Text(state.error ?? 'Failed to complete session'),
+                autoCloseDuration: const Duration(seconds: 4),
+              );
+            }
+          },
+        ),
         BlocListener<DialogTurnsListByDialogBloc, DialogTurnsListByDialogState>(
           listenWhen: (prev, curr) =>
               prev.requestStatus != curr.requestStatus &&

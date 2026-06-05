@@ -8,6 +8,7 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
@@ -101,6 +102,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
                 create: (context) =>
                     PracticeScreenBloc()..add(PracticeScreenInitializeEvent()),
               ),
+              BlocProvider(create: (_) => CompletePracticeBloc()),
             ],
             child: PracticeScreen(
               practiceSessionId: practiceSessionId ?? '',
