@@ -118,6 +118,11 @@ enum PracticeMode {
     PracticeMode.freeSpeak => Icons.lightbulb_outline,
     PracticeMode.readAloud => Icons.description,
   };
+
+  String get value => switch (this) {
+    PracticeMode.freeSpeak => "free_speak",
+    PracticeMode.readAloud => "read_aloud",
+  };
 }
 
 enum Speaker {

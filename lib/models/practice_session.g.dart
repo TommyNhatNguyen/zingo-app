@@ -6,44 +6,43 @@ part of 'practice_session.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PracticeSession _$PracticeSessionFromJson(Map<String, dynamic> json) =>
-    PracticeSession(
-      id: json['id'] as String,
-      user_id: json['user_id'] as String,
-      dialog_id: json['dialog_id'] as String,
-      practice_mode: json['practice_mode'] as String,
-      started_at: json['started_at'] == null
-          ? null
-          : DateTime.parse(json['started_at'] as String),
-      completed_at: json['completed_at'] == null
-          ? null
-          : DateTime.parse(json['completed_at'] as String),
-      not_completed_reason: json['not_completed_reason'] as String?,
-      current_turn_order: (json['current_turn_order'] as num).toInt(),
-      holistic_score: (json['holistic_score'] as num?)?.toDouble(),
-      holistic_feedback: json['holistic_feedback'] as String?,
-      grammar_avg_score: (json['grammar_avg_score'] as num?)?.toDouble(),
-      naturalness_avg_score:
-          (json['naturalness_avg_score'] as num?)?.toDouble(),
-      completeness_avg_score:
-          (json['completeness_avg_score'] as num?)?.toDouble(),
-      created_at: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updated_at: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-      deleted_at: json['deleted_at'] == null
-          ? null
-          : DateTime.parse(json['deleted_at'] as String),
-    );
+PracticeSession _$PracticeSessionFromJson(
+  Map<String, dynamic> json,
+) => PracticeSession(
+  id: json['id'] as String,
+  user_id: json['user_id'] as String,
+  dialog_id: json['dialog_id'] as String,
+  practice_mode: $enumDecode(_$PracticeModeEnumMap, json['practice_mode']),
+  started_at: json['started_at'] == null
+      ? null
+      : DateTime.parse(json['started_at'] as String),
+  completed_at: json['completed_at'] == null
+      ? null
+      : DateTime.parse(json['completed_at'] as String),
+  not_completed_reason: json['not_completed_reason'] as String?,
+  current_turn_order: (json['current_turn_order'] as num?)?.toInt() ?? 1,
+  holistic_score: (json['holistic_score'] as num?)?.toDouble(),
+  holistic_feedback: json['holistic_feedback'] as String?,
+  grammar_avg_score: (json['grammar_avg_score'] as num?)?.toDouble(),
+  naturalness_avg_score: (json['naturalness_avg_score'] as num?)?.toDouble(),
+  completeness_avg_score: (json['completeness_avg_score'] as num?)?.toDouble(),
+  created_at: json['created_at'] == null
+      ? null
+      : DateTime.parse(json['created_at'] as String),
+  updated_at: json['updated_at'] == null
+      ? null
+      : DateTime.parse(json['updated_at'] as String),
+  deleted_at: json['deleted_at'] == null
+      ? null
+      : DateTime.parse(json['deleted_at'] as String),
+);
 
 Map<String, dynamic> _$PracticeSessionToJson(PracticeSession instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.user_id,
       'dialog_id': instance.dialog_id,
-      'practice_mode': instance.practice_mode,
+      'practice_mode': _$PracticeModeEnumMap[instance.practice_mode]!,
       'started_at': instance.started_at?.toIso8601String(),
       'completed_at': instance.completed_at?.toIso8601String(),
       'not_completed_reason': instance.not_completed_reason,
@@ -57,3 +56,8 @@ Map<String, dynamic> _$PracticeSessionToJson(PracticeSession instance) =>
       'updated_at': instance.updated_at?.toIso8601String(),
       'deleted_at': instance.deleted_at?.toIso8601String(),
     };
+
+const _$PracticeModeEnumMap = {
+  PracticeMode.freeSpeak: 'free_speak',
+  PracticeMode.readAloud: 'read_aloud',
+};

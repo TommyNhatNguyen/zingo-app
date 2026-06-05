@@ -9,6 +9,7 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/blocs/user-profile/user_profile_create_bloc.dart';
@@ -46,8 +47,8 @@ class GoRouterRefreshStream extends ChangeNotifier {
 
 GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/onboarding',
-  // initialLocation: '/learn',
-  initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
+  initialLocation: '/learn',
+  // initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
   // initialLocation: '/login',
@@ -77,7 +78,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             (state.extra as Map<String, dynamic>?)?['practice_session_id'];
         final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
         final praceticeMode =
-            (state.extra as Map<String, dynamic>?)?['pracetice_mode'];
+            (state.extra as Map<String, dynamic>?)?['pracetice_mode']
+                as PracticeMode?;
         final dialog =
             (state.extra as Map<String, dynamic>?)?['dialog'] as Dialog?;
         return NoTransitionPage(
@@ -201,8 +203,11 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       path: '/learn/:id',
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return BlocProvider(
-          create: (_) => DialogDetailBloc(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => DialogDetailBloc()),
+            BlocProvider(create: (context) => StartPracticeBloc()),
+          ],
           child: LearnDetailScreen(id: id),
         );
       },

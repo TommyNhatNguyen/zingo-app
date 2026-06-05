@@ -1,76 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_event.dart';
+import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/practice-sessions/create_session_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 
 class StartPracticeButton extends StatelessWidget {
   const StartPracticeButton({
     super.key,
-    required this.dialogId,
     required this.selectedMode,
     this.dialog,
   });
 
-  final String dialogId;
   final PracticeMode selectedMode;
   final dialog_model.Dialog? dialog;
 
+  void _onStartPractice(BuildContext context) {
+    if (dialog?.id == null) {
+      context.go("/learn");
+    }
+    context.read<StartPracticeBloc>().add(
+      StartPracticeSubmit(
+        payload: CreateSessionPayload(
+          user_id: context.read<AuthBloc>().state.data?.id ?? '',
+          dialog_id: dialog?.id ?? "",
+          practice_mode: selectedMode.value,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: () {
-              context.pushReplacement(
-                '/practice',
-                extra: {
-                  'practice_session_id': dialog?.practice_session_id ?? '',
-                  'dialog_id': dialogId,
-                  'pracetice_mode': selectedMode,
-                  'dialog': dialog,
-                },
-              );
+    return BlocConsumer<StartPracticeBloc, StartPracticeState>(
+      listener: (context, state) {
+        if (state.requestStatus == RequestStatus.success) {
+          // go to practice screen
+          context.pushReplacement(
+            '/practice',
+            extra: {
+              'practice_session_id': state.data?.id ?? '',
+              'dialog_id': state.data?.dialog_id ?? dialog?.id ?? "",
+              'pracetice_mode': state.data?.practice_mode ?? selectedMode.value,
+              'dialog': dialog,
             },
-            icon: const Icon(Icons.mic_outlined),
-            label: const Text("Start practice"),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.accent,
-              foregroundColor: AppColors.white,
-              elevation: 4,
-              shadowColor: AppColors.accentLight.withAlpha(150),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: Theme.of(context).textTheme.bodySmall,
-            children: [
-              TextSpan(text: "${selectedMode.label} · "),
-              TextSpan(
-                text: '+${dialog?.xp_points ?? 0} XP',
-                style: const TextStyle(
-                  color: AppColors.xp,
-                  fontWeight: FontWeight.bold,
+          );
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () {
+                  _onStartPractice(context);
+                },
+                icon: state.requestStatus == RequestStatus.loading
+                    ? const CircularProgressIndicator.adaptive()
+                    : const Icon(Icons.mic_outlined),
+                label: state.requestStatus == RequestStatus.loading
+                    ? const Text("Starting...")
+                    : const Text("Start practice"),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.white,
+                  elevation: 4,
+                  shadowColor: AppColors.accentLight.withAlpha(150),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+            const SizedBox(height: 8),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodySmall,
+                children: [
+                  TextSpan(text: "${selectedMode.label} · "),
+                  TextSpan(
+                    text: '+${dialog?.xp_points ?? 0} XP',
+                    style: const TextStyle(
+                      color: AppColors.xp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

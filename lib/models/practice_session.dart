@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:zingo/constants/enums.dart';
 
 part 'practice_session.g.dart';
 
@@ -8,7 +9,7 @@ class PracticeSession extends Equatable {
   final String id;
   final String user_id;
   final String dialog_id;
-  final String practice_mode;
+  final PracticeMode practice_mode;
   final DateTime? started_at;
   final DateTime? completed_at;
   final String? not_completed_reason;

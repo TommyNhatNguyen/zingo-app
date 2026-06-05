@@ -113,7 +113,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                             spacing: 8,
                             children: [
                               DialogDetailTitle(dialog: state.data),
-                             DialogDetailScoring(dialog: state.data),
+                              DialogDetailScoring(dialog: state.data),
                               PracticeModeForm(
                                 selectedMode: _selectedMode,
                                 onModeSelected: _onModeSelected,
@@ -149,7 +149,6 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                       border: Border(top: BorderSide(color: AppColors.border)),
                     ),
                     child: StartPracticeButton(
-                      dialogId: widget.id,
                       selectedMode: _selectedMode,
                       dialog: state.data,
                     ),
