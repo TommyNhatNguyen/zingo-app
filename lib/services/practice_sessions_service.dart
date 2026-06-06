@@ -3,6 +3,7 @@ import 'package:zingo/dtos/practice-sessions/complete_session_payload.dart';
 import 'package:zingo/dtos/practice-sessions/create_session_payload.dart';
 import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/interfaces/api_response.dart';
+import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
 import 'package:zingo/models/practice_session.dart';
 
@@ -46,7 +47,7 @@ class PracticeSessionsService {
     }
   }
 
-  Future<PracticeSession?> completeSession(
+  Future<CompletedPracticeSession?> completeSession(
     CompleteSessionPayload payload,
   ) async {
     try {
@@ -56,7 +57,7 @@ class PracticeSessionsService {
       );
       final result = ApiResponse.fromJson(response.data);
       if (result.success) {
-        return PracticeSession.fromJson(result.data);
+        return CompletedPracticeSession.fromJson(result.data);
       } else {
         return null;
       }

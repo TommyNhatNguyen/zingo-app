@@ -406,7 +406,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           listenWhen: (prev, curr) => prev.requestStatus != curr.requestStatus,
           listener: (context, state) {
             if (state.requestStatus == RequestStatus.success) {
-              context.go('/learn');
+              context.go('/streak-congrats', extra: {'session': state.data});
             } else if (state.requestStatus == RequestStatus.error) {
               Toastification().show(
                 context: context,

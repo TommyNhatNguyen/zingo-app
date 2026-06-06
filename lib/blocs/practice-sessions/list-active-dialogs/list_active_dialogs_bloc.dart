@@ -25,9 +25,7 @@ class ListActiveDialogsBloc
       final dialogs = await _practiceSessionsService.getActiveDialogs(
         event.payload,
       );
-      emit(
-        state.copyWith(data: dialogs, requestStatus: RequestStatus.success),
-      );
+      emit(state.copyWith(data: dialogs, requestStatus: RequestStatus.success));
     } on DioException catch (e) {
       emit(
         state.copyWith(

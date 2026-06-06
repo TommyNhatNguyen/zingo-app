@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/models/practice_session.dart';
+import 'package:zingo/models/completed_practice_session.dart';
 
 class CompletePracticeState extends Equatable {
   const CompletePracticeState({
@@ -9,7 +9,7 @@ class CompletePracticeState extends Equatable {
     this.error,
   });
 
-  final PracticeSession? data;
+  final CompletedPracticeSession? data;
   final RequestStatus requestStatus;
   final String? error;
 
@@ -22,7 +22,7 @@ class CompletePracticeState extends Equatable {
   }
 
   CompletePracticeState copyWith({
-    PracticeSession? data,
+    CompletedPracticeSession? data,
     RequestStatus? requestStatus,
     String? error,
   }) {

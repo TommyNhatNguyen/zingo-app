@@ -64,9 +64,9 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
                   icon: Icon(Icons.coffee),
                   title: Text(
                     "No sessions in progress",
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   subtitle: Text("Start a new session to continue practicing"),
                   backgroundColor: AppColors.white,
