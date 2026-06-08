@@ -15,6 +15,7 @@ Users _$UsersFromJson(Map<String, dynamic> json) => Users(
   level: json['level'] as String,
   xp: (json['xp'] as num).toInt(),
   streak: (json['streak'] as num).toInt(),
+  longest_streak: (json['longest_streak'] as num).toInt(),
   last_practice_at: json['last_practice_at'] == null
       ? null
       : DateTime.parse(json['last_practice_at'] as String),
@@ -25,6 +26,9 @@ Users _$UsersFromJson(Map<String, dynamic> json) => Users(
   deleted_at: json['deleted_at'] == null
       ? null
       : DateTime.parse(json['deleted_at'] as String),
+  currentWeekStreak: (json['currentWeekStreak'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, e as bool),
+  ),
 );
 
 Map<String, dynamic> _$UsersToJson(Users instance) => <String, dynamic>{
@@ -36,8 +40,10 @@ Map<String, dynamic> _$UsersToJson(Users instance) => <String, dynamic>{
   'level': instance.level,
   'xp': instance.xp,
   'streak': instance.streak,
+  'longest_streak': instance.longest_streak,
   'last_practice_at': instance.last_practice_at?.toIso8601String(),
   'created_at': instance.created_at.toIso8601String(),
   'updated_at': instance.updated_at?.toIso8601String(),
   'deleted_at': instance.deleted_at?.toIso8601String(),
+  'currentWeekStreak': instance.currentWeekStreak,
 };

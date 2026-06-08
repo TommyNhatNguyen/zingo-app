@@ -25,8 +25,7 @@ CompletedPracticeSession _$CompletedPracticeSessionFromJson(
   holistic_feedback: json['holistic_feedback'] as String?,
   grammar_avg_score: (json['grammar_avg_score'] as num?)?.toDouble(),
   naturalness_avg_score: (json['naturalness_avg_score'] as num?)?.toDouble(),
-  completeness_avg_score:
-      (json['completeness_avg_score'] as num?)?.toDouble(),
+  completeness_avg_score: (json['completeness_avg_score'] as num?)?.toDouble(),
   created_at: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
@@ -37,9 +36,7 @@ CompletedPracticeSession _$CompletedPracticeSessionFromJson(
       ? null
       : DateTime.parse(json['deleted_at'] as String),
   xp: (json['xp'] as num).toInt(),
-  currentWeekStreak: (json['currentWeekStreak'] as Map<String, dynamic>).map(
-    (k, v) => MapEntry(k, v as bool),
-  ),
+  currentWeekStreak: Map<String, bool>.from(json['currentWeekStreak'] as Map),
   streak: (json['streak'] as num).toInt(),
 );
 
@@ -68,6 +65,6 @@ Map<String, dynamic> _$CompletedPracticeSessionToJson(
 };
 
 const _$PracticeModeEnumMap = {
-  PracticeMode.freeSpeak: 'free_speak',
-  PracticeMode.readAloud: 'read_aloud',
+  PracticeMode.freeSpeak: 'freeSpeak',
+  PracticeMode.readAloud: 'readAloud',
 };

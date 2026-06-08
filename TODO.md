@@ -7,8 +7,11 @@
 [x] - Finished practice
 
 **Learning feature:**
-[] - Show In-progress 
+[x] - Show In-progress 
 [] - Show popular
-[] - Show recommended for you
-[] - Show favorites
+[x] - Show recommended for you
+[x] - Show favorites
 [] - Show browse by topics
+
+**Authentication**
+[] - Anonymous login

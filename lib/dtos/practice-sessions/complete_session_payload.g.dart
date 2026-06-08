@@ -37,7 +37,7 @@ Map<String, dynamic> _$CompleteSessionPayloadToJson(
   CompleteSessionPayload instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'answers': instance.answers.map((e) => e.toJson()).toList(),
+  'answers': instance.answers,
   'not_completed_reason': instance.not_completed_reason,
   'current_turn_order': instance.current_turn_order,
 };

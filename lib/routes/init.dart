@@ -32,6 +32,7 @@ import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/practice_screen.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
+import 'package:zingo/screens/test/test_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -56,6 +57,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/practice',
   // initialLocation: '/profile',
   // initialLocation: '/login',
+  // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     // final location = state.matchedLocation;
@@ -75,6 +77,12 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
     // return null;
   },
   routes: [
+    GoRoute(
+      path: '/test',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(key: state.pageKey, child: TestScreen());
+      },
+    ),
     GoRoute(
       path: '/practice',
       pageBuilder: (context, state) {
