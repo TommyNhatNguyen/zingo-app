@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 enum RequestStatus {
   initial,
@@ -101,7 +102,9 @@ enum EnglishLevel {
 }
 
 enum PracticeMode {
+  @JsonValue('free_speak')
   freeSpeak,
+  @JsonValue('read_aloud')
   readAloud;
 
   String get label => switch (this) {

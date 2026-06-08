@@ -97,7 +97,7 @@ class _StreakCard extends StatelessWidget {
     final bestStreak = user?.longest_streak ?? 0;
     // weekday: 1=Mon…7=Sun → 0-based Mon-first index
     final todayIndex = DateTime.now().weekday - 1;
-    // currentWeekStreak keys: 0=Sun, 1=Mon…6=Sat (same as congrats screen)
+    // currentWeekStreak keys: 0=Monday, 1=Tuesday…6=Sunday (same as congrats screen)
     final weekStreak = user?.currentWeekStreak ?? {};
 
     return Container(
@@ -158,8 +158,8 @@ class _StreakCard extends StatelessWidget {
                 _DayCell(
                   label: const ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
                   // Home screen is Mon-first (i=0→Mon).
-                  // Map key is Sun-first (0=Sun,1=Mon…6=Sat): key = (i+1)%7
-                  state: weekStreak[((i + 1) % 7).toString()] == true
+                  // Map key is Monday-first (0=Monday,1=Tuesday…6=Sunday): key = i
+                  state: weekStreak[i.toString()] == true
                       ? _DayCellState.completed
                       : i == todayIndex
                       ? _DayCellState.today
