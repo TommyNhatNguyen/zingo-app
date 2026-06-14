@@ -5,6 +5,7 @@ import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
+import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 import 'package:zingo/screens/auth/widgets/auth_divider.dart';
@@ -75,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
         return Scaffold(
+          appBar: AppBar(backgroundColor: AppColors.background),
           body: SingleChildScrollView(
             child: SafeArea(
               child: Padding(
@@ -123,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       onPressed: isLoading
                           ? null
-                          : () => context.go("/register"),
+                          : () => context.pushReplacement("/register"),
                       child: Text.rich(
                         TextSpan(
                           children: [

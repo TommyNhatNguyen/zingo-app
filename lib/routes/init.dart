@@ -23,6 +23,7 @@ import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
+import 'package:zingo/screens/auth/welcome_screen.dart';
 import 'package:zingo/screens/congrats/streak_congrats_screen.dart';
 import 'package:zingo/screens/home/home_screen.dart';
 import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
@@ -56,8 +57,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
-  // initialLocation: '/login',
-  initialLocation: "/home",
+  initialLocation: '/welcome',
+  // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     // final location = state.matchedLocation;
@@ -155,6 +156,15 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             create: (context) => UserProfileCreateBloc(),
             child: const OnboardingScreen(),
           ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/welcome',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: const WelcomeScreen(),
         );
       },
     ),

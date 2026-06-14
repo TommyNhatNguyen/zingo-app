@@ -5,7 +5,7 @@ import 'package:zingo/interfaces/api_response.dart';
 class UserFavoriteDialogService {
   Future<bool> addFavorite(UsersFavoriteDialogDto payload) async {
     final response = await dio.post(
-      '/v1/users/favorite-dialog',
+      '/v1/user-favorite-dialogs',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
@@ -19,7 +19,7 @@ class UserFavoriteDialogService {
 
   Future<bool> removeFavorite(UsersFavoriteDialogDto payload) async {
     final response = await dio.delete(
-      '/v1/users/favorite-dialog',
+      '/v1/user-favorite-dialogs',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);

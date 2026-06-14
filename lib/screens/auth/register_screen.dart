@@ -187,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextButton(
                           onPressed: isLoading
                               ? null
-                              : () => context.go("/login"),
+                              : () => context.pushReplacement("/login"),
                           child: Text.rich(
                             TextSpan(
                               children: [
