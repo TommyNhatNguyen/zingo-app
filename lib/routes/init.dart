@@ -65,7 +65,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   redirect: (context, state) {
     final authState = context.read<AuthBloc>().state;
     final location = state.matchedLocation;
-
+    print("User: ${authState.user}");
+    print("Profile: ${authState.profile}");
     // Wait for the auth check to finish before redirecting.
     if (authState.requestStatus == RequestStatus.initial ||
         authState.requestStatus == RequestStatus.loading) {

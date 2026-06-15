@@ -57,7 +57,7 @@ class UserService {
   }
 
   Future<Users?> getUserByUid(String userUid) async {
-    final response = await dio.get('/v1/users/uid/$userUid');
+    final response = await dio.get('/v1/user/uid/$userUid');
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) {
@@ -70,7 +70,7 @@ class UserService {
   }
 
   Future<Users?> update(String userId, UsersUpdateDto payload) async {
-    final response = await dio.put('/v1/users/$userId', data: payload.toJson());
+    final response = await dio.put('/v1/user/$userId', data: payload.toJson());
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) {
