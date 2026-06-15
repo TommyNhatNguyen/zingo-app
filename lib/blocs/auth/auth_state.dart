@@ -28,6 +28,15 @@ class AuthState extends Equatable {
     );
   }
 
+  factory AuthState.loggedOut() {
+    return const AuthState(
+      data: null,
+      profile: null,
+      requestStatus: RequestStatus.success,
+      error: null,
+    );
+  }
+
   AuthState copyWith({
     Users? data,
     UserProfile? profile,

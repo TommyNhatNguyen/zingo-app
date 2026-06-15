@@ -34,6 +34,7 @@ import 'package:zingo/screens/onboarding/onboarding_screen.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/practice_screen.dart';
+import 'package:zingo/screens/shell/app_shell.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
 import 'package:zingo/screens/test/test_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
@@ -205,57 +206,61 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
         );
       },
     ),
-    GoRoute(
-      path: '/home',
-      pageBuilder: (context, state) {
-        return CustomTransitionPage<void>(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => JourneyBloc()..add(const JourneyFetchEvent()),
-            child: const HomeScreen(),
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
+    // ── Main tabs (with bottom nav) ──────────────────────────────────────────
+    ShellRoute(
+      builder: (context, state, child) => AppShell(child: child),
+      routes: [
+        GoRoute(
+          path: '/home',
+          pageBuilder: (context, state) {
+            return NoTransitionPage(
+              key: state.pageKey,
+              child: BlocProvider(
+                create: (_) => JourneyBloc()..add(const JourneyFetchEvent()),
+                child: const HomeScreen(),
+              ),
+            );
           },
-        );
-      },
+        ),
+        GoRoute(
+          path: '/learn',
+          pageBuilder: (context, state) {
+            return NoTransitionPage(
+              key: state.pageKey,
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider(create: (_) => DialogListBloc()),
+                  BlocProvider(create: (_) => ListActiveDialogsBloc()),
+                  BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
+                  BlocProvider(create: (_) => RecommendationsListBloc()),
+                ],
+                child: const LearnScreen(),
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/profile',
+          pageBuilder: (context, state) {
+            final authData = context.read<AuthBloc>().state.data;
+            return NoTransitionPage(
+              key: state.pageKey,
+              child: BlocProvider(
+                create: (_) {
+                  final bloc = UserSettingsBloc(seedUser: authData);
+                  if (authData != null) {
+                    bloc.add(UserSettingsLoaded(userId: authData.id));
+                  }
+                  return bloc;
+                },
+                child: const UserProfileScreen(),
+              ),
+            );
+          },
+        ),
+      ],
     ),
-    GoRoute(
-      path: '/profile',
-      pageBuilder: (context, state) {
-        final authData = context.read<AuthBloc>().state.data;
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) {
-              final bloc = UserSettingsBloc(seedUser: authData);
-              if (authData != null) {
-                bloc.add(UserSettingsLoaded(userId: authData.id));
-              }
-              return bloc;
-            },
-            child: const UserProfileScreen(),
-          ),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/learn',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => DialogListBloc()),
-              BlocProvider(create: (context) => ListActiveDialogsBloc()),
-              BlocProvider(create: (context) => ListFavoriteDialogsBloc()),
-              BlocProvider(create: (context) => RecommendationsListBloc()),
-            ],
-            child: const LearnScreen(),
-          ),
-        );
-      },
-    ),
+    // ── Full-screen (no bottom nav) ──────────────────────────────────────────
     GoRoute(
       path: '/learn/:id',
       builder: (context, state) {
@@ -263,7 +268,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
         return MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => DialogDetailBloc()),
-            BlocProvider(create: (context) => StartPracticeBloc()),
+            BlocProvider(create: (_) => StartPracticeBloc()),
           ],
           child: LearnDetailScreen(id: id),
         );

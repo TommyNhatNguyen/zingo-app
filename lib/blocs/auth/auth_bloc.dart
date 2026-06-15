@@ -37,7 +37,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       }
-      emit(AuthState.initial());
+      // Use success (not initial) so the redirect's !isLoggedIn branch fires.
+      // initial is reserved for "app just started, haven't heard from Firebase yet."
+      emit(AuthState.loggedOut());
     });
 
     on<AuthStateChanged>((event, emit) async {
