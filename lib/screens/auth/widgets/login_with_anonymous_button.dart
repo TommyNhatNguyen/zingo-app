@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
 
@@ -22,7 +23,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
   }
 
   void _loginWithAnonymous(BuildContext context) {
-    // _authBloc.add(AuthLoginWithGoogle());
+    _authBloc.add(AuthLoginWithAnonymous());
   }
 
   @override

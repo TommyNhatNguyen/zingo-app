@@ -1,5 +1,6 @@
 import 'package:zingo/config/dio_http.dart';
 import 'package:zingo/dtos/users/users_create_dto.dart';
+import 'package:zingo/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
 import 'package:zingo/dtos/users/users_update_dto.dart';
 import 'package:zingo/interfaces/api_response.dart';
@@ -24,6 +25,24 @@ class UserService {
   ) async {
     final response = await dio.post(
       '/v1/register-google',
+      data: payload.toJson(),
+    );
+    final result = ApiResponse.fromJson(response.data);
+    if (result.success) {
+      if (result.data == null) {
+        return null;
+      }
+      return Users.fromJson(result.data!);
+    } else {
+      throw Exception(result.error);
+    }
+  }
+
+  Future<Users?> registerWithAnonymous(
+    UsersCreateFromAnonymousDto payload,
+  ) async {
+    final response = await dio.post(
+      '/v1/register-anonymous',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);

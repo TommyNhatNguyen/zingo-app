@@ -5,17 +5,31 @@ part 'user_profile.g.dart';
 
 @JsonSerializable()
 class UserProfile extends Equatable {
-  final DateTime? created_at;
-  final DateTime? updated_at;
-  final DateTime? deleted_at;
   final String user_id;
   final String? display_name;
   final String? mother_language;
   final String? display_language;
   final int? practice_goal_per_day;
   final String? notification_time;
+  final String cefr_level;
+  final String level;
+  final int xp;
+  final int streak;
+  final int longest_streak;
+  final DateTime? last_practice_at;
+  final Map<String, bool>? currentWeekStreak;
+  final DateTime? created_at;
+  final DateTime? updated_at;
+  final DateTime? deleted_at;
 
   const UserProfile({
+    required this.cefr_level,
+    required this.level,
+    required this.xp,
+    required this.streak,
+    required this.longest_streak,
+    this.last_practice_at,
+    this.currentWeekStreak,
     this.created_at,
     this.updated_at,
     this.deleted_at,
@@ -34,6 +48,13 @@ class UserProfile extends Equatable {
 
   @override
   List<Object?> get props => [
+    cefr_level,
+    level,
+    xp,
+    streak,
+    longest_streak,
+    last_practice_at,
+    currentWeekStreak,
     created_at,
     updated_at,
     deleted_at,
