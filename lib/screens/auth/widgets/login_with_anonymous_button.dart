@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
@@ -14,28 +15,36 @@ class LoginWithAnonymousButton extends StatefulWidget {
 }
 
 class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
-  late final AuthBloc _authBloc;
+  bool _pending = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _authBloc = context.read<AuthBloc>();
-  }
-
-  void _loginWithAnonymous(BuildContext context) {
-    _authBloc.add(AuthLoginWithAnonymous());
+  void _loginWithAnonymous() {
+    setState(() => _pending = true);
+    context.read<AuthBloc>().add(AuthLoginWithAnonymous());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        final isLoading = state.requestStatus == RequestStatus.loading;
-        return OutlinedButton(
-          onPressed: isLoading ? null : () => _loginWithAnonymous(context),
-          child: const Text("START NOW "),
-        );
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (!_pending) return;
+        if (state.requestStatus != RequestStatus.success) return;
+        if (state.user == null || state.data == null) return;
+
+        setState(() => _pending = false);
+        // No profile yet → onboarding; otherwise the redirect handles /home.
+        if (state.profile == null) {
+          context.go('/onboarding');
+        }
       },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          final isLoading = state.requestStatus == RequestStatus.loading;
+          return OutlinedButton(
+            onPressed: isLoading ? null : _loginWithAnonymous,
+            child: const Text("START NOW"),
+          );
+        },
+      ),
     );
   }
 }

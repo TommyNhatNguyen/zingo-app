@@ -63,24 +63,37 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
+    final authState = context.read<AuthBloc>().state;
     final location = state.matchedLocation;
-    final user = context.read<AuthBloc>().state.user;
-    print("User: $user");
-    final isSplashRoute = location == '/splash';
-    final isLoginRoute = location == '/login';
-    final isRegisterRoute = location == '/register';
-    final isWelcomeRoute = location == '/welcome';
 
-    if (user != null && isSplashRoute) {
-      return '/home';
+    // Wait for the auth check to finish before redirecting.
+    if (authState.requestStatus == RequestStatus.initial ||
+        authState.requestStatus == RequestStatus.loading) {
+      return null;
     }
 
-    if (user == null &&
-        !(isSplashRoute || isLoginRoute || isRegisterRoute || isWelcomeRoute)) {
+    final isLoggedIn = authState.user != null;
+    final hasProfile = authState.profile != null;
+    final isPublicRoute = const [
+      '/welcome',
+      '/login',
+      '/register',
+      '/splash',
+    ].contains(location);
+    final isOnboardingRoute = location == '/onboarding';
+
+    if (!isLoggedIn) {
+      return isPublicRoute ? null : '/welcome';
+    }
+
+    // Logged in but no profile yet — allow welcome + onboarding only.
+    if (!hasProfile) {
+      if (isPublicRoute || isOnboardingRoute) return null;
       return '/welcome';
     }
 
-    return null;
+    // Logged in with profile — leave protected routes alone, redirect public to home.
+    return isPublicRoute ? '/home' : null;
   },
   routes: [
     GoRoute(
