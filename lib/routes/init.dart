@@ -207,56 +207,70 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       },
     ),
     // ── Main tabs (with bottom nav) ──────────────────────────────────────────
-    ShellRoute(
-      builder: (context, state, child) => AppShell(child: child),
-      routes: [
-        GoRoute(
-          path: '/home',
-          pageBuilder: (context, state) {
-            return NoTransitionPage(
-              key: state.pageKey,
-              child: BlocProvider(
-                create: (_) => JourneyBloc()..add(const JourneyFetchEvent()),
-                child: const HomeScreen(),
-              ),
-            );
-          },
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              pageBuilder: (context, state) {
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  child: BlocProvider(
+                    create: (_) =>
+                        JourneyBloc()..add(const JourneyFetchEvent()),
+                    child: const HomeScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/learn',
-          pageBuilder: (context, state) {
-            return NoTransitionPage(
-              key: state.pageKey,
-              child: MultiBlocProvider(
-                providers: [
-                  BlocProvider(create: (_) => DialogListBloc()),
-                  BlocProvider(create: (_) => ListActiveDialogsBloc()),
-                  BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
-                  BlocProvider(create: (_) => RecommendationsListBloc()),
-                ],
-                child: const LearnScreen(),
-              ),
-            );
-          },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/learn',
+              pageBuilder: (context, state) {
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider(create: (_) => DialogListBloc()),
+                      BlocProvider(create: (_) => ListActiveDialogsBloc()),
+                      BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
+                      BlocProvider(create: (_) => RecommendationsListBloc()),
+                    ],
+                    child: const LearnScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/profile',
-          pageBuilder: (context, state) {
-            final authData = context.read<AuthBloc>().state.data;
-            return NoTransitionPage(
-              key: state.pageKey,
-              child: BlocProvider(
-                create: (_) {
-                  final bloc = UserSettingsBloc(seedUser: authData);
-                  if (authData != null) {
-                    bloc.add(UserSettingsLoaded(userId: authData.id));
-                  }
-                  return bloc;
-                },
-                child: const UserProfileScreen(),
-              ),
-            );
-          },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              pageBuilder: (context, state) {
+                final authData = context.read<AuthBloc>().state.data;
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  child: BlocProvider(
+                    create: (_) {
+                      final bloc = UserSettingsBloc(seedUser: authData);
+                      if (authData != null) {
+                        bloc.add(UserSettingsLoaded(userId: authData.id));
+                      }
+                      return bloc;
+                    },
+                    child: const UserProfileScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ],
     ),

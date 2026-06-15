@@ -76,10 +76,7 @@ class RecommendationsListBloc
       );
     } catch (e) {
       emit(
-        state.copyWith(
-          requestStatus: RequestStatus.error,
-          error: e.toString(),
-        ),
+        state.copyWith(requestStatus: RequestStatus.error, error: e.toString()),
       );
     }
   }
