@@ -21,6 +21,8 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
+import 'package:zingo/blocs/journey/journey_bloc.dart';
+import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/auth/welcome_screen.dart';
@@ -57,8 +59,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
-  initialLocation: '/welcome',
-  // initialLocation: "/home",
+  // initialLocation: '/welcome',
+  initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     // final location = state.matchedLocation;
@@ -191,7 +193,10 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       pageBuilder: (context, state) {
         return CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const HomeScreen(),
+          child: BlocProvider(
+            create: (_) => JourneyBloc()..add(const JourneyFetchEvent()),
+            child: const HomeScreen(),
+          ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

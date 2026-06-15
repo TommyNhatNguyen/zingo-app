@@ -12,6 +12,8 @@
 [x] - Show recommended for you
 [x] - Show favorites
 [] - Show browse by topics
+[] - Đánh giá skills tổng hợp sau mỗi chapter (8 bài) 
 
 **Authentication**
 [] - Anonymous login
+

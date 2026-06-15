@@ -1,23 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
+import 'package:zingo/blocs/journey/journey_bloc.dart';
+import 'package:zingo/blocs/journey/journey_event.dart';
+import 'package:zingo/blocs/journey/journey_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
+import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/journey/journey_payload.dart';
+import 'package:zingo/models/journey.dart';
 import 'package:zingo/models/users.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+
+    // Layout-phase notifications always fire at pixels == 0.
+    // Require actual downward scroll before evaluating.
+    if (pos.maxScrollExtent <= 0) return;
+    if (pos.pixels <= 0) return;
+    if (pos.pixels < pos.maxScrollExtent - 300) return;
+
+    final state = context.read<JourneyBloc>().state;
+    if (!state.hasMore) return;
+    if (state.requestStatus == RequestStatus.loading ||
+        state.requestStatus == RequestStatus.loadingMore) return;
+
+    context.read<JourneyBloc>().add(
+      JourneyFetchMoreEvent(
+        payload: JourneyPayload(page: (state.meta?.page ?? 1) + 1),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        final user = state.data;
+      builder: (context, authState) {
+        final user = authState.data;
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
             child: SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 14),
                   _StreakCard(user: user),
                   const SizedBox(height: 28),
-                  const _LessonPath(),
+                  _LessonPath(),
                 ],
               ),
             ),
@@ -36,6 +85,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+// ─── Greeting Row ─────────────────────────────────────────────────────────────
 
 class _GreetingRow extends StatelessWidget {
   final Users? user;
@@ -84,7 +135,7 @@ class _GreetingRow extends StatelessWidget {
   }
 }
 
-// ─── Streak Card ─────────────────────────────────────────────────────────────
+// ─── Streak Card ──────────────────────────────────────────────────────────────
 
 class _StreakCard extends StatelessWidget {
   final Users? user;
@@ -95,9 +146,7 @@ class _StreakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final streakDays = user?.streak ?? 0;
     final bestStreak = user?.longest_streak ?? 0;
-    // weekday: 1=Mon…7=Sun → 0-based Mon-first index
     final todayIndex = DateTime.now().weekday - 1;
-    // currentWeekStreak keys: 0=Monday, 1=Tuesday…6=Sunday (same as congrats screen)
     final weekStreak = user?.currentWeekStreak ?? {};
 
     return Container(
@@ -157,8 +206,6 @@ class _StreakCard extends StatelessWidget {
               for (int i = 0; i < 7; i++)
                 _DayCell(
                   label: const ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
-                  // Home screen is Mon-first (i=0→Mon).
-                  // Map key is Monday-first (0=Monday,1=Tuesday…6=Sunday): key = i
                   state: weekStreak[i.toString()] == true
                       ? _DayCellState.completed
                       : i == todayIndex
@@ -248,25 +295,25 @@ class _DayCell extends StatelessWidget {
   }
 }
 
-// ─── Lesson Path ─────────────────────────────────────────────────────────────
+// ─── Lesson Path ──────────────────────────────────────────────────────────────
 
 enum _LessonState { completed, nextUp, locked }
 
 class _Lesson {
+  final String id;
   final int number;
   final String title;
   final _LessonState state;
-  final int? score;
   final String? level;
   final int? turns;
   final int? durationMin;
   final int? xpGain;
 
   const _Lesson({
+    required this.id,
     required this.number,
     required this.title,
     required this.state,
-    this.score,
     this.level,
     this.turns,
     this.durationMin,
@@ -275,44 +322,150 @@ class _Lesson {
 }
 
 class _LessonPath extends StatelessWidget {
-  const _LessonPath();
+  _LessonPath();
 
-  static const _lessons = [
-    _Lesson(
-      number: 1,
-      title: 'Ordering a coffee to go',
-      state: _LessonState.completed,
-      score: 85,
-    ),
-    _Lesson(
-      number: 2,
-      title: 'Choosing a pastry at the counter',
-      state: _LessonState.completed,
-      score: 78,
-    ),
-    _Lesson(
-      number: 3,
-      title: 'Sending back a wrong order',
-      state: _LessonState.nextUp,
-      level: 'A2',
-      turns: 5,
-      durationMin: 2,
-      xpGain: 45,
-    ),
-    _Lesson(
-      number: 4,
-      title: 'Chatting with a friendly barista',
-      state: _LessonState.locked,
-    ),
-    _Lesson(
-      number: 5,
-      title: 'Reserving a table for two',
-      state: _LessonState.locked,
-    ),
-  ];
+  static int _durationMin(String duration) {
+    switch (duration) {
+      case 'short':
+        return 2;
+      case 'mid':
+        return 5;
+      case 'long':
+        return 10;
+      default:
+        return 3;
+    }
+  }
+
+  List<_Lesson> _buildLessons(
+    JourneyChapter chapter, {
+    required bool isCurrentChapter,
+    required bool isFuture,
+  }) {
+    // Find the first non-completed slot in the current chapter — that's "next up".
+    // in_progress takes priority over the first waiting slot.
+    int? nextUpIndex;
+    if (isCurrentChapter) {
+      // Prefer an in_progress slot; fall back to first waiting.
+      final inProgressIdx = chapter.dialogs.indexWhere((s) => s.isInProgress);
+      if (inProgressIdx != -1) {
+        nextUpIndex = inProgressIdx;
+      } else {
+        nextUpIndex = chapter.dialogs.indexWhere((s) => !s.isCompleted);
+      }
+    }
+
+    return chapter.dialogs.asMap().entries.map((entry) {
+      final i = entry.key;
+      final slot = entry.value;
+      final dialog = slot.dialog;
+
+      if (isFuture || (!slot.isCompleted && i != nextUpIndex)) {
+        return _Lesson(
+          id: dialog.id,
+          number: i + 1,
+          title: dialog.title,
+          state: _LessonState.locked,
+          level: dialog.cefr_level,
+          turns: dialog.conversation_length,
+          durationMin: _durationMin(dialog.duration),
+          xpGain: dialog.xp_points,
+        );
+      }
+
+      if (slot.isCompleted) {
+        return _Lesson(
+          id: dialog.id,
+          number: i + 1,
+          title: dialog.title,
+          state: _LessonState.completed,
+          level: dialog.cefr_level,
+          turns: dialog.conversation_length,
+          durationMin: _durationMin(dialog.duration),
+          xpGain: dialog.xp_points,
+        );
+      }
+
+      // i == nextUpIndex
+      return _Lesson(
+        id: dialog.id,
+        number: i + 1,
+        title: dialog.title,
+        state: _LessonState.nextUp,
+        level: dialog.cefr_level,
+        turns: dialog.conversation_length,
+        durationMin: _durationMin(dialog.duration),
+        xpGain: dialog.xp_points,
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<JourneyBloc, JourneyState>(
+      builder: (context, state) {
+        if (state.requestStatus == RequestStatus.loading ||
+            state.requestStatus == RequestStatus.initial) {
+          return const SizedBox(
+            height: 120,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state.chapters.isEmpty) {
+          return _EmptyJourney();
+        }
+
+        final currentChapter = state.currentChapter;
+        final currentIndex = currentChapter != null
+            ? state.chapters.indexOf(currentChapter)
+            : state.chapters.length - 1;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int ci = 0; ci < state.chapters.length; ci++) ...[
+              if (ci > 0) const _ChapterDivider(),
+              _buildChapterSection(
+                state.chapters[ci],
+                chapterNum: ci + 1,
+                isCurrentChapter: ci == currentIndex,
+                isFuture: ci > currentIndex,
+              ),
+            ],
+            if (state.requestStatus == RequestStatus.loadingMore)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (!state.hasMore && state.chapters.isNotEmpty)
+              const _JourneyComplete(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildChapterSection(
+    JourneyChapter chapter, {
+    required int chapterNum,
+    required bool isCurrentChapter,
+    required bool isFuture,
+  }) {
+    final lessons = _buildLessons(
+      chapter,
+      isCurrentChapter: isCurrentChapter,
+      isFuture: isFuture,
+    );
+    final completedCount = lessons
+        .where((l) => l.state == _LessonState.completed)
+        .length;
+    final topicName = chapter.dialogs.isNotEmpty
+        ? (chapter.dialogs.first.dialog.topics?.name ??
+                  chapter.dialogs.first.dialog.topic_id)
+              .toUpperCase()
+        : 'YOUR PATH';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -323,9 +476,11 @@ class _LessonPath extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'YOUR CAFÉ & FOOD PATH',
+                  'CHAPTER $chapterNum · $topicName',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: isFuture
+                        ? AppColors.textDisabled
+                        : AppColors.textPrimary,
                     fontWeight: FontWeight.w800,
                     fontSize: 12,
                     letterSpacing: 0.6,
@@ -336,22 +491,97 @@ class _LessonPath extends StatelessWidget {
                   width: 196,
                   height: 2.5,
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: isFuture ? AppColors.border : AppColors.primary,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ],
             ),
             const Spacer(),
-            Text('3 of 8', style: AppTextStyles.labelMedium),
+            Text(
+              '$completedCount of ${lessons.length}',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: isFuture
+                    ? AppColors.textDisabled
+                    : AppColors.textPrimary,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
-        for (int i = 0; i < _lessons.length; i++) ...[
-          _LessonRow(lesson: _lessons[i]),
-          if (i < _lessons.length - 1) const _LessonConnector(),
+        for (int i = 0; i < lessons.length; i++) ...[
+          _LessonRow(lesson: lessons[i]),
+          if (i < lessons.length - 1) const _LessonConnector(),
         ],
       ],
+    );
+  }
+}
+
+class _ChapterDivider extends StatelessWidget {
+  const _ChapterDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      child: Row(
+        children: [
+          const SizedBox(width: 34),
+          Expanded(child: Container(height: 1, color: AppColors.border)),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyJourney extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'No journey yet',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Complete onboarding to get your personalised path.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _JourneyComplete extends StatelessWidget {
+  const _JourneyComplete();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 28),
+      child: Center(
+        child: Text(
+          'You\'ve reached the end of your journey',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textDisabled,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -417,45 +647,19 @@ class _LessonNode extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (lesson.state) {
       case _LessonState.completed:
-        return Column(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.scoreHigh,
-              ),
-              child: const Icon(
-                Icons.check_rounded,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            if (lesson.score != null) ...[
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${lesson.score}',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.star_rounded, color: AppColors.xp, size: 13),
-                ],
-              ),
-            ],
-          ],
+        return Container(
+          width: 42,
+          height: 42,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.scoreHigh,
+          ),
+          child: const Icon(Icons.check_rounded, color: Colors.white, size: 24),
         );
 
       case _LessonState.nextUp:
         return GestureDetector(
-          onTap: () {},
+          onTap: () => context.push('/learn/${lesson.id}'),
           child: Container(
             width: 58,
             height: 58,

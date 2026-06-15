@@ -23,13 +23,20 @@ class PaginationMeta {
   final int total;
   final int page;
   final int limit;
+  final int totalPages;
 
-  PaginationMeta({this.total = 0, this.page = 1, this.limit = 10});
+  PaginationMeta({
+    this.total = 0,
+    this.page = 1,
+    this.limit = 10,
+    this.totalPages = 1,
+  });
 
   factory PaginationMeta.fromJson(Map<String, dynamic> json) => PaginationMeta(
-    total: json['total'],
-    page: json['page'],
-    limit: json['limit'],
+    total: json['total'] ?? 0,
+    page: json['page'] ?? 1,
+    limit: json['limit'] ?? 10,
+    totalPages: json['totalPages'] ?? 1,
   );
 }
 
