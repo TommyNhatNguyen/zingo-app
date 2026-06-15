@@ -1,10 +1,9 @@
 import 'package:zingo/config/dio_http.dart';
 import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
-import 'package:zingo/interfaces/api_response.dart';
-import 'package:zingo/models/dialog.dart';
+import 'package:zingo/models/journey.dart';
 
 class RecommendationsService {
-  Future<PaginatedApiResult<Dialog>> getRecommendations(
+  Future<JourneyResponse?> getRecommendations(
     RecommendationsPayload payload,
   ) async {
     try {
@@ -13,9 +12,6 @@ class RecommendationsService {
         queryParameters: payload.toJson(),
       );
 
-      final data = response.data['data'] as Map<String, dynamic>;
-      final items = data['items'] as List<dynamic>;
-      final meta = data['meta'] as Map<String, dynamic>;
       final success = response.data['success'] ?? false;
       final error = response.data['error'];
 
@@ -23,12 +19,10 @@ class RecommendationsService {
         throw Exception(error);
       }
 
-      return PaginatedApiResult<Dialog>(
-        success: success,
-        meta: PaginationMeta.fromJson(meta),
-        data: items.map((e) => Dialog.fromJson(e)).toList(),
-        error: error,
-      );
+      final data = response.data['data'];
+      if (data == null) return null;
+
+      return JourneyResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       throw Exception(e);
     }

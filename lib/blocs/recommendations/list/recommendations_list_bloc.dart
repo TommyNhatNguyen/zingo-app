@@ -24,19 +24,12 @@ class RecommendationsListBloc
     try {
       final result = await _service.getRecommendations(event.payload);
       emit(
-        state.copyWith(
-          requestStatus: RequestStatus.success,
-          data: result.data,
-          meta: result.meta,
-          error: result.error,
-        ),
+        state.copyWith(requestStatus: RequestStatus.success, data: result),
       );
     } on DioException catch (e) {
       emit(
         state.copyWith(
           requestStatus: RequestStatus.error,
-          data: [],
-          meta: null,
           error: e.response?.data?['message']?.toString() ?? e.message,
         ),
       );
@@ -44,8 +37,6 @@ class RecommendationsListBloc
       emit(
         state.copyWith(
           requestStatus: RequestStatus.error,
-          data: [],
-          meta: null,
           error: e.toString(),
         ),
       );
@@ -59,13 +50,13 @@ class RecommendationsListBloc
     emit(state.copyWith(requestStatus: RequestStatus.loadingMore));
     try {
       final result = await _service.getRecommendations(event.payload);
+      final merged = result == null
+          ? state.data
+          : state.data == null
+          ? result
+          : state.data!.copyWithChapters(result.chapters);
       emit(
-        state.copyWith(
-          requestStatus: RequestStatus.success,
-          data: [...(state.data ?? []), ...(result.data ?? [])],
-          meta: result.meta,
-          error: result.error,
-        ),
+        state.copyWith(requestStatus: RequestStatus.success, data: merged),
       );
     } on DioException catch (e) {
       emit(

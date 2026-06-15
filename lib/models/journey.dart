@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:zingo/interfaces/api_response.dart';
 import 'package:zingo/models/dialog.dart';
 
 class JourneyDialogSlot extends Equatable {
@@ -30,7 +31,13 @@ class JourneyDialogSlot extends Equatable {
   }
 
   @override
-  List<Object?> get props => [slot_id, order_index, status, completed_at, dialog];
+  List<Object?> get props => [
+    slot_id,
+    order_index,
+    status,
+    completed_at,
+    dialog,
+  ];
 }
 
 class JourneyChapter extends Equatable {
@@ -50,4 +57,37 @@ class JourneyChapter extends Equatable {
 
   @override
   List<Object?> get props => [chapter_id, dialogs];
+}
+
+class JourneyResponse extends Equatable {
+  final String suggestion_id;
+  final List<JourneyChapter> chapters;
+  final PaginationMeta meta;
+
+  const JourneyResponse({
+    required this.suggestion_id,
+    required this.chapters,
+    required this.meta,
+  });
+
+  factory JourneyResponse.fromJson(Map<String, dynamic> json) {
+    return JourneyResponse(
+      suggestion_id: json['suggestion_id'] as String,
+      chapters: (json['chapters'] as List<dynamic>)
+          .map((e) => JourneyChapter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      meta: PaginationMeta.fromJson(json['meta'] as Map<String, dynamic>),
+    );
+  }
+
+  JourneyResponse copyWithChapters(List<JourneyChapter> extra) {
+    return JourneyResponse(
+      suggestion_id: suggestion_id,
+      chapters: [...chapters, ...extra],
+      meta: meta,
+    );
+  }
+
+  @override
+  List<Object?> get props => [suggestion_id, chapters, meta];
 }

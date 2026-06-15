@@ -11,6 +11,7 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
+import 'package:zingo/models/journey.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
 class RecommendationSection extends StatefulWidget {
@@ -34,8 +35,15 @@ class _RecommendationSectionState extends State<RecommendationSection> {
     );
   }
 
+  List<dialog_model.Dialog> _flattenDialogs(JourneyResponse? response) {
+    if (response == null) return [];
+    return response.chapters
+        .expand((c) => c.dialogs.map((s) => s.dialog))
+        .toList();
+  }
+
   void _loadMore(RecommendationsListState state) {
-    final nextPage = (state.meta?.page ?? 1) + 1;
+    final nextPage = (state.data?.meta.page ?? 1) + 1;
     context.read<RecommendationsListBloc>().add(
       RecommendationsListFetchMore(
         payload: _basePayload.copyWith(page: nextPage),
@@ -49,7 +57,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
         final isLoadingMore = state.requestStatus == RequestStatus.loadingMore;
-        final items = state.data ?? [];
+        final items = _flattenDialogs(state.data);
 
         return SafeArea(
           child: Padding(
