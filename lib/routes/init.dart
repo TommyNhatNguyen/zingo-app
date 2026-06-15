@@ -63,21 +63,24 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
-    // final location = state.matchedLocation;
-    // final user = context.read<AuthBloc>().state.user;
-    // final isSplashRoute = location == '/splash';
-    // final isLoginRoute = location == '/login';
-    // final isRegisterRoute = location == '/register';
+    final location = state.matchedLocation;
+    final user = context.read<AuthBloc>().state.user;
+    print("User: $user");
+    final isSplashRoute = location == '/splash';
+    final isLoginRoute = location == '/login';
+    final isRegisterRoute = location == '/register';
+    final isWelcomeRoute = location == '/welcome';
 
-    // if (user != null && isSplashRoute) {
-    //   return '/home';
-    // }
+    if (user != null && isSplashRoute) {
+      return '/home';
+    }
 
-    // if (user == null && !(isSplashRoute || isLoginRoute || isRegisterRoute)) {
-    //   return '/login';
-    // }
+    if (user == null &&
+        !(isSplashRoute || isLoginRoute || isRegisterRoute || isWelcomeRoute)) {
+      return '/welcome';
+    }
 
-    // return null;
+    return null;
   },
   routes: [
     GoRoute(

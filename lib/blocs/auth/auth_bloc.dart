@@ -41,13 +41,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthStateChanged>((event, emit) async {
+      // Always mark the Firebase user as present immediately so the redirect
+      // sends authenticated users to /home even if the backend call is slow.
+      emit(
+        state.copyWith(user: event.user, requestStatus: RequestStatus.loading),
+      );
       try {
         final userData = await _userService.getUserByUid(event.user.uid);
         UserProfile? profile;
         if (userData != null) {
-          try {
-            profile = await _profileService.getById(userData.id);
-          } catch (_) {}
+          profile = await _profileService.getById(userData.id);
         }
         emit(
           state.copyWith(
@@ -58,9 +61,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       } catch (e) {
+        // Keep user set so the router doesn't kick authenticated users to /welcome.
         emit(
           state.copyWith(
             requestStatus: RequestStatus.error,
+            user: event.user,
             error: e.toString(),
           ),
         );

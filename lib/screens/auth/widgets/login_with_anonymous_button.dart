@@ -33,7 +33,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
         final isLoading = state.requestStatus == RequestStatus.loading;
         return OutlinedButton(
           onPressed: isLoading ? null : () => _loginWithAnonymous(context),
-          child: const Text("START NOW AS GUEST"),
+          child: const Text("START NOW "),
         );
       },
     );
