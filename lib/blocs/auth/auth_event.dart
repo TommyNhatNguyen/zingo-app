@@ -25,6 +25,13 @@ class AuthLoginWithGoogle extends AuthEvent {
   List<Object?> get props => [];
 }
 
+class AuthLoginWithAnonymous extends AuthEvent {
+  const AuthLoginWithAnonymous();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class AuthStateChanged extends AuthEvent {
   final User user;
 

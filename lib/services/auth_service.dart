@@ -40,4 +40,9 @@ class AuthService {
     );
     return result.user;
   }
+
+  Future<User?> loginWithAnonymous() async {
+    final result = await firebase.signInAnonymously();
+    return result.user;
+  }
 }

@@ -8,6 +8,8 @@ import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dia
 import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/blocs/journey/journey_bloc.dart';
+import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
@@ -21,8 +23,6 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
-import 'package:zingo/blocs/journey/journey_bloc.dart';
-import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/screens/auth/login_screen.dart';
 import 'package:zingo/screens/auth/register_screen.dart';
 import 'package:zingo/screens/auth/welcome_screen.dart';
@@ -59,8 +59,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
-  // initialLocation: '/welcome',
-  initialLocation: "/home",
+  initialLocation: '/welcome',
+  // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream(authBloc.stream),
   redirect: (context, state) {
     // final location = state.matchedLocation;

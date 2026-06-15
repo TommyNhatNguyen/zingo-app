@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
 import 'package:zingo/services/auth_service.dart';
 import 'package:zingo/services/user_service.dart';
 
@@ -95,6 +96,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
         final user = await _authService.loginWithGoogle();
+        if (user != null) {
+          final newUserData = await _userService.registerWithGoogle(
+            UsersCreateFromLoginGoogleDto(
+              email: user.email ?? '',
+              username: user.displayName ?? '',
+              user_uid: user.uid,
+            ),
+          );
+          emit(
+            state.copyWith(
+              requestStatus: RequestStatus.success,
+              user: user,
+              data: newUserData,
+            ),
+          );
+        }
+      } on FirebaseException catch (e) {
+        emit(
+          state.copyWith(requestStatus: RequestStatus.error, error: e.message),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            requestStatus: RequestStatus.error,
+            error: e.toString(),
+          ),
+        );
+      }
+    });
+
+    on<AuthLoginWithAnonymous>((event, emit) async {
+      try {
+        emit(state.copyWith(requestStatus: RequestStatus.loading));
+        final user = await _authService.loginWithAnonymous();
         if (user != null) {
           final userData = await _userService.getUserByUid(user.uid);
           if (userData != null) {
