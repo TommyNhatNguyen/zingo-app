@@ -11,6 +11,7 @@ import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/journey/journey_payload.dart';
 import 'package:zingo/models/journey.dart';
+import 'package:zingo/models/user_profile.dart';
 import 'package:zingo/models/users.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final user = authState.data;
+        final profile = authState.profile;
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
@@ -71,9 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _GreetingRow(user: user),
+                  _GreetingRow(user: user, profile: profile),
                   const SizedBox(height: 14),
-                  _StreakCard(user: user),
+                  _StreakCard(profile: profile),
                   const SizedBox(height: 28),
                   _LessonPath(),
                 ],
@@ -90,8 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _GreetingRow extends StatelessWidget {
   final Users? user;
+  final UserProfile? profile;
 
-  const _GreetingRow({required this.user});
+  const _GreetingRow({required this.user, required this.profile});
 
   String _greeting() {
     final hour = DateTime.now().hour;
@@ -115,7 +118,7 @@ class _GreetingRow extends StatelessWidget {
         const Spacer(),
         Chip(
           label: Text(
-            '${user?.xp ?? 0}',
+            '${profile?.xp ?? 0}',
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textOnAccent,
               fontWeight: FontWeight.w700,
@@ -138,16 +141,16 @@ class _GreetingRow extends StatelessWidget {
 // ─── Streak Card ──────────────────────────────────────────────────────────────
 
 class _StreakCard extends StatelessWidget {
-  final Users? user;
+  final UserProfile? profile;
 
-  const _StreakCard({required this.user});
+  const _StreakCard({required this.profile});
 
   @override
   Widget build(BuildContext context) {
-    final streakDays = user?.streak ?? 0;
-    final bestStreak = user?.longest_streak ?? 0;
+    final streakDays = profile?.streak ?? 0;
+    final bestStreak = profile?.longest_streak ?? 0;
     final todayIndex = DateTime.now().weekday - 1;
-    final weekStreak = user?.currentWeekStreak ?? {};
+    final weekStreak = profile?.currentWeekStreak ?? {};
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),

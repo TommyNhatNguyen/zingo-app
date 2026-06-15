@@ -5,12 +5,15 @@ import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
+import 'package:zingo/models/user_profile.dart';
 import 'package:zingo/services/auth_service.dart';
+import 'package:zingo/services/user_profile_service.dart';
 import 'package:zingo/services/user_service.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _authService = AuthService();
   final _userService = UserService();
+  final _profileService = UserProfileService();
   final Stream<User?> _authStateStream = FirebaseAuth.instance
       .authStateChanges();
 
@@ -40,10 +43,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthStateChanged>((event, emit) async {
       try {
         final userData = await _userService.getUserByUid(event.user.uid);
+        UserProfile? profile;
+        if (userData != null) {
+          try {
+            profile = await _profileService.getById(userData.id);
+          } catch (_) {}
+        }
         emit(
           state.copyWith(
             requestStatus: RequestStatus.success,
             data: userData,
+            profile: profile,
             user: event.user,
           ),
         );

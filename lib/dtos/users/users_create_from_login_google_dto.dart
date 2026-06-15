@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'users_create_from_login_google_dto.g.dart';
-
-@JsonSerializable()
 class UsersCreateFromLoginGoogleDto extends Equatable {
   final String email;
   final String username;
@@ -15,9 +11,11 @@ class UsersCreateFromLoginGoogleDto extends Equatable {
     required this.user_uid,
   });
 
-  factory UsersCreateFromLoginGoogleDto.fromJson(Map<String, dynamic> json) =>
-      _$UsersCreateFromLoginGoogleDtoFromJson(json);
-  Map<String, dynamic> toJson() => _$UsersCreateFromLoginGoogleDtoToJson(this);
+  Map<String, dynamic> toJson() => {
+    'email': email,
+    'username': username,
+    'user_uid': user_uid,
+  };
 
   @override
   List<Object?> get props => [email, username, user_uid];

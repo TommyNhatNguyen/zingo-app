@@ -48,7 +48,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final user = state.user;
     final profile = state.profile;
     _nameController.text = profile?.display_name ?? user?.username ?? '';
-    _cefr = _cefrFromString(user?.cefr_level);
+    _cefr = _cefrFromString(profile?.cefr_level);
     _motherLanguage = profile?.mother_language;
     _displayLanguage = profile?.display_language;
     _dailyGoal = profile?.practice_goal_per_day ?? 1;

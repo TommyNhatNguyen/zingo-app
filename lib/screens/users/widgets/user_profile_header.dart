@@ -66,19 +66,19 @@ class UserProfileHeader extends StatelessWidget {
                     PillBadge(
                       background: AppColors.primaryContainer,
                       foreground: AppColors.primaryDark,
-                      child: Text(state.user?.cefr_level ?? 'A1'),
+                      child: Text(state.profile?.cefr_level ?? 'A1'),
                     ),
                     PillBadge(
                       background: AppColors.highlightContainer,
                       foreground: AppColors.xp,
                       icon: Icons.star_rounded,
-                      child: Text('${state.user?.xp ?? 0} XP'),
+                      child: Text('${state.profile?.xp ?? 0} XP'),
                     ),
                     PillBadge(
                       background: AppColors.accentContainer,
                       foreground: AppColors.streak,
                       icon: Icons.local_fire_department_rounded,
-                      child: Text('${state.user?.streak ?? 0} day streak'),
+                      child: Text('${state.profile?.streak ?? 0} day streak'),
                     ),
                   ],
                 ),
