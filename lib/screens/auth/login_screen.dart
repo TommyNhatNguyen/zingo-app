@@ -122,7 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     _buildLoginButton(isLoading, context),
                     const AuthDivider(),
-                    const LoginWithAnonymousButton(),
                     const LoginWithGoogleButton(),
                     TextButton(
                       onPressed: isLoading

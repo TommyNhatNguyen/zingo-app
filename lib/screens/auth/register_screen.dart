@@ -12,7 +12,6 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 import 'package:zingo/screens/auth/widgets/auth_divider.dart';
-import 'package:zingo/screens/auth/widgets/login_with_anonymous_button.dart';
 import 'package:zingo/screens/auth/widgets/login_with_google_button.dart';
 import 'package:zingo/screens/auth/widgets/register_info.dart';
 
@@ -186,7 +185,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         _buildRegisterButton(isLoading, context),
                         const AuthDivider(),
-                        const LoginWithAnonymousButton(),
                         const LoginWithGoogleButton(),
                         TextButton(
                           onPressed: isLoading

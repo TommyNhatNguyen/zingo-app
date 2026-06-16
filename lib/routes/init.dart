@@ -94,11 +94,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
 
     // Logged in but no profile yet — allow welcome + onboarding only.
     if (!hasProfile) {
-      if (isPublicRoute ||
-          isOnboardingRoute ||
-          isProfileRoute ||
-          isSettingRoute)
-        return null;
+      if (isPublicRoute || isOnboardingRoute) return null;
       return '/welcome';
     }
 
