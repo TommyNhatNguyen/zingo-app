@@ -27,11 +27,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     payload: UserProfileUpdateDto(),
   );
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _onSave(BuildContext context) {
     final userId = context.read<UserSettingsBloc>().state.user?.id;
     if (userId == null) return;
@@ -44,9 +39,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       listener: (context, state) {
         if (state.requestStatus == app_enums.RequestStatus.success &&
             state.data != null) {
-          _form.update(
-            UserProfileUpdateDto.fromJson(state.data?.toJson() ?? {}),
-          );
+          _form.initialize(state.data!);
         }
       },
       builder: (context, state) {
@@ -69,76 +62,76 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               body: Skeletonizer(
                 enabled: isLoading,
                 child: SafeArea(
-                  child: ListView(
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                    children: [
-                      const UserProfileHeader(),
-                      const SizedBox(height: 24),
-                      _buildDisplayName(context),
-                      const SizedBox(height: 24),
-                      _buildEnglishLevel(context),
-                      const SizedBox(height: 24),
-                      _buildLanguageSection(
-                        context: context,
-                        title: 'Native language',
-                        subtitle: "We'll tailor tips and translations.",
-                        selected: _form.payload.mother_language,
-                        onChanged: (code) {
-                          _form.update(
-                            _form.payload.copyWith(mother_language: code),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      _buildLanguageSection(
-                        context: context,
-                        title: 'Display language',
-                        subtitle: 'Language used across the app.',
-                        selected: _form.payload.display_language,
-                        onChanged: (code) {
-                          _form.update(
-                            _form.payload.copyWith(display_language: code),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      DailyGoal(
-                        dailyGoal: PracticeGoal.all.firstWhere(
-                          (goal) =>
-                              goal.value == _form.payload.practice_goal_per_day,
-                          orElse: () => PracticeGoal.all.first,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 24,
+                      children: [
+                        const UserProfileHeader(),
+                        _buildDisplayName(context),
+                        _buildEnglishLevel(context),
+                        _buildLanguageSection(
+                          context: context,
+                          title: 'Native language',
+                          subtitle: "We'll tailor tips and translations.",
+                          selected: _form.payload.mother_language,
+                          onChanged: (code) {
+                            _form.update(
+                              _form.payload.copyWith(mother_language: code),
+                            );
+                          },
                         ),
-                        onChange: (goal) {
-                          _form.update(
-                            _form.payload.copyWith(
-                              practice_goal_per_day: goal.value,
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      ReminderTime(
-                        notificationTime:
-                            _form.parseTime(_form.payload.notification_time) ??
-                            TimeOfDay.now(),
-                        onChange: (time) {
-                          _form.update(
-                            _form.payload.copyWith(
-                              notification_time: time.toString(),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      // _buildTopics(context),
-                    ],
+                        _buildLanguageSection(
+                          context: context,
+                          title: 'Display language',
+                          subtitle: 'Language used across the app.',
+                          selected: _form.payload.display_language,
+                          onChanged: (code) {
+                            _form.update(
+                              _form.payload.copyWith(display_language: code),
+                            );
+                          },
+                        ),
+                        DailyGoal(
+                          dailyGoal: PracticeGoal.all.firstWhere(
+                            (goal) =>
+                                goal.value ==
+                                _form.payload.practice_goal_per_day,
+                            orElse: () => PracticeGoal.all.first,
+                          ),
+                          onChange: (goal) {
+                            _form.update(
+                              _form.payload.copyWith(
+                                practice_goal_per_day: goal.value,
+                              ),
+                            );
+                          },
+                        ),
+                        ReminderTime(
+                          notificationTime:
+                              _form.parseTime(
+                                _form.payload.notification_time,
+                              ) ??
+                              TimeOfDay.now(),
+                          onChange: (time) {
+                            _form.update(
+                              _form.payload.copyWith(
+                                notification_time: time.toString(),
+                              ),
+                            );
+                          },
+                        ),
+                        // _buildTopics(context),
+                        _buildSaveButton(
+                          isSaving: isSaving,
+                          isLoading: isLoading,
+                          context: context,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              bottomNavigationBar: _buildSaveButton(
-                isSaving: isSaving,
-                isLoading: isLoading,
-                context: context,
               ),
             );
           },
@@ -152,28 +145,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     required bool isLoading,
     required BuildContext context,
   }) {
-    return SafeArea(
-      top: false,
-      minimum: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-        child: SizedBox(
-          height: 52,
-          child: FilledButton(
-            onPressed: isSaving || isLoading ? null : () => _onSave(context),
-            child: isSaving
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Save changes'),
-          ),
-        ),
-      ),
+    return FilledButton(
+      onPressed: isSaving || isLoading ? null : () => _onSave(context),
+      child: isSaving
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : const Text('Save changes'),
     );
   }
 

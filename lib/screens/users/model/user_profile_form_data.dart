@@ -1,11 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
+import 'package:zingo/models/user_profile.dart';
 
 class UserProfileFormData extends Equatable with ChangeNotifier {
-  UserProfileUpdateDto payload = UserProfileUpdateDto();
+  late UserProfileUpdateDto payload;
 
   UserProfileFormData({required this.payload});
+
+  void initialize(UserProfile user) {
+    this.payload = UserProfileUpdateDto(
+      display_name: user.display_name,
+      mother_language: user.mother_language,
+      display_language: user.display_language,
+      practice_goal_per_day: user.practice_goal_per_day,
+      notification_time: user.notification_time,
+    );
+  }
 
   void update(UserProfileUpdateDto payload) {
     this.payload = this.payload.copyWith(
