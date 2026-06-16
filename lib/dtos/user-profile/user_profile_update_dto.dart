@@ -19,6 +19,20 @@ class UserProfileUpdateDto extends Equatable {
     this.notification_time,
   });
 
+  UserProfileUpdateDto copyWith({
+    String? display_name,
+    String? mother_language,
+    String? display_language,
+    int? practice_goal_per_day,
+    String? notification_time,
+  }) => UserProfileUpdateDto(
+    display_name: display_name ?? this.display_name,
+    mother_language: mother_language ?? this.mother_language,
+    display_language: display_language ?? this.display_language,
+    practice_goal_per_day: practice_goal_per_day ?? this.practice_goal_per_day,
+    notification_time: notification_time ?? this.notification_time,
+  );
+
   factory UserProfileUpdateDto.fromJson(Map<String, dynamic> json) =>
       _$UserProfileUpdateDtoFromJson(json);
 

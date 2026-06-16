@@ -11,6 +11,8 @@ class EnglishLevel {
     required this.description,
   });
 
+  
+
   static const List<EnglishLevel> all = [
     EnglishLevel(
       code: app_enums.EnglishLevel.A1,

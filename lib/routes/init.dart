@@ -17,6 +17,7 @@ import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart'
 import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/blocs/user-profile/create/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user-profile/get/user_profile_get_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
@@ -275,7 +276,12 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
                           return bloc;
                         },
                       ),
-                      BlocProvider(create: (context) => UserProfileGetBloc()),
+                      BlocProvider(
+                        create: (context) => UserProfileGetBloc()
+                          ..add(
+                            UserProfileGetFetched(userId: authData?.id ?? ''),
+                          ),
+                      ),
                     ],
                     child: isAnonymous
                         ? const UserProfileAnonymousScreen()

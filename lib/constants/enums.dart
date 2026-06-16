@@ -32,6 +32,26 @@ enum EnglishLevel {
   C1,
   C2;
 
+  static EnglishLevel? fromValue(String? value) {
+    if (value == null) return null;
+    switch (value) {
+      case 'A1':
+        return EnglishLevel.A1;
+      case 'A2':
+        return EnglishLevel.A2;
+      case 'B1':
+        return EnglishLevel.B1;
+      case 'B2':
+        return EnglishLevel.B2;
+      case 'C1':
+        return EnglishLevel.C1;
+      case 'C2':
+        return EnglishLevel.C2;
+      default:
+        return null;
+    }
+  }
+
   String get value {
     switch (this) {
       case EnglishLevel.A1:
