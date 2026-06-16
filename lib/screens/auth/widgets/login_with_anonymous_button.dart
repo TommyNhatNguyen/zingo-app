@@ -33,7 +33,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
         setState(() => _pending = false);
         // No profile yet → onboarding; otherwise the redirect handles /home.
         if (state.profile == null) {
-          context.go('/onboarding');
+          context.go('/profile');
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

@@ -34,9 +34,11 @@ import 'package:zingo/screens/onboarding/onboarding_screen.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/screens/practice/practice_screen.dart';
+import 'package:zingo/screens/settings/setting_screen.dart';
 import 'package:zingo/screens/shell/app_shell.dart';
 import 'package:zingo/screens/splash/splash_screen.dart';
 import 'package:zingo/screens/test/test_screen.dart';
+import 'package:zingo/screens/users/user_profile_anonymous_screen.dart';
 import 'package:zingo/screens/users/user_profile_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -83,6 +85,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       '/splash',
     ].contains(location);
     final isOnboardingRoute = location == '/onboarding';
+    final isProfileRoute = location == '/profile';
+    final isSettingRoute = location == '/setting';
 
     if (!isLoggedIn) {
       return isPublicRoute ? null : '/welcome';
@@ -90,12 +94,16 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
 
     // Logged in but no profile yet — allow welcome + onboarding only.
     if (!hasProfile) {
-      if (isPublicRoute || isOnboardingRoute) return null;
+      if (isPublicRoute ||
+          isOnboardingRoute ||
+          isProfileRoute ||
+          isSettingRoute)
+        return null;
       return '/welcome';
     }
 
     // Logged in with profile — leave protected routes alone, redirect public to home.
-    return isPublicRoute ? '/home' : null;
+    return isPublicRoute ? '/profile' : null;
   },
   routes: [
     GoRoute(
@@ -255,6 +263,8 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
               path: '/profile',
               pageBuilder: (context, state) {
                 final authData = context.read<AuthBloc>().state.data;
+                final authUserData = context.read<AuthBloc>().state.user;
+                final isAnonymous = authUserData?.isAnonymous ?? true;
                 return NoTransitionPage(
                   key: state.pageKey,
                   child: BlocProvider(
@@ -265,7 +275,9 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
                       }
                       return bloc;
                     },
-                    child: const UserProfileScreen(),
+                    child: isAnonymous
+                        ? const UserProfileAnonymousScreen()
+                        : const UserProfileScreen(),
                   ),
                 );
               },
@@ -285,6 +297,30 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             BlocProvider(create: (_) => StartPracticeBloc()),
           ],
           child: LearnDetailScreen(id: id),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/setting',
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween = Tween(
+              begin: begin,
+              end: end,
+            ).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          key: state.pageKey,
+          child: const SettingScreen(),
         );
       },
     ),

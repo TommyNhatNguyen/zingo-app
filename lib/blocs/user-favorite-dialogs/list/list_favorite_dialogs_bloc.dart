@@ -26,9 +26,7 @@ class ListFavoriteDialogsBloc
       final dialogs = await _userFavoriteDialogsService.getFavoriteDialogs(
         event.payload,
       );
-      emit(
-        state.copyWith(data: dialogs, requestStatus: RequestStatus.success),
-      );
+      emit(state.copyWith(data: dialogs, requestStatus: RequestStatus.success));
     } on DioException catch (e) {
       emit(
         state.copyWith(

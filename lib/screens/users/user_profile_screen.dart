@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
@@ -155,7 +156,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         final isLoading = state.loadStatus == app_enums.RequestStatus.loading;
         final isSaving = state.saveStatus == app_enums.RequestStatus.loading;
         return Scaffold(
-          appBar: AppBar(title: const Text('Profile settings')),
+          appBar: AppBar(
+            title: const Text('Profile settings'),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  context.push("/setting");
+                },
+                icon: Icon(Icons.settings_outlined),
+              ),
+            ],
+          ),
           body: Skeletonizer(
             enabled: isLoading,
             child: SafeArea(
