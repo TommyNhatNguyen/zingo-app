@@ -175,8 +175,7 @@ class _EnglishLevelSheet extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       '${lvl.code.value.toUpperCase()} · ${lvl.name}',

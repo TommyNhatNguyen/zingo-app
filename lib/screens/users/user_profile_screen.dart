@@ -7,7 +7,6 @@ import 'package:zingo/blocs/user-profile/get/user_profile_get_state.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/constants/enums.dart' as app_enums;
 import 'package:zingo/constants/practice_goal.dart';
-import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
 import 'package:zingo/screens/users/model/user_profile_form_data.dart';
 import 'package:zingo/screens/users/widgets/daily_goal.dart';
 import 'package:zingo/screens/users/widgets/reminder_time.dart';
@@ -23,9 +22,7 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  final UserProfileFormData _form = UserProfileFormData(
-    payload: UserProfileUpdateDto(),
-  );
+  final UserProfileFormData _form = UserProfileFormData();
 
   void _onSave(BuildContext context) {
     final userId = context.read<UserSettingsBloc>().state.user?.id;
@@ -123,10 +120,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           },
                         ),
                         // _buildTopics(context),
-                        _buildSaveButton(
-                          isSaving: isSaving,
-                          isLoading: isLoading,
-                          context: context,
+                        FilledButton(
+                          onPressed: isSaving || isLoading
+                              ? null
+                              : () => _onSave(context),
+                          child: isSaving
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text('Save changes'),
                         ),
                       ],
                     ),
@@ -140,39 +147,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildSaveButton({
-    required bool isSaving,
-    required bool isLoading,
-    required BuildContext context,
-  }) {
-    return FilledButton(
-      onPressed: isSaving || isLoading ? null : () => _onSave(context),
-      child: isSaving
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : const Text('Save changes'),
-    );
-  }
-
   Widget _buildSectionTitle(
     BuildContext context, {
     required String title,
     String? subtitle,
   }) {
-    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: textTheme.headlineSmall),
+        Text(title, style: Theme.of(context).textTheme.headlineSmall),
         if (subtitle != null) ...[
           const SizedBox(height: 4),
-          Text(subtitle, style: textTheme.bodySmall),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
         ],
         const SizedBox(height: 12),
       ],

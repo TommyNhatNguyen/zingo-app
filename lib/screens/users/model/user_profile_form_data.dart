@@ -4,9 +4,9 @@ import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
 import 'package:zingo/models/user_profile.dart';
 
 class UserProfileFormData extends Equatable with ChangeNotifier {
-  late UserProfileUpdateDto payload;
+  UserProfileUpdateDto payload = UserProfileUpdateDto();
 
-  UserProfileFormData({required this.payload});
+  UserProfileFormData();
 
   void initialize(UserProfile user) {
     this.payload = UserProfileUpdateDto(
