@@ -1,21 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:zingo/blocs/user-profile/user_profile_create_event.dart';
-import 'package:zingo/blocs/user-profile/user_profile_create_state.dart';
+import 'package:zingo/blocs/user-profile/get/user_profile_get_event.dart';
+import 'package:zingo/blocs/user-profile/get/user_profile_get_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/services/user_profile_service.dart';
 
-class UserProfileCreateBloc
-    extends Bloc<UserProfileCreateEvent, UserProfileCreateState> {
+class UserProfileGetBloc
+    extends Bloc<UserProfileGetEvent, UserProfileGetState> {
   final _service = UserProfileService();
 
-  UserProfileCreateBloc() : super(UserProfileCreateState.initial()) {
-    on<UserProfileCreateTrigger>((event, emit) async {
+  UserProfileGetBloc() : super(UserProfileGetState.initial()) {
+    on<UserProfileGetFetched>((event, emit) async {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
-
-        final result = await _service.onboarding(event.payload);
-
+        final result = await _service.getById(event.userId);
         emit(
           state.copyWith(requestStatus: RequestStatus.success, data: result),
         );

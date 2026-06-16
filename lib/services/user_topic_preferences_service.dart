@@ -11,7 +11,7 @@ import 'package:zingo/dtos/user-profile-topics/user_topics_set_dto.dart';
 ///   - a `user_topic_preferences` junction row (uses `topic_normalize_name`).
 class UserTopicPreferencesService {
   Future<List<String>> getByUserId(String userId) async {
-    final response = await dio.get('/v1/user-profile-topics/$userId');
+    final response = await dio.get('/v1/user-favorite-dialogs/$userId');
     return _parseTopicCodes(response.data);
   }
 

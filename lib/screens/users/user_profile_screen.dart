@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:toastification/toastification.dart';
+import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user-profile/get/user_profile_get_state.dart';
 import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
 import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/user-settings/user_settings_state.dart';
@@ -123,38 +124,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<UserSettingsBloc, UserSettingsState>(
+    return BlocConsumer<UserProfileGetBloc, UserProfileGetState>(
       listener: (context, state) {
-        _hydrateFrom(state);
-
-        if (state.saveStatus == app_enums.RequestStatus.success) {
-          _initialCefr = _cefr;
-          _initialTopics = _topicCodes.toSet();
-          Toastification().show(
-            context: context,
-            type: ToastificationType.success,
-            style: ToastificationStyle.flat,
-            title: const Text('Saved'),
-            description: const Text('Your settings have been updated.'),
-            autoCloseDuration: const Duration(seconds: 3),
-          );
-        }
-
-        if (state.saveStatus == app_enums.RequestStatus.error ||
-            state.loadStatus == app_enums.RequestStatus.error) {
-          Toastification().show(
-            context: context,
-            type: ToastificationType.error,
-            style: ToastificationStyle.flat,
-            title: const Text('Something went wrong'),
-            description: Text(state.error ?? 'Please try again'),
-            autoCloseDuration: const Duration(seconds: 4),
-          );
-        }
+        // _hydrateFrom(state);
       },
       builder: (context, state) {
-        final isLoading = state.loadStatus == app_enums.RequestStatus.loading;
-        final isSaving = state.saveStatus == app_enums.RequestStatus.loading;
+        final isLoading =
+            state.requestStatus == app_enums.RequestStatus.loading;
         return Scaffold(
           appBar: AppBar(
             title: const Text('Profile settings'),
@@ -211,14 +187,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   const SizedBox(height: 24),
                   _buildTopics(context),
                   const SizedBox(height: 24),
-                  LogoutButton(disabled: isSaving || isLoading),
+                  LogoutButton(disabled: isLoading),
                 ],
               ),
             ),
           ),
           bottomNavigationBar: _buildSaveChangesButton(
-            isSaving,
             isLoading,
+            true,
             context,
           ),
         );
