@@ -36,14 +36,21 @@ class SettingScreen extends StatelessWidget {
                 children: [
                   _buildSectionItem(
                     context,
-                    title: "Cài đặt thông báo",
+                    title: "Hồ sơ",
                     onTap: () {
                       print("hello");
                     },
                   ),
                   _buildSectionItem(
                     context,
-                    title: "Cài đặt quyền riêng tư",
+                    title: "Thông báo",
+                    onTap: () {
+                      print("hello");
+                    },
+                  ),
+                  _buildSectionItem(
+                    context,
+                    title: "Quyền riêng tư",
                     onTap: () {
                       print("hello");
                     },
