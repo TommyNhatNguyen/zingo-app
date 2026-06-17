@@ -8,8 +8,10 @@ import 'package:zingo/constants/languages.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/features/user/models/user_profile_screen_form_data.dart';
 import 'package:zingo/features/user/widgets/user_profile_header.dart';
+import 'package:zingo/utils/parser_util.dart';
 import 'package:zingo/widgets/pickers/languages_picker.dart';
 import 'package:zingo/widgets/pickers/practice_goal_picker.dart';
+import 'package:zingo/widgets/pickers/time_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -41,6 +43,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
       practiceGoal: PracticeGoal.fromValue(
         _userSettingsGetBloc.state.data?.practice_goal_per_day,
+      ),
+      notificationTime: ParserUtil.parseTime(
+        _userSettingsGetBloc.state.data?.notification_time,
       ),
     );
     displayNameController = TextEditingController(text: _form.displayName);
@@ -74,6 +79,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     _buildDisplayName(context),
                     _buildLanguageSection(context),
                     _buildPracticeGoalSection(context),
+                    _buildNotificationTimeSection(context),
                     FilledButton(
                       onPressed: false ? null : () => _onSave(context),
                       child: false
@@ -129,6 +135,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           onSelect: (language) => _form.update(motherLanguage: language),
           sheetTitle: 'Choose a language',
           sheetSubtitle: 'The language you use to communicate with the app.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationTimeSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(
+          context,
+          title: 'Notification time',
+          subtitle: 'When do you want to receive notifications?',
+        ),
+        TimePicker(
+          value: _form.notificationTime,
+          onConfirm: (time) => _form.update(notificationTime: time),
         ),
       ],
     );
