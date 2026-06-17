@@ -1,60 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/languages.dart';
 import 'package:zingo/widgets/card_select.dart';
 
-/// Trigger row showing the currently selected language. Opens a bottom-sheet
-/// grid on tap.
-///
-/// Controlled widget: parent owns [value] (language code) and receives the
-/// new pick via [onChanged]. The sheet returns `null` if the user taps the
-/// already-selected language, which signals "clear selection".
 class LanguagesPicker extends StatelessWidget {
-  final String? value;
-  final ValueChanged<String?> onChanged;
+  final Language? value;
+  final ValueChanged<Language?> onSelect;
   final String emptyLabel;
   final String sheetTitle;
   final String? sheetSubtitle;
+  final Widget Function({
+    required Future<void> Function() openModalBottomSheet,
+  })?
+  trigger;
 
   const LanguagesPicker({
     super.key,
-    required this.value,
-    required this.onChanged,
+    this.value,
+    required this.onSelect,
     this.emptyLabel = 'Pick a language',
     this.sheetTitle = 'Choose a language',
     this.sheetSubtitle,
+    this.trigger,
   });
 
-  Future<void> _open(BuildContext context) async {
-    final result = await showModalBottomSheet<_LanguageResult>(
+  Future<void> _openModalBottomSheet(BuildContext context) async {
+    final maxHeight = MediaQuery.of(context).size.height * 0.75;
+    final result = await showModalBottomSheet<Language?>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      enableDrag: true,
       backgroundColor: AppColors.surface,
+      constraints: BoxConstraints(maxHeight: maxHeight),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => _LanguagesSheet(
-        initialValue: value,
+        value: value,
         title: sheetTitle,
         subtitle: sheetSubtitle,
       ),
     );
-    if (result != null) onChanged(result.code);
+    if (result != null) onSelect(result);
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final selected = value == null
-        ? null
-        : Language.all.firstWhere(
-            (l) => l.code == value,
-            orElse: () => Language.all.first,
-          );
+    if (trigger != null) {
+      return trigger!(
+        openModalBottomSheet: () async => await _openModalBottomSheet(context),
+      );
+    }
 
     return InkWell(
-      onTap: () => _open(context),
+      onTap: () => _openModalBottomSheet(context),
       borderRadius: BorderRadius.circular(12),
       child: Card.outlined(
         shape: RoundedRectangleBorder(
@@ -74,17 +75,17 @@ class LanguagesPicker extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  selected?.flag ?? '🌐',
-                  style: textTheme.headlineSmall,
+                  value?.flag ?? '🌐',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  selected?.nativeName ?? emptyLabel,
-                  style: textTheme.bodyLarge?.copyWith(
+                  value?.nativeName ?? emptyLabel,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: selected == null ? AppColors.textSecondary : null,
+                    color: value == null ? AppColors.textSecondary : null,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -101,74 +102,56 @@ class LanguagesPicker extends StatelessWidget {
   }
 }
 
-/// Wraps the picked code so we can distinguish "popped without selecting"
-/// (no value, `Navigator.pop()` with no args returns null) from "user tapped
-/// the already-selected card to clear" (returns `_LanguageResult(null)`).
-class _LanguageResult {
-  final String? code;
-
-  const _LanguageResult(this.code);
-}
-
 class _LanguagesSheet extends StatelessWidget {
-  final String? initialValue;
+  final Language? value;
   final String title;
   final String? subtitle;
 
   const _LanguagesSheet({
-    required this.initialValue,
+    required this.value,
     required this.title,
     this.subtitle,
   });
 
+  void _onSelect(BuildContext context, Language language) {
+    context.pop(value == language ? null : language);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final maxHeight = MediaQuery.of(context).size.height * 0.8;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: textTheme.headlineSmall),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(subtitle!, style: textTheme.bodySmall),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          if (subtitle != null)
+            Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Flexible(
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.4,
+              crossAxisCount: 2,
+              children: [
+                for (final lang in Language.all)
+                  CardSelect(
+                    emoji: lang.flag,
+                    label: lang.nativeName,
+                    isSelected: value == lang,
+                    onTap: () => _onSelect(context, lang),
+                    labelStyle: Theme.of(context).textTheme.bodySmall,
+                    labelMaxLines: 2,
+                    checkIconSize: 16,
+                  ),
               ],
-              const SizedBox(height: 12),
-              Flexible(
-                child: GridView.count(
-                  shrinkWrap: true,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 2.4,
-                  crossAxisCount: 2,
-                  children: [
-                    for (final lang in Language.all)
-                      CardSelect(
-                        emoji: lang.flag,
-                        label: lang.nativeName,
-                        isSelected: initialValue == lang.code,
-                        onTap: () => Navigator.of(context).pop(
-                          _LanguageResult(
-                            initialValue == lang.code ? null : lang.code,
-                          ),
-                        ),
-                        labelStyle: textTheme.bodySmall,
-                        labelMaxLines: 2,
-                        checkIconSize: 16,
-                      ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

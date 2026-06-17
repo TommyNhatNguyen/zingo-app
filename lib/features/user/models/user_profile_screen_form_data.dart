@@ -1,27 +1,24 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:zingo/dtos/user-profile/user_profile_update_dto.dart';
-import 'package:zingo/models/user_profile.dart';
+import 'package:zingo/constants/languages.dart';
 
 class UserProfileScreenFormData extends Equatable with ChangeNotifier {
-  UserProfileUpdateDto payload = UserProfileUpdateDto();
-
+  String? displayName;
+  Language? motherLanguage;
   UserProfileScreenFormData();
 
-  void initialize(UserProfile user) {
-    payload = UserProfileUpdateDto(
-      display_name: user.display_name,
-      mother_language: user.mother_language,
-    );
-  }
-
-  void updateName(String? name) {
-    payload = payload.copyWith(display_name: name);
+  void initialize({
+    required String displayName,
+    Language? motherLanguage,
+  }) {
+    this.displayName = displayName;
+    this.motherLanguage = motherLanguage ?? this.motherLanguage;
     notifyListeners();
   }
 
-  void updateMotherLanguage(String? language) {
-    payload = payload.copyWith(mother_language: language);
+  void update({String? displayName, Language? motherLanguage}) {
+    this.displayName = displayName ?? this.displayName;
+    this.motherLanguage = motherLanguage ?? this.motherLanguage;
     notifyListeners();
   }
 
@@ -36,5 +33,5 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   }
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [displayName, motherLanguage];
 }
