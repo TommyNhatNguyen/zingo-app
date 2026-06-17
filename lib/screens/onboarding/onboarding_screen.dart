@@ -7,7 +7,7 @@ import 'package:zingo/blocs/user-profile/create/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user-profile/create/user_profile_create_event.dart';
 import 'package:zingo/blocs/user-profile/create/user_profile_create_state.dart';
 import 'package:zingo/config/app_colors.dart';
-import 'package:zingo/constants/enums.dart' as app_enums;
+import 'package:zingo/constants/enums.dart';
 import 'package:zingo/constants/languages.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/constants/topics.dart';
@@ -30,7 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController();
   Language? _selectedLanguage;
   PracticeGoal? _selectedDailyGoal = PracticeGoal.all.first;
-  app_enums.EnglishLevel? _selectedEnglishLevel;
+  EnglishLevel? _selectedEnglishLevel;
   TimeOfDay? _selectedNotificationTime;
   final Set<String> _selectedTopicCodes = {};
   final PageController _pageViewController = PageController();
@@ -86,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _selectEnglishLevel(app_enums.EnglishLevel level) {
+  void _selectEnglishLevel(EnglishLevel level) {
     setState(() {
       _selectedEnglishLevel = _selectedEnglishLevel == level ? null : level;
     });
@@ -131,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       UserProfileCreateTrigger(
         payload: UserProfileCreateDto(
           user_id: userId,
-          cefr_level: _selectedEnglishLevel ?? app_enums.EnglishLevel.A1,
+          cefr_level: _selectedEnglishLevel ?? EnglishLevel.A1,
           display_name: _nameController.text.trim().isEmpty
               ? 'User'
               : _nameController.text.trim(),
@@ -157,7 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return BlocConsumer<UserProfileCreateBloc, UserProfileCreateState>(
       listener: (context, state) {
         if (state.data != null &&
-            state.requestStatus == app_enums.RequestStatus.success) {
+            state.requestStatus == RequestStatus.success) {
           Toastification().show(
             context: context,
             type: ToastificationType.success,
@@ -169,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             autoCloseDuration: const Duration(seconds: 4),
           );
           context.go('/home');
-        } else if (state.requestStatus == app_enums.RequestStatus.error) {
+        } else if (state.requestStatus == RequestStatus.error) {
           Toastification().show(
             context: context,
             type: ToastificationType.error,
@@ -187,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       },
       builder: (context, state) {
         final isLoading =
-            state.requestStatus == app_enums.RequestStatus.loading;
+            state.requestStatus == RequestStatus.loading;
         final totalPages = _totalPages;
         return Scaffold(
           body: Stack(

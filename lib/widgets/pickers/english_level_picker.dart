@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
-import 'package:zingo/constants/english_level.dart' as level_const;
-import 'package:zingo/constants/enums.dart' as app_enums;
+import 'package:zingo/constants/enums.dart';
 
 /// Trigger row that shows the current CEFR level and opens a bottom-sheet
 /// picker on tap.
@@ -9,8 +8,8 @@ import 'package:zingo/constants/enums.dart' as app_enums;
 /// Controlled widget: parent owns [value] and receives the new pick via
 /// [onChanged]. Single-select; tap inside the sheet selects and closes.
 class EnglishLevelPicker extends StatelessWidget {
-  final app_enums.EnglishLevel? value;
-  final ValueChanged<app_enums.EnglishLevel> onChanged;
+  final EnglishLevel? value;
+  final ValueChanged<EnglishLevel> onChanged;
 
   const EnglishLevelPicker({
     super.key,
@@ -19,7 +18,7 @@ class EnglishLevelPicker extends StatelessWidget {
   });
 
   Future<void> _open(BuildContext context) async {
-    final picked = await showModalBottomSheet<app_enums.EnglishLevel>(
+    final picked = await showModalBottomSheet<EnglishLevel>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -27,7 +26,7 @@ class EnglishLevelPicker extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _EnglishLevelSheet(initialValue: value),
+      builder: (_) => _EnglishLevelSheet(value: value),
     );
     if (picked != null) onChanged(picked);
   }
@@ -35,13 +34,6 @@ class EnglishLevelPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final selected = value == null
-        ? null
-        : level_const.EnglishLevel.all.firstWhere(
-            (e) => e.code == value,
-            orElse: () => level_const.EnglishLevel.all.first,
-          );
-
     return InkWell(
       onTap: () => _open(context),
       borderRadius: BorderRadius.circular(12),
@@ -54,25 +46,23 @@ class EnglishLevelPicker extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              _CefrBadge(label: selected?.code.value.toUpperCase() ?? '—'),
+              _CefrBadge(label: value?.value.toUpperCase() ?? '—'),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      selected?.name ?? 'Choose your level',
+                      value?.label ?? 'Choose your level',
                       style: textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: selected == null
-                            ? AppColors.textSecondary
-                            : null,
+                        color: value == null ? AppColors.textSecondary : null,
                       ),
                     ),
-                    if (selected != null) ...[
+                    if (value != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        selected.description,
+                        value!.description,
                         style: textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -120,9 +110,9 @@ class _CefrBadge extends StatelessWidget {
 }
 
 class _EnglishLevelSheet extends StatelessWidget {
-  final app_enums.EnglishLevel? initialValue;
+  final EnglishLevel? value;
 
-  const _EnglishLevelSheet({required this.initialValue});
+  const _EnglishLevelSheet({required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +121,7 @@ class _EnglishLevelSheet extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxHeight),
       child: SafeArea(
-        top: false,
+        top: true,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
           child: Column(
@@ -148,13 +138,13 @@ class _EnglishLevelSheet extends StatelessWidget {
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: level_const.EnglishLevel.all.length,
+                  itemCount: EnglishLevel.values.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
-                    final lvl = level_const.EnglishLevel.all[index];
-                    final isSelected = initialValue == lvl.code;
+                    final lvl = EnglishLevel.values[index];
+                    final isSelected = value == lvl;
                     return InkWell(
-                      onTap: () => Navigator.of(context).pop(lvl.code),
+                      onTap: () => Navigator.of(context).pop(lvl),
                       borderRadius: BorderRadius.circular(12),
                       child: Card.outlined(
                         color: isSelected ? AppColors.primaryContainer : null,
@@ -178,7 +168,7 @@ class _EnglishLevelSheet extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${lvl.code.value.toUpperCase()} · ${lvl.name}',
+                                      '${lvl.value.toUpperCase()} · ${lvl.label}',
                                       style: textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: isSelected

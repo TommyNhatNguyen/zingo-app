@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
-import 'package:zingo/constants/english_level.dart';
-import 'package:zingo/constants/enums.dart' as app_enums;
+import 'package:zingo/constants/enums.dart';
 import 'package:zingo/screens/onboarding/widgets/profile_page.dart';
 
 class EnglishLevelPage extends StatelessWidget {
@@ -11,8 +10,8 @@ class EnglishLevelPage extends StatelessWidget {
     required this.onSelect,
   });
 
-  final app_enums.EnglishLevel? selectedLevel;
-  final ValueChanged<app_enums.EnglishLevel> onSelect;
+  final EnglishLevel? selectedLevel;
+  final ValueChanged<EnglishLevel> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +21,19 @@ class EnglishLevelPage extends StatelessWidget {
       description: "We'll match dialogs to your comfort zone.",
       child: Expanded(
         child: ListView.separated(
-          itemCount: EnglishLevel.all.length,
+          itemCount: EnglishLevel.values.length,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) =>
-              _buildLevelCard(context, EnglishLevel.all[index]),
+              _buildLevelCard(context, EnglishLevel.values[index]),
         ),
       ),
     );
   }
 
   Widget _buildLevelCard(BuildContext context, EnglishLevel level) {
-    final isSelected = selectedLevel == level.code;
+    final isSelected = selectedLevel == level;
     return InkWell(
-      onTap: () => onSelect(level.code),
+      onTap: () => onSelect(level),
       child: Card.outlined(
         color: isSelected ? AppColors.primaryContainer : null,
         shape: RoundedRectangleBorder(
@@ -52,7 +51,7 @@ class EnglishLevelPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${level.code.value.toUpperCase()} · ${level.name}',
+                      '${level.value.toUpperCase()} · ${level.label}',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isSelected ? AppColors.primary : null,
