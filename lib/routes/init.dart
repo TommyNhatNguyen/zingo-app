@@ -4,9 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
-import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/journey/journey_bloc.dart';
 import 'package:zingo/blocs/journey/journey_event.dart';
@@ -14,46 +14,58 @@ import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practic
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
-import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/blocs/user/create-profile/user_profile_create_bloc.dart';
+import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-setting/user_settings_get_bloc.dart';
 import 'package:zingo/blocs/user/get/users_bloc.dart';
+import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
+import 'package:zingo/features/app_shell.dart';
 import 'package:zingo/features/auth/screens/login_screen.dart';
 import 'package:zingo/features/auth/screens/register_screen.dart';
 import 'package:zingo/features/auth/screens/welcome_screen.dart';
+import 'package:zingo/features/congrats/streak_congrats_screen.dart';
+import 'package:zingo/features/explore/explore-detail/screens/learn_detail_screen.dart';
+import 'package:zingo/features/explore/screens/learn_screen.dart';
+import 'package:zingo/features/home/screens/home_screen.dart';
+import 'package:zingo/features/onboarding/screens/onboarding_screen.dart';
+import 'package:zingo/features/practice/blocs/practice_screen_view_bloc.dart';
+import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
+import 'package:zingo/features/practice/practice_screen.dart';
+import 'package:zingo/features/splash/splash_screen.dart';
+import 'package:zingo/features/test_screen.dart';
 import 'package:zingo/features/user/screens/user_profile_anonymous_screen.dart';
 import 'package:zingo/features/user/screens/user_profile_screen.dart';
 import 'package:zingo/features/user/screens/user_setting_screen.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
-import 'package:zingo/features/congrats/streak_congrats_screen.dart';
-import 'package:zingo/features/home/screens/home_screen.dart';
-import 'package:zingo/features/explore/explore-detail/screens/learn_detail_screen.dart';
-import 'package:zingo/features/explore/screens/learn_screen.dart';
-import 'package:zingo/features/onboarding/screens/onboarding_screen.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_bloc.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
-import 'package:zingo/features/practice/practice_screen.dart';
-import 'package:zingo/features/app_shell.dart';
-import 'package:zingo/features/splash/splash_screen.dart';
-import 'package:zingo/features/test_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
-    _subscription = stream.listen((_) => notifyListeners());
+  GoRouterRefreshStream(List<Stream<dynamic>> streams) {
+    _subscriptions = streams
+        .map((s) => s.listen((_) => notifyListeners()))
+        .toList();
   }
 
-  late final StreamSubscription<dynamic> _subscription;
+  late final List<StreamSubscription<dynamic>> _subscriptions;
 
   @override
   void dispose() {
-    _subscription.cancel();
+    for (final sub in _subscriptions) {
+      sub.cancel();
+    }
     super.dispose();
   }
 }
 
-GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
+GoRouter buildRoutes(
+  {
+    required AuthBloc authBloc,
+    required UserProfileGetBloc userProfileGetBloc,
+    required UserSettingsGetBloc userSettingsGetBloc,
+  }
+) => GoRouter(
   // initialLocation: '/onboarding',
   // initialLocation: '/learn',
   // initialLocation: '/streak-congrats',
@@ -62,12 +74,17 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
   // initialLocation: '/profile',
   initialLocation: '/welcome',
   // initialLocation: "/home",
-  refreshListenable: GoRouterRefreshStream(authBloc.stream),
+  refreshListenable: GoRouterRefreshStream([
+    authBloc.stream,
+    userProfileGetBloc.stream,
+    userSettingsGetBloc.stream,
+  ]),
   redirect: (context, state) {
     final authState = context.read<AuthBloc>().state;
+    final profile = context.read<UserProfileGetBloc>().state.data;
     final location = state.matchedLocation;
     print("User: ${authState.user}");
-    print("Profile: ${authState.profile}");
+    print("Profile: ${profile}");
     // Wait for the auth check to finish before redirecting.
     if (authState.requestStatus == RequestStatus.initial ||
         authState.requestStatus == RequestStatus.loading) {
@@ -75,7 +92,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
     }
 
     final isLoggedIn = authState.user != null;
-    final hasProfile = authState.profile != null;
+    final hasProfile = profile != null;
     final isPublicRoute = const [
       '/welcome',
       '/login',
@@ -83,8 +100,6 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
       '/splash',
     ].contains(location);
     final isOnboardingRoute = location == '/onboarding';
-    final isProfileRoute = location == '/profile';
-    final isSettingRoute = location == '/setting';
 
     if (!isLoggedIn) {
       return isPublicRoute ? null : '/welcome';

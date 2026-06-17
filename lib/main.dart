@@ -61,25 +61,25 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _userSettingBloc),
         BlocProvider.value(value: _userProfileGetBloc),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state.requestStatus == RequestStatus.success &&
-                  state.data != null) {
-                _userSettingBloc.add(
-                  UserSettingsGetFetched(userId: state.data!.id),
-                );
-                _userProfileGetBloc.add(
-                  UserProfileGetFetched(userId: state.data!.id),
-                );
-              }
-            },
-          ),
-        ],
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state.requestStatus == RequestStatus.success &&
+              state.data != null) {
+            _userSettingBloc.add(
+              UserSettingsGetFetched(userId: state.data!.id),
+            );
+            _userProfileGetBloc.add(
+              UserProfileGetFetched(userId: state.data!.id),
+            );
+          }
+        },
         child: MaterialApp.router(
           theme: AppTheme.light,
-          routerConfig: buildRoutes(_authBloc),
+          routerConfig: buildRoutes(
+            authBloc: _authBloc,
+            userProfileGetBloc: _userProfileGetBloc,
+            userSettingsGetBloc: _userSettingBloc,
+          ),
         ),
       ),
     );
