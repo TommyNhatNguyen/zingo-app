@@ -1,4 +1,6 @@
-class PracticeGoal {
+import 'package:equatable/equatable.dart';
+
+class PracticeGoal extends Equatable {
   final int value;
   final String label;
   final String emoji;
@@ -37,4 +39,12 @@ class PracticeGoal {
       description: "Intensive · ~30 min",
     ),
   ];
+
+  static PracticeGoal? fromValue(int? value) {
+    if (value == null) return null;
+    return all.firstWhere((goal) => goal.value == value);
+  }
+
+  @override
+  List<Object?> get props => [value, label, emoji, description];
 }

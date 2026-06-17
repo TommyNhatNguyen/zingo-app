@@ -1,24 +1,33 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:zingo/constants/languages.dart';
+import 'package:zingo/constants/practice_goal.dart';
 
 class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   String? displayName;
   Language? motherLanguage;
+  PracticeGoal? practiceGoal;
   UserProfileScreenFormData();
 
   void initialize({
     required String displayName,
     Language? motherLanguage,
+    PracticeGoal? practiceGoal,
   }) {
     this.displayName = displayName;
     this.motherLanguage = motherLanguage ?? this.motherLanguage;
+    this.practiceGoal = practiceGoal ?? this.practiceGoal;
     notifyListeners();
   }
 
-  void update({String? displayName, Language? motherLanguage}) {
+  void update({
+    String? displayName,
+    Language? motherLanguage,
+    PracticeGoal? practiceGoal,
+  }) {
     this.displayName = displayName ?? this.displayName;
     this.motherLanguage = motherLanguage ?? this.motherLanguage;
+    this.practiceGoal = practiceGoal ?? this.practiceGoal;
     notifyListeners();
   }
 
@@ -33,5 +42,5 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   }
 
   @override
-  List<Object?> get props => [displayName, motherLanguage];
+  List<Object?> get props => [displayName, motherLanguage, practiceGoal];
 }

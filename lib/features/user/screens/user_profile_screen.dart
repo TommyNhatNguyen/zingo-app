@@ -5,9 +5,11 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
 import 'package:zingo/blocs/user/get-setting/user_settings_get_bloc.dart';
 import 'package:zingo/constants/languages.dart';
+import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/features/user/models/user_profile_screen_form_data.dart';
 import 'package:zingo/features/user/widgets/user_profile_header.dart';
 import 'package:zingo/widgets/pickers/languages_picker.dart';
+import 'package:zingo/widgets/pickers/practice_goal_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -36,6 +38,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       displayName: _userProfileGetBloc.state.data?.display_name ?? "",
       motherLanguage: Language.fromId(
         _userProfileGetBloc.state.data?.mother_language ?? "",
+      ),
+      practiceGoal: PracticeGoal.fromValue(
+        _userSettingsGetBloc.state.data?.practice_goal_per_day,
       ),
     );
     displayNameController = TextEditingController(text: _form.displayName);
@@ -68,6 +73,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     const UserProfileHeader(),
                     _buildDisplayName(context),
                     _buildLanguageSection(context),
+                    _buildPracticeGoalSection(context),
                     FilledButton(
                       onPressed: false ? null : () => _onSave(context),
                       child: false
@@ -123,6 +129,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           onSelect: (language) => _form.update(motherLanguage: language),
           sheetTitle: 'Choose a language',
           sheetSubtitle: 'The language you use to communicate with the app.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPracticeGoalSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(
+          context,
+          title: 'Practice goal',
+          subtitle: 'How many dialogs do you want to practice each day?',
+        ),
+        PracticeGoalPicker(
+          value: _form.practiceGoal,
+          onSelect: (goal) => _form.update(practiceGoal: goal),
+          sheetTitle: 'Choose a practice goal',
+          sheetSubtitle: 'How many dialogs do you want to practice each day?',
         ),
       ],
     );
