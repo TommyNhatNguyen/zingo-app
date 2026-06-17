@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_state.dart';
+import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-profile/user_profile_get_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/widgets/pill_badge.dart';
 

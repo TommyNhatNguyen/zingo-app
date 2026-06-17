@@ -6,7 +6,7 @@ import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/blocs/journey/journey_bloc.dart';
 import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/blocs/journey/journey_state.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';

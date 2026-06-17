@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_event.dart';
-import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_state.dart';
+import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
+import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/services/user_favorite_dialogs_service.dart';
 

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 
 class LoginWithAnonymousButton extends StatefulWidget {

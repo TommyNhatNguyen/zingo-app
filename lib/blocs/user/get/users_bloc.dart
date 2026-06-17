@@ -1,19 +1,26 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_event.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_state.dart';
+import 'package:zingo/blocs/user/get/users_event.dart';
+import 'package:zingo/blocs/user/get/users_state.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/services/user_profile_service.dart';
+import 'package:zingo/dtos/users/users_create_dto.dart';
+import 'package:zingo/services/user_service.dart';
 
-class UserProfileGetBloc
-    extends Bloc<UserProfileGetEvent, UserProfileGetState> {
-  final _service = UserProfileService();
-
-  UserProfileGetBloc() : super(UserProfileGetState.initial()) {
-    on<UserProfileGetFetched>((event, emit) async {
+class UsersBloc extends Bloc<UsersEvent, UsersState> {
+  final _userService = UserService();
+  UsersBloc() : super(UsersState.initial()) {
+    on<UsersRegister>((event, emit) async {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
-        final result = await _service.getById(event.userId);
+
+        final result = await _userService.registerUser(
+          UsersCreateDto(
+            email: event.email,
+            username: event.username,
+            password: event.password,
+          ),
+        );
+
         emit(
           state.copyWith(requestStatus: RequestStatus.success, data: result),
         );

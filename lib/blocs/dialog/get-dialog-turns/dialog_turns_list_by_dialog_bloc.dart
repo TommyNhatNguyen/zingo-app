@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_event.dart';
-import 'package:zingo/blocs/dialog-turns/list-by-dialog/dialog_turns_list_by_dialog_state.dart';
+import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
+import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/services/dialog_turns_service.dart';
 

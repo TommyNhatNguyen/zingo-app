@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:zingo/blocs/user-settings/get/user_settings_get_event.dart';
-import 'package:zingo/blocs/user-settings/get/user_settings_get_state.dart';
+import 'package:zingo/blocs/user/get-setting/user_settings_get_event.dart';
+import 'package:zingo/blocs/user/get-setting/user_settings_get_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/services/user_service.dart';
 

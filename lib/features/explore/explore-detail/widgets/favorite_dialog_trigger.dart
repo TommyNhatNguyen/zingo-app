@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
-import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_bloc.dart';
-import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_event.dart';
-import 'package:zingo/blocs/users/favorite-dialog/favorite_dialog_state.dart';
+import 'package:zingo/blocs/user/update-favorite-dialog/update_favorite_dialog_bloc.dart';
+import 'package:zingo/blocs/user/update-favorite-dialog/update_favorite_dialog_event.dart';
+import 'package:zingo/blocs/user/update-favorite-dialog/update_favorite_dialog_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/users/users_favorite_dialog_dto.dart';
