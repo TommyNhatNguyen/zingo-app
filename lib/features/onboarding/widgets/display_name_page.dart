@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class DisplayNamePage extends StatelessWidget {
   const DisplayNamePage({
@@ -11,14 +12,15 @@ class DisplayNamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ProfilePage(
       emoji: "👋",
-      title: "What should we call you?",
-      description: "Pick a name that will be used to identify you in the app.",
+      title: l10n.whatShouldWeCallYou,
+      description: l10n.pickDisplayNameDesc,
       child: TextField(
         autofocus: true,
         controller: _nameController,
-        decoration: const InputDecoration(hintText: "Enter your name"),
+        decoration: InputDecoration(hintText: l10n.enterNameHint),
       ),
     );
   }

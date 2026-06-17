@@ -1,47 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class YoullBeScoredOn extends StatelessWidget {
   const YoullBeScoredOn({super.key, required this.selectedMode});
 
   final PracticeMode selectedMode;
 
-  static const _dimensions = [
+  static const _dimensionMeta = [
     (
       showMode: [PracticeMode.freeSpeak],
       icon: Icons.translate,
       color: Color(0xFF0891B2),
       containerColor: Color(0xFFE0F7FB),
-      title: "Grammar",
-      tag: "Structure",
-      description: "Correct tense, agreement, word order, prepositions.",
-      example: "e.g. \"Try 'could I have' — more polite here.\"",
     ),
     (
       showMode: [PracticeMode.freeSpeak],
       icon: Icons.auto_fix_high,
       color: Color(0xFFDB2777),
       containerColor: Color(0xFFFCE7F3),
-      title: "Naturalness",
-      tag: "Native-like",
-      description: "How fluent and idiomatic your phrasing sounds.",
-      example: "e.g. \"Skip 'please' mid-sentence — feels more casual.\"",
     ),
     (
       showMode: [PracticeMode.freeSpeak, PracticeMode.readAloud],
       icon: Icons.check,
       color: Color(0xFF22C55E),
       containerColor: Color(0xFFDCFCE7),
-      title: "Completeness",
-      tag: "Coverage",
-      description: "Whether you addressed everything the AI asked.",
-      example: "e.g. \"Answered both questions clearly — great.\"",
     ),
   ];
 
+  List<
+    ({
+      List<PracticeMode> showMode,
+      IconData icon,
+      Color color,
+      Color containerColor,
+      String title,
+      String tag,
+      String description,
+      String example,
+    })
+  >
+  _buildDimensions(AppLocalizations l10n) {
+    return [
+      (
+        showMode: _dimensionMeta[0].showMode,
+        icon: _dimensionMeta[0].icon,
+        color: _dimensionMeta[0].color,
+        containerColor: _dimensionMeta[0].containerColor,
+        title: l10n.scoreDimGrammar,
+        tag: l10n.scoreDimGrammarTag,
+        description: l10n.scoreDimGrammarDesc,
+        example: l10n.scoreDimGrammarExample,
+      ),
+      (
+        showMode: _dimensionMeta[1].showMode,
+        icon: _dimensionMeta[1].icon,
+        color: _dimensionMeta[1].color,
+        containerColor: _dimensionMeta[1].containerColor,
+        title: l10n.scoreDimNaturalness,
+        tag: l10n.scoreDimNaturalnessTag,
+        description: l10n.scoreDimNaturalnessDesc,
+        example: l10n.scoreDimNaturalnessExample,
+      ),
+      (
+        showMode: _dimensionMeta[2].showMode,
+        icon: _dimensionMeta[2].icon,
+        color: _dimensionMeta[2].color,
+        containerColor: _dimensionMeta[2].containerColor,
+        title: l10n.scoreDimCompleteness,
+        tag: l10n.scoreDimCompletenessTag,
+        description: l10n.scoreDimCompletenessDesc,
+        example: l10n.scoreDimCompletenessExample,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final dimensions = _buildDimensions(l10n);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
@@ -50,7 +89,7 @@ class YoullBeScoredOn extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "YOU'LL BE SCORED ON",
+              l10n.youllBeScoredOn,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -67,7 +106,7 @@ class YoullBeScoredOn extends StatelessWidget {
             border: Border.all(color: AppColors.border),
           ),
           child: Column(
-            children: _dimensions.indexed.expand<Widget>((entry) {
+            children: dimensions.indexed.expand<Widget>((entry) {
               final (i, dim) = entry;
               if (!dim.showMode.contains(selectedMode)) return const [];
               return [
@@ -168,7 +207,7 @@ class YoullBeScoredOn extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Score ranges: ",
+                l10n.scoreRanges,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: AppColors.xp,
                   fontWeight: FontWeight.bold,

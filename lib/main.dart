@@ -1,23 +1,31 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
+import 'package:zingo/blocs/locale/locale_cubit.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
 import 'package:zingo/blocs/user/get-profile/user_profile_get_event.dart';
 import 'package:zingo/blocs/user/get-setting/user_settings_get_bloc.dart';
 import 'package:zingo/blocs/user/get-setting/user_settings_get_event.dart';
+import 'package:zingo/blocs/user/get-setting/user_settings_get_state.dart';
 import 'package:zingo/config/app_theme.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/l10n/app_localizations.dart';
 import 'package:zingo/routes/init.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Future.wait([
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+    SharedPreferences.getInstance(), // warm up before runApp
+  ]);
   runApp(const MainApp());
 }
 
@@ -33,6 +41,9 @@ class _MainAppState extends State<MainApp> {
   late final SpeechToTextBloc _speechToTextBloc;
   late final UserSettingsGetBloc _userSettingBloc;
   late final UserProfileGetBloc _userProfileGetBloc;
+  late final LocaleCubit _localeCubit;
+  late final GoRouter _router;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +52,12 @@ class _MainAppState extends State<MainApp> {
       ..add(const SpeechToTextInitializeEvent());
     _userSettingBloc = UserSettingsGetBloc();
     _userProfileGetBloc = UserProfileGetBloc();
+    _localeCubit = LocaleCubit();
+    _router = buildRoutes(
+      authBloc: _authBloc,
+      userProfileGetBloc: _userProfileGetBloc,
+      userSettingsGetBloc: _userSettingBloc,
+    );
   }
 
   @override
@@ -49,6 +66,7 @@ class _MainAppState extends State<MainApp> {
     _speechToTextBloc.close();
     _userSettingBloc.close();
     _userProfileGetBloc.close();
+    _localeCubit.close();
     super.dispose();
   }
 
@@ -60,26 +78,47 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _speechToTextBloc),
         BlocProvider.value(value: _userSettingBloc),
         BlocProvider.value(value: _userProfileGetBloc),
+        BlocProvider.value(value: _localeCubit),
       ],
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.requestStatus == RequestStatus.success &&
-              state.data != null) {
-            _userSettingBloc.add(
-              UserSettingsGetFetched(userId: state.data!.id),
-            );
-            _userProfileGetBloc.add(
-              UserProfileGetFetched(userId: state.data!.id),
-            );
-          }
-        },
-        child: MaterialApp.router(
-          theme: AppTheme.light,
-          routerConfig: buildRoutes(
-            authBloc: _authBloc,
-            userProfileGetBloc: _userProfileGetBloc,
-            userSettingsGetBloc: _userSettingBloc,
+      child: MultiBlocListener(
+        listeners: [
+          // Trigger settings + profile fetch when auth succeeds
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state.requestStatus == RequestStatus.success &&
+                  state.data != null) {
+                _userSettingBloc.add(
+                  UserSettingsGetFetched(userId: state.data!.id),
+                );
+                _userProfileGetBloc.add(
+                  UserProfileGetFetched(userId: state.data!.id),
+                );
+              }
+            },
           ),
+          // Sync backend display_language into LocaleCubit on successful fetch
+          BlocListener<UserSettingsGetBloc, UserSettingsGetState>(
+            listenWhen: (prev, curr) =>
+                curr.requestStatus == RequestStatus.success &&
+                prev.requestStatus != RequestStatus.success,
+            listener: (context, state) {
+              final code = state.data?.display_language;
+              if (code != null) {
+                context.read<LocaleCubit>().setLocale(code);
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp.router(
+              theme: AppTheme.light,
+              routerConfig: _router,
+              locale: locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+            );
+          },
         ),
       ),
     );

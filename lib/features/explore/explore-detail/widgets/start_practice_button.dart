@@ -8,6 +8,7 @@ import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_stat
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/practice-sessions/create_session_payload.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 
 class StartPracticeButton extends StatelessWidget {
@@ -66,8 +67,8 @@ class StartPracticeButton extends StatelessWidget {
                     ? const CircularProgressIndicator.adaptive()
                     : const Icon(Icons.mic_outlined),
                 label: state.requestStatus == RequestStatus.loading
-                    ? const Text("Starting...")
-                    : const Text("Start practice"),
+                    ? Text(context.l10n.startingPractice)
+                    : Text(context.l10n.practiceStart),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.accent,
                   foregroundColor: AppColors.white,

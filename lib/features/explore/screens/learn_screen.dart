@@ -3,6 +3,7 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/features/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/features/explore/widgets/favorite_section.dart';
 import 'package:zingo/features/explore/widgets/recommendation_section.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -21,9 +22,9 @@ class _LearnScreenState extends State<LearnScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Browse all dialogs"),
+            Text(context.l10n.browseAllDialogs),
             Text(
-              "Practice freely without any filters",
+              context.l10n.browseSubtitle,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],

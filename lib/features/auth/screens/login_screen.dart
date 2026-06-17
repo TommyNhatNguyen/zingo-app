@@ -9,9 +9,9 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 import 'package:zingo/features/auth/widgets/auth_divider.dart';
-import 'package:zingo/features/auth/widgets/login_with_anonymous_button.dart';
 import 'package:zingo/features/auth/widgets/login_with_google_button.dart';
 import 'package:zingo/features/auth/widgets/logo_info.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocConsumer<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
           current.requestStatus == RequestStatus.success &&
@@ -57,8 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context: context,
             type: ToastificationType.success,
             style: ToastificationStyle.flat,
-            title: const Text('Login successful'),
-            description: Text("Welcome back to Zingo"),
+            title: Text(l10n.signIn),
             autoCloseDuration: const Duration(seconds: 4),
           );
           context.go('/home');
@@ -68,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
             context: context,
             type: ToastificationType.error,
             style: ToastificationStyle.flat,
-            title: const Text('Login failed'),
-            description: Text(state.error ?? 'An error occurred'),
+            title: Text(l10n.errorGeneric),
+            description: Text(state.error ?? l10n.errorGeneric),
             autoCloseDuration: const Duration(seconds: 4),
           );
         }
@@ -95,18 +95,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: Icon(Icons.email),
-                        hintText: "Enter your email",
+                      decoration: InputDecoration(
+                        labelText: l10n.emailLabel,
+                        prefixIcon: const Icon(Icons.email),
+                        hintText: l10n.emailHint,
                       ),
                     ),
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: "Password",
+                        labelText: l10n.passwordLabel,
                         prefixIcon: const Icon(Icons.lock),
-                        hintText: "Enter your password",
+                        hintText: l10n.passwordHint,
                         suffixIcon: IconButton(
                           onPressed: () => setState(() {
                             _isShowPassword = !_isShowPassword;
@@ -130,12 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text.rich(
                         TextSpan(
                           children: [
-                            const TextSpan(text: "Don't have an account? "),
+                            TextSpan(text: "${l10n.signUp}? "),
                             TextSpan(
-                              text: "Sign up",
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.copyWith(),
+                              text: l10n.signUp,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
                         ),
@@ -152,6 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLoginButton(bool isLoading, BuildContext context) {
+    final l10n = context.l10n;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -162,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text("Login"),
+            : Text(l10n.signIn),
       ),
     );
   }

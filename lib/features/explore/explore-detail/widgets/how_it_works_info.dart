@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class HowItWorksInfo extends StatelessWidget {
-  static const _steps = [
-    (
-      icon: Icons.headphones,
-      title: "Listen & see the sample",
-      description: "AI speaks. A scene image and sample reply appear.",
-    ),
-    (
-      icon: Icons.mic_none,
-      title: "Say it your way — or read it",
-      description: "Tap mic, speak, tap again to stop.",
-    ),
-    (
-      icon: Icons.bar_chart,
-      title: "Get instant feedback",
-      description: "Scored on 3 dimensions. Re-record any turn.",
-    ),
-  ];
-
   const HowItWorksInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final steps = [
+      (
+        icon: Icons.headphones,
+        title: l10n.howItWorksStep1Title,
+        description: l10n.howItWorksStep1Desc,
+      ),
+      (
+        icon: Icons.mic_none,
+        title: l10n.howItWorksStep2Title,
+        description: l10n.howItWorksStep2Desc,
+      ),
+      (
+        icon: Icons.bar_chart,
+        title: l10n.howItWorksStep3Title,
+        description: l10n.howItWorksStep3Desc,
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
         Text(
-          "HOW IT WORKS",
+          l10n.howItWorks,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
@@ -44,7 +46,7 @@ class HowItWorksInfo extends StatelessWidget {
             border: Border.all(color: AppColors.border),
           ),
           child: Column(
-            children: _steps.indexed.expand((entry) {
+            children: steps.indexed.expand((entry) {
               final (i, step) = entry;
               return [
                 if (i > 0) Divider(height: 1, color: AppColors.divider),

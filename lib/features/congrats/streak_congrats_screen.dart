@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 
 class StreakCongratsScreen extends StatefulWidget {
@@ -117,9 +118,9 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Continue',
-                          style: TextStyle(
+                        child: Text(
+                          context.l10n.continueLabel,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -177,14 +178,14 @@ class _StatsCard extends StatelessWidget {
                   icon: Icons.star_rounded,
                   color: AppColors.xp,
                   value: '+${session?.xp ?? 0}',
-                  label: 'XP earned',
+                  label: context.l10n.xpEarned,
                 ),
                 Container(width: 1, height: 48, color: AppColors.divider),
                 _StatItem(
                   icon: Icons.local_fire_department_rounded,
                   color: AppColors.streak,
                   value: '${session?.streak ?? 0}',
-                  label: 'Current streak',
+                  label: context.l10n.currentStreak,
                 ),
               ],
             ),
@@ -193,7 +194,7 @@ class _StatsCard extends StatelessWidget {
               spacing: 8,
               children: [
                 Text(
-                  'THIS WEEK',
+                  context.l10n.thisWeek,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     letterSpacing: 1.2,
                     color: AppColors.textSecondary,

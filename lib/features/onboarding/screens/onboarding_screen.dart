@@ -18,6 +18,7 @@ import 'package:zingo/features/onboarding/widgets/english_level_page.dart';
 import 'package:zingo/features/onboarding/widgets/interest_topics_page.dart';
 import 'package:zingo/features/onboarding/widgets/native_language_page.dart';
 import 'package:zingo/features/onboarding/widgets/reminder_page.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -162,10 +163,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             context: context,
             type: ToastificationType.success,
             style: ToastificationStyle.flat,
-            title: const Text('Welcome to Zingo'),
-            description: const Text(
-              "Let's start using Zingo and boost your english skills with bite size dialogs",
-            ),
+            title: Text(context.l10n.onboardingSuccessTitle),
+            description: Text(context.l10n.onboardingSuccessDesc),
             autoCloseDuration: const Duration(seconds: 4),
           );
           context.go('/home');
@@ -174,8 +173,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             context: context,
             type: ToastificationType.error,
             style: ToastificationStyle.flat,
-            title: const Text('Something went wrong'),
-            description: Text('Please try again'),
+            title: Text(context.l10n.errorGeneric),
+            description: Text(context.l10n.onboardingErrorDesc),
             autoCloseDuration: const Duration(seconds: 4),
           );
           _pageViewController.animateToPage(
@@ -255,7 +254,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
               Text(
-                '${currentIndex + 1} of $totalPages',
+                context.l10n.completedOfTotal(currentIndex + 1, totalPages),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -294,7 +293,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color: Colors.white,
                   ),
                 )
-              : Text(isLastPage ? "Let's Go! 🚀" : 'Continue'),
+              : Text(isLastPage ? context.l10n.letsGo : context.l10n.continueLabel),
         ),
       ),
     );

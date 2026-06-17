@@ -12,6 +12,7 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/journey.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
 class RecommendationSection extends StatefulWidget {
@@ -80,14 +81,14 @@ class _RecommendationSectionState extends State<RecommendationSection> {
                           color: AppColors.highlight,
                         ),
                         Text(
-                          "Recommended for you",
+                          context.l10n.recommendedForYou,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                     Text(
-                      "Based on your level and recent practice",
+                      context.l10n.recommendedSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -121,7 +122,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.expand_more),
-                      label: const Text("Load more"),
+                      label: Text(context.l10n.loadMore),
                     ),
                   ),
               ],

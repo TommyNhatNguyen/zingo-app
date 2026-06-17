@@ -11,6 +11,7 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
 import 'package:zingo/features/explore/widgets/empty_section.dart';
 import 'package:zingo/features/explore/widgets/topic_card.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class FavoriteSection extends StatefulWidget {
   const FavoriteSection({super.key});
@@ -57,7 +58,7 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                   children: [
                     Icon(Icons.favorite, color: AppColors.favorite),
                     Text(
-                      "Your favorites",
+                      context.l10n.yourFavorites,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -72,13 +73,13 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                   child: EmptySection(
                     icon: Icon(Icons.favorite),
                     title: Text(
-                      "No favorites yet",
+                      context.l10n.noFavoritesYet,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     subtitle: Text(
-                      "Add your favorite topics to continue practicing",
+                      context.l10n.addFavoritesHint,
                       softWrap: true,
                     ),
                     backgroundColor: AppColors.white,

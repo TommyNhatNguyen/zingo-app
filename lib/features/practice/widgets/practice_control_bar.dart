@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/features/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class PracticeControlBar extends StatelessWidget {
   const PracticeControlBar({
@@ -26,13 +27,13 @@ class PracticeControlBar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
           height: 100,
           width: double.infinity,
-          child: _buildAction(),
+          child: _buildAction(context),
         ),
       ],
     );
   }
 
-  Widget _buildAction() {
+  Widget _buildAction(BuildContext context) {
     switch (phase) {
       case PracticePhase.disabled:
         return IconButton.filled(
@@ -53,12 +54,12 @@ class PracticeControlBar extends StatelessWidget {
             backgroundColor: AppColors.scoreHigh,
             foregroundColor: AppColors.white,
           ),
-          child: const Text('End Turn'),
+          child: Text(context.l10n.endTurn),
         );
       case PracticePhase.awaitingContinue:
         return FilledButton(
           onPressed: onContinue,
-          child: const Text('Continue'),
+          child: Text(context.l10n.continueLabel),
         );
       case PracticePhase.idle:
         return IconButton.filled(

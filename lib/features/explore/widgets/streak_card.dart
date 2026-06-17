@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 const Map<int, String> _weekdays = {
   1: "M",
@@ -36,12 +37,12 @@ class StreakCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Text('Daily streak'), Text("7 Days")],
+                  children: [Text(context.l10n.dailyStreak), Text("7 Days")],
                 ),
                 const Spacer(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [Text("Best"), Text("14 days")],
+                  children: [Text(context.l10n.best), Text("14 days")],
                 ),
               ],
             ),
@@ -89,7 +90,7 @@ class StreakCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.ads_click_outlined, size: 18),
                   const SizedBox(width: 8),
-                  const Text("Practice today - keep the fire alive!"),
+                  Text(context.l10n.practiceToday),
                 ],
               ),
             ),

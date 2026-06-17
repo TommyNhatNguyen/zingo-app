@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/features/user/widgets/logout_button.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class UserSettingScreen extends StatelessWidget {
   const UserSettingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cài đặt'),
+        title: Text(l10n.settings),
         centerTitle: true,
         shape: const Border(bottom: BorderSide(color: AppColors.divider)),
         leading: IconButton(
           onPressed: () {
             context.pop();
           },
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
         ),
       ),
       body: SingleChildScrollView(
@@ -31,70 +33,58 @@ class UserSettingScreen extends StatelessWidget {
             // Account
             _buildSection(
               context,
-              title: "Tài khoản",
+              title: l10n.account,
               child: Column(
                 children: [
                   _buildSectionItem(
                     context,
-                    title: "Hồ sơ",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.navProfile,
+                    onTap: () {},
                   ),
                   _buildSectionItem(
                     context,
-                    title: "Thông báo",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.notifications,
+                    onTap: () {},
                   ),
                   _buildSectionItem(
                     context,
-                    title: "Quyền riêng tư",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.privacy,
+                    onTap: () {},
                   ),
                 ],
               ),
             ),
             // Subscription
-            Divider(),
+            const Divider(),
             _buildSection(
               context,
-              title: "Gói đăng ký",
+              title: l10n.subscription,
               child: Column(
                 children: [
                   _buildSectionItem(
                     context,
-                    title: "Chọn gói đăng ký",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.choosePlan,
+                    onTap: () {},
                   ),
                 ],
               ),
             ),
             // Support
-            Divider(),
+            const Divider(),
             _buildSection(
               context,
-              title: "Hỗ trợ",
+              title: l10n.support,
               child: Column(
                 children: [
                   _buildSectionItem(
                     context,
-                    title: "Trung tâm trợ giúp",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.helpCenter,
+                    onTap: () {},
                   ),
                   _buildSectionItem(
                     context,
-                    title: "Phản hồi",
-                    onTap: () {
-                      print("hello");
-                    },
+                    title: l10n.feedback,
+                    onTap: () {},
                   ),
                 ],
               ),
@@ -106,24 +96,18 @@ class UserSettingScreen extends StatelessWidget {
               children: [
                 _buildSectionItem(
                   context,
-                  title: "Điều khoản dịch vụ",
-                  onTap: () {
-                    print("hello");
-                  },
+                  title: l10n.termsOfService,
+                  onTap: () {},
                 ),
                 _buildSectionItem(
                   context,
-                  title: "Chính sách bảo mật",
-                  onTap: () {
-                    print("hello");
-                  },
+                  title: l10n.privacyPolicy,
+                  onTap: () {},
                 ),
                 _buildSectionItem(
                   context,
-                  title: "Lời cảm ơn",
-                  onTap: () {
-                    print("hello");
-                  },
+                  title: l10n.acknowledgements,
+                  onTap: () {},
                 ),
               ],
             ),
@@ -150,7 +134,7 @@ class UserSettingScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        trailing: Icon(Icons.chevron_right_rounded),
+        trailing: const Icon(Icons.chevron_right_rounded),
       ),
     );
   }

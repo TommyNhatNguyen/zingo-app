@@ -6,6 +6,7 @@ import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LoginWithAnonymousButton extends StatefulWidget {
   const LoginWithAnonymousButton({super.key});
@@ -44,7 +45,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
           final isLoading = state.requestStatus == RequestStatus.loading;
           return OutlinedButton(
             onPressed: isLoading ? null : _loginWithAnonymous,
-            child: const Text("START NOW"),
+            child: Text(context.l10n.startNow),
           );
         },
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/notification_time.dart';
 import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/widgets/card_select.dart';
 import 'package:zingo/widgets/pickers/time_picker.dart';
 
@@ -21,10 +22,11 @@ class ReminderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ProfilePage(
       emoji: '🔔',
-      title: 'Reminder time',
-      description: "We'll nudge you so you never break your streak",
+      title: l10n.reminderTimeTitle,
+      description: l10n.reminderTimeSubtitle,
       child: Expanded(
         child: Column(
           children: [
@@ -44,7 +46,7 @@ class ReminderPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Daily reminders',
+                          l10n.dailyReminders,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
@@ -86,7 +88,7 @@ class ReminderPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Or pick a custom time'),
+                  Text(l10n.orPickCustomTime),
                   const SizedBox(height: 8),
                   TimePicker(
                     value: selectedTime ?? TimeOfDay.now(),

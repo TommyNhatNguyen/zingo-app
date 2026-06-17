@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class PracticeModeForm extends StatefulWidget {
   const PracticeModeForm({
@@ -28,7 +29,7 @@ class _PracticeModeFormState extends State<PracticeModeForm> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "PRACTICE MODE",
+              context.l10n.practiceMode,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -42,7 +43,7 @@ class _PracticeModeFormState extends State<PracticeModeForm> {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text("What's the difference?"),
+              child: Text(context.l10n.whatsTheDifference),
             ),
           ],
         ),
@@ -69,10 +70,8 @@ class _PracticeModeFormState extends State<PracticeModeForm> {
                         type: ToastificationType.info,
                         style: ToastificationStyle.flat,
                         alignment: AlignmentGeometry.bottomCenter,
-                        title: const Text('Info'),
-                        description: const Text(
-                          'This mode is not available yet',
-                        ),
+                        title: Text(context.l10n.info),
+                        description: Text(context.l10n.modeNotAvailable),
                         autoCloseDuration: const Duration(seconds: 4),
                       );
                       return;

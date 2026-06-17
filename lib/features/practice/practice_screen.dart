@@ -29,6 +29,7 @@ import 'package:zingo/features/practice/widgets/user_message.dart';
 import 'package:zingo/services/cache_service.dart';
 import 'package:zingo/services/matching_text_service.dart';
 import 'package:zingo/services/speech_to_text_service.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/utils/debounce_util.dart';
 
 class PracticeScreen extends StatefulWidget {
@@ -164,8 +165,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.flat,
-        title: const Text('Error'),
-        description: const Text('This turn does not have an audio yet!'),
+        title: Text(context.l10n.errorGeneric),
+        description: Text(context.l10n.errorNoAudio),
         autoCloseDuration: const Duration(seconds: 4),
       );
       return;
@@ -219,9 +220,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
         context: context,
         type: ToastificationType.warning,
         style: ToastificationStyle.flat,
-        title: const Text('Keep trying!'),
+        title: Text(context.l10n.keepTrying),
         description: Text(
-          'Your accuracy is only ${(matchResult.completion * 100).round()}%. Please try again.',
+          context.l10n.accuracyTooLow(
+            (matchResult.completion * 100).round(),
+          ),
         ),
         autoCloseDuration: const Duration(seconds: 4),
       );
@@ -245,8 +248,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
         context: context,
         type: ToastificationType.success,
         style: ToastificationStyle.flat,
-        title: const Text('Dialog complete! 🎉'),
-        description: const Text("You've finished the dialog. Great job!"),
+        title: Text(context.l10n.dialogCompleted),
+        description: Text(context.l10n.dialogCompletedDesc),
         autoCloseDuration: const Duration(seconds: 4),
       );
       _practiceScreenBloc.add(
@@ -257,8 +260,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
         context: context,
         type: ToastificationType.success,
         style: ToastificationStyle.flat,
-        title: const Text('Nice! Keep going 👍'),
-        description: const Text('Tap Continue to move to the next turn.'),
+        title: Text(context.l10n.niceKeepGoing),
+        description: Text(context.l10n.tapContinue),
         autoCloseDuration: const Duration(seconds: 3),
       );
       _practiceScreenBloc.add(
@@ -313,7 +316,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           height: 20,
           child: CircularProgressIndicator(),
         ),
-        description: const Text('The microphone is transitioning...'),
+        description: Text(context.l10n.micTransitioning),
       );
       return;
     }
@@ -412,8 +415,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 context: context,
                 type: ToastificationType.error,
                 style: ToastificationStyle.flat,
-                title: const Text('Error'),
-                description: Text(state.error ?? 'Failed to complete session'),
+                title: Text(context.l10n.errorGeneric),
+                description: Text(state.error ?? context.l10n.errorGeneric),
                 autoCloseDuration: const Duration(seconds: 4),
               );
             }
@@ -483,7 +486,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${state.currentTurnIndex + 1} of $turnsLength turns',
+                        context.l10n.turnsProgress(
+                          state.currentTurnIndex + 1,
+                          turnsLength,
+                        ),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

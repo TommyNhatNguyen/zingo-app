@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class AuthDivider extends StatelessWidget {
   const AuthDivider({super.key});
@@ -9,7 +10,7 @@ class AuthDivider extends StatelessWidget {
       spacing: 8,
       children: [
         const Expanded(child: Divider()),
-        Text("Or get started with"),
+        Text(context.l10n.orGetStartedWith),
         const Expanded(child: Divider()),
       ],
     );

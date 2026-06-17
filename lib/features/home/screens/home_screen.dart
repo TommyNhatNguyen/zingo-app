@@ -13,6 +13,7 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/journey/journey_payload.dart';
 import 'package:zingo/models/journey.dart';
 import 'package:zingo/models/user_profile.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/users.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,7 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final state = context.read<JourneyBloc>().state;
     if (!state.hasMore) return;
     if (state.requestStatus == RequestStatus.loading ||
-        state.requestStatus == RequestStatus.loadingMore) return;
+        state.requestStatus == RequestStatus.loadingMore)
+      return;
 
     context.read<JourneyBloc>().add(
       JourneyFetchMoreEvent(
@@ -97,11 +99,12 @@ class _GreetingRow extends StatelessWidget {
 
   const _GreetingRow({required this.user, required this.profile});
 
-  String _greeting() {
+  String _greeting(BuildContext context) {
+    final l10n = context.l10n;
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning,';
-    if (hour < 17) return 'Good afternoon,';
-    return 'Good evening,';
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 
   @override
@@ -112,7 +115,7 @@ class _GreetingRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_greeting(), style: AppTextStyles.bodySmall),
+            Text(_greeting(context), style: AppTextStyles.bodySmall),
             Text(user?.username ?? '—', style: AppTextStyles.h2),
           ],
         ),
@@ -180,9 +183,9 @@ class _StreakCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Daily streak', style: AppTextStyles.bodySmall),
+                  Text(context.l10n.dailyStreak, style: AppTextStyles.bodySmall),
                   Text(
-                    '$streakDays ${streakDays == 1 ? 'day' : 'days'}',
+                    context.l10n.streakDaysCount(streakDays),
                     style: AppTextStyles.h2,
                   ),
                 ],
@@ -192,7 +195,7 @@ class _StreakCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'BEST',
+                    context.l10n.bestStreakLabel,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.textDisabled,
                       fontSize: 10,
@@ -431,6 +434,7 @@ class _LessonPath extends StatelessWidget {
             for (int ci = 0; ci < state.chapters.length; ci++) ...[
               if (ci > 0) const _ChapterDivider(),
               _buildChapterSection(
+                context,
                 state.chapters[ci],
                 chapterNum: ci + 1,
                 isCurrentChapter: ci == currentIndex,
@@ -451,11 +455,13 @@ class _LessonPath extends StatelessWidget {
   }
 
   Widget _buildChapterSection(
+    BuildContext context,
     JourneyChapter chapter, {
     required int chapterNum,
     required bool isCurrentChapter,
     required bool isFuture,
   }) {
+    final l10n = context.l10n;
     final lessons = _buildLessons(
       chapter,
       isCurrentChapter: isCurrentChapter,
@@ -480,7 +486,7 @@ class _LessonPath extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'CHAPTER $chapterNum · $topicName',
+                  l10n.chapterLabel(chapterNum, topicName),
                   style: AppTextStyles.labelSmall.copyWith(
                     color: isFuture
                         ? AppColors.textDisabled
@@ -503,7 +509,7 @@ class _LessonPath extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '$completedCount of ${lessons.length}',
+              l10n.completedOfTotal(completedCount, lessons.length),
               style: AppTextStyles.labelMedium.copyWith(
                 color: isFuture
                     ? AppColors.textDisabled
@@ -552,14 +558,14 @@ class _EmptyJourney extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'No journey yet',
+            context.l10n.noJourneyYet,
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Complete onboarding to get your personalised path.',
+            context.l10n.noJourneySubtitle,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -580,7 +586,7 @@ class _JourneyComplete extends StatelessWidget {
       padding: const EdgeInsets.only(top: 28),
       child: Center(
         child: Text(
-          'You\'ve reached the end of your journey',
+          context.l10n.journeyComplete,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.textDisabled,
           ),
@@ -736,7 +742,7 @@ class _LessonContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'LESSON ${lesson.number}',
+              context.l10n.lessonLabel(lesson.number),
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textSecondary,
                 letterSpacing: 0.8,
@@ -774,7 +780,7 @@ class _LessonContent extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'LESSON ${lesson.number} · NEXT UP',
+                    context.l10n.lessonNextUpLabel(lesson.number),
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.textSecondary,
                       fontSize: 10,
@@ -828,7 +834,7 @@ class _LessonContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'LESSON ${lesson.number}',
+              context.l10n.lessonLabel(lesson.number),
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textDisabled,
                 fontSize: 10,

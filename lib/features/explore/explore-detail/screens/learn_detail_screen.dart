@@ -13,6 +13,7 @@ import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_scor
 import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_title.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/learn_detail_app_bar.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_form.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_preview.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/start_practice_button.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/youll_be_scored_on.dart';
@@ -82,8 +83,8 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
             context: context,
             type: ToastificationType.error,
             style: ToastificationStyle.flat,
-            title: const Text('Error'),
-            description: Text(state.error ?? 'An error occurred'),
+            title: Text(context.l10n.errorGeneric),
+            description: Text(state.error ?? context.l10n.errorGeneric),
             autoCloseDuration: const Duration(seconds: 4),
           );
         }

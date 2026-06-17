@@ -7,6 +7,7 @@ import 'package:zingo/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_list_payload.dart';
 import 'package:zingo/features/explore/widgets/topic_card.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class DialogList extends StatefulWidget {
   const DialogList({super.key});
@@ -69,10 +70,10 @@ class _DialogListState extends State<DialogList> {
                     children: [
                       Icon(Icons.play_arrow),
                       const SizedBox(width: 8),
-                      Text("Continue practicing"),
+                      Text(context.l10n.continuePracticing),
                     ],
                   ),
-                  Text("$total in progress"),
+                  Text(context.l10n.sessionsInProgress(total)),
                 ],
               ),
             ),

@@ -10,6 +10,7 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/features/explore/widgets/empty_section.dart';
 import 'package:zingo/features/explore/widgets/topic_card.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class ContinuePracticeSection extends StatefulWidget {
   const ContinuePracticeSection({super.key});
@@ -48,7 +49,7 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
                 children: [
                   Icon(Icons.play_arrow, color: AppColors.accent),
                   Text(
-                    "Continue practicing",
+                    context.l10n.continuePracticing,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -63,12 +64,12 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
                 child: EmptySection(
                   icon: Icon(Icons.coffee),
                   title: Text(
-                    "No sessions in progress",
+                    context.l10n.noSessionsInProgress,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle: Text("Start a new session to continue practicing"),
+                  subtitle: Text(context.l10n.startNewSession),
                   backgroundColor: AppColors.white,
                   borderColor: AppColors.border,
                   iconColor: AppColors.primaryContainer,

@@ -14,6 +14,7 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
 import 'package:zingo/features/auth/widgets/auth_divider.dart';
 import 'package:zingo/features/auth/widgets/login_with_google_button.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -52,6 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return MultiBlocListener(
       listeners: [
         BlocListener<AuthBloc, AuthState>(
@@ -69,10 +71,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 context: context,
                 type: ToastificationType.success,
                 style: ToastificationStyle.flat,
-                title: const Text("Let's get you started"),
-                description: Text(
-                  "Set your profile for Zingo to setup your english learning journey",
-                ),
+                title: Text(l10n.registrationSuccessTitle),
+                description: Text(l10n.registrationSuccessDesc),
                 autoCloseDuration: const Duration(seconds: 4),
               );
               context.read<AuthBloc>().add(
@@ -89,8 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 context: context,
                 type: ToastificationType.error,
                 style: ToastificationStyle.flat,
-                title: const Text('Registration failed'),
-                description: Text(state.error ?? 'An error occurred'),
+                title: Text(l10n.registrationFailed),
+                description: Text(state.error ?? l10n.errorGeneric),
                 autoCloseDuration: const Duration(seconds: 4),
               );
             }
@@ -131,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "Create an account",
+                                    l10n.createAccount,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
@@ -140,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   SizedBox(
                                     width: 200,
                                     child: Text(
-                                      "Let's start using Zingo and boost your english skills with bite size dialogs",
+                                      l10n.registerTagline,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium,
@@ -155,14 +155,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 28),
                         TextFormField(
                           controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: "Username",
-                            prefixIcon: Icon(Icons.person),
-                            hintText: "Enter your username",
+                          decoration: InputDecoration(
+                            labelText: l10n.usernameLabel,
+                            prefixIcon: const Icon(Icons.person),
+                            hintText: l10n.usernameHint,
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Username is required';
+                              return l10n.usernameRequired;
                             }
                             return null;
                           },
@@ -170,14 +170,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: "Email",
-                            prefixIcon: Icon(Icons.email),
-                            hintText: "Enter your email",
+                          decoration: InputDecoration(
+                            labelText: l10n.emailLabel,
+                            prefixIcon: const Icon(Icons.email),
+                            hintText: l10n.emailHint,
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Email is required';
+                              return l10n.emailRequired;
                             }
                             return null;
                           },
@@ -185,17 +185,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: "Password",
-                            prefixIcon: Icon(Icons.lock),
-                            hintText: "Enter your password",
+                          decoration: InputDecoration(
+                            labelText: l10n.passwordLabel,
+                            prefixIcon: const Icon(Icons.lock),
+                            hintText: l10n.passwordHint,
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Password is required';
+                              return l10n.passwordRequired;
                             }
                             if (value != _confirmPasswordController.text) {
-                              return 'Passwords do not match';
+                              return l10n.passwordsDoNotMatch;
                             }
                             return null;
                           },
@@ -203,17 +203,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: "Confirm Password",
-                            prefixIcon: Icon(Icons.lock),
-                            hintText: "Confirm your password",
+                          decoration: InputDecoration(
+                            labelText: l10n.confirmPasswordLabel,
+                            prefixIcon: const Icon(Icons.lock),
+                            hintText: l10n.confirmPasswordHint,
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Confirm password is required';
+                              return l10n.confirmPasswordRequired;
                             }
                             if (value != _passwordController.text) {
-                              return 'Passwords do not match';
+                              return l10n.passwordsDoNotMatch;
                             }
                             return null;
                           },
@@ -228,11 +228,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Text.rich(
                             TextSpan(
                               children: [
-                                const TextSpan(
-                                  text: "Already have an account? ",
+                                TextSpan(
+                                  text: "${l10n.alreadyHaveAccount} ",
                                 ),
                                 TextSpan(
-                                  text: "Sign in",
+                                  text: l10n.signIn,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodyMedium?.copyWith(),
@@ -264,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text("Register"),
+            : Text(context.l10n.register),
       ),
     );
   }

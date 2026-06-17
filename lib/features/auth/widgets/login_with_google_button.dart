@@ -5,6 +5,7 @@ import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LoginWithGoogleButton extends StatefulWidget {
   const LoginWithGoogleButton({super.key});
@@ -45,7 +46,7 @@ class _LoginWithGoogleButtonState extends State<LoginWithGoogleButton> {
                   width: 24,
                   height: 24,
                 ),
-          label: const Text("Sign in with Google"),
+          label: Text(context.l10n.signInWithGoogle),
         );
       },
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key, this.disabled = false});
@@ -18,7 +19,7 @@ class LogoutButton extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: disabled ? null : () => _logout(context),
         icon: const Icon(Icons.logout),
-        label: Text('Log out'),
+        label: Text(context.l10n.logOut),
       ),
     );
   }

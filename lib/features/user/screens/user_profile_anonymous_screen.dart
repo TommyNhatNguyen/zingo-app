@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class UserProfileAnonymousScreen extends StatelessWidget {
   const UserProfileAnonymousScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Hồ sơ'),
+        title: Text(l10n.navProfile),
         shape: const Border(bottom: BorderSide(color: AppColors.divider)),
         actions: [
           IconButton(
             onPressed: () {
               context.push("/setting");
             },
-            icon: Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_outlined),
           ),
         ],
       ),
@@ -28,7 +30,7 @@ class UserProfileAnonymousScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Bạn cần có hồ sơ để kết nối với bạn bè",
+              l10n.needProfileToConnect,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -41,13 +43,13 @@ class UserProfileAnonymousScreen extends StatelessWidget {
                   onPressed: () {
                     context.push("/register");
                   },
-                  child: Text("Tạo tài khoản"),
+                  child: Text(l10n.createAccount),
                 ),
                 OutlinedButton(
                   onPressed: () {
                     context.push("/login");
                   },
-                  child: Text("Đăng nhập"),
+                  child: Text(l10n.signIn),
                 ),
               ],
             ),
