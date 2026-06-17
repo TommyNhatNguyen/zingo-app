@@ -6,6 +6,7 @@ import 'package:zingo/constants/practice_goal.dart';
 class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   String? displayName;
   Language? motherLanguage;
+  Language? displayLanguage;
   PracticeGoal? practiceGoal;
   TimeOfDay? notificationTime;
   UserProfileScreenFormData();
@@ -13,11 +14,13 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   void initialize({
     required String displayName,
     Language? motherLanguage,
+    Language? displayLanguage,
     PracticeGoal? practiceGoal,
     TimeOfDay? notificationTime,
   }) {
     this.displayName = displayName;
     this.motherLanguage = motherLanguage ?? this.motherLanguage;
+    this.displayLanguage = displayLanguage ?? this.displayLanguage;
     this.practiceGoal = practiceGoal ?? this.practiceGoal;
     this.notificationTime = notificationTime ?? this.notificationTime;
     notifyListeners();
@@ -26,11 +29,13 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   void update({
     String? displayName,
     Language? motherLanguage,
+    Language? displayLanguage,
     PracticeGoal? practiceGoal,
     TimeOfDay? notificationTime,
   }) {
     this.displayName = displayName ?? this.displayName;
     this.motherLanguage = motherLanguage ?? this.motherLanguage;
+    this.displayLanguage = displayLanguage ?? this.displayLanguage;
     this.practiceGoal = practiceGoal ?? this.practiceGoal;
     this.notificationTime = notificationTime ?? this.notificationTime;
     notifyListeners();
@@ -40,6 +45,7 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   List<Object?> get props => [
     displayName,
     motherLanguage,
+    displayLanguage,
     practiceGoal,
     notificationTime,
   ];

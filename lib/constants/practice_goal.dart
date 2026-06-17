@@ -42,7 +42,8 @@ class PracticeGoal extends Equatable {
 
   static PracticeGoal? fromValue(int? value) {
     if (value == null) return null;
-    return all.firstWhere((goal) => goal.value == value);
+    final matches = all.where((goal) => goal.value == value);
+    return matches.isEmpty ? null : matches.first;
   }
 
   @override

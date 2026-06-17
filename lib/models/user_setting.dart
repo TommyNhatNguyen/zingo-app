@@ -17,6 +17,21 @@ class UserSetting extends Equatable {
     this.display_language,
   });
 
+  UserSetting copyWith({
+    String? user_id,
+    int? practice_goal_per_day,
+    String? notification_time,
+    String? display_language,
+  }) {
+    return UserSetting(
+      user_id: user_id ?? this.user_id,
+      practice_goal_per_day:
+          practice_goal_per_day ?? this.practice_goal_per_day,
+      notification_time: notification_time ?? this.notification_time,
+      display_language: display_language ?? this.display_language,
+    );
+  }
+
   factory UserSetting.fromJson(Map<String, dynamic> json) =>
       _$UserSettingFromJson(json);
 

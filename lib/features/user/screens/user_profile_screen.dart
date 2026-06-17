@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +43,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       motherLanguage: Language.fromId(
         _userProfileGetBloc.state.data?.mother_language ?? "",
       ),
+      displayLanguage: Language.fromId(
+        _userSettingsGetBloc.state.data?.display_language ??
+            Platform.localeName.split('_').first,
+      ),
       practiceGoal: PracticeGoal.fromValue(
         _userSettingsGetBloc.state.data?.practice_goal_per_day,
       ),
@@ -77,6 +83,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   children: [
                     const UserProfileHeader(),
                     _buildDisplayName(context),
+                    _buildDisplayLanguageSection(context),
                     _buildLanguageSection(context),
                     _buildPracticeGoalSection(context),
                     _buildNotificationTimeSection(context),
@@ -135,6 +142,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           onSelect: (language) => _form.update(motherLanguage: language),
           sheetTitle: 'Choose a language',
           sheetSubtitle: 'The language you use to communicate with the app.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDisplayLanguageSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(
+          context,
+          title: 'Display language',
+          subtitle: 'The language you want to see in the app.',
+        ),
+        LanguagesPicker(
+          value: _form.displayLanguage,
+          onSelect: (language) => _form.update(displayLanguage: language),
+          sheetTitle: 'Choose a language',
+          sheetSubtitle: 'The language you want to see in the app.',
         ),
       ],
     );

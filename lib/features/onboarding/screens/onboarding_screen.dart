@@ -74,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _selectDailyGoal(PracticeGoal value) {
+  void _selectDailyGoal(PracticeGoal? value) {
     setState(() {
       _selectedDailyGoal = _selectedDailyGoal == value ? null : value;
     });
@@ -186,8 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         }
       },
       builder: (context, state) {
-        final isLoading =
-            state.requestStatus == RequestStatus.loading;
+        final isLoading = state.requestStatus == RequestStatus.loading;
         final totalPages = _totalPages;
         return Scaffold(
           body: Stack(

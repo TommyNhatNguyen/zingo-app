@@ -56,8 +56,10 @@ class Language extends Equatable {
     ),
   ];
 
-  static Language? fromId(String id) {
-    return all.firstWhere((language) => language.id == id);
+  static Language? fromId(String? id) {
+    if (id == null || id.isEmpty) return null;
+    final matches = all.where((language) => language.id == id);
+    return matches.isEmpty ? null : matches.first;
   }
 
   @override

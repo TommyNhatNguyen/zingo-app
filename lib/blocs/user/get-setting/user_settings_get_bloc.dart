@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:zingo/blocs/user/get-setting/user_settings_get_event.dart';
@@ -20,7 +22,14 @@ class UserSettingsGetBloc
     emit(state.copyWith(requestStatus: RequestStatus.loading));
     try {
       final data = await _userService.getSetting(event.userId);
-      emit(state.copyWith(requestStatus: RequestStatus.success, data: data));
+      final normalized = data?.display_language == null
+          ? data?.copyWith(
+              display_language: Platform.localeName.split('_').first,
+            )
+          : data;
+      emit(
+        state.copyWith(requestStatus: RequestStatus.success, data: normalized),
+      );
     } on DioException catch (e) {
       emit(
         state.copyWith(

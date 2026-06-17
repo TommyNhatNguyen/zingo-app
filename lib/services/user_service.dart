@@ -84,13 +84,13 @@ class UserService {
   }
 
   Future<UserSetting?> getSetting(String userId) async {
-    final response = await dio.get('/v1/user-settings/$userId');
+    final response = await dio.get('/v1/user-setting/$userId');
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) {
         return null;
       }
-      return UserSetting.fromJson(result.data!);
+      return UserSetting.fromJson(result.data);
     } else {
       throw Exception(result.error);
     }
