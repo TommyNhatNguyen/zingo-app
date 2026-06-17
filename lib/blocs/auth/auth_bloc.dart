@@ -5,15 +5,12 @@ import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
-import 'package:zingo/models/user_profile.dart';
 import 'package:zingo/services/auth_service.dart';
-import 'package:zingo/services/user_profile_service.dart';
 import 'package:zingo/services/user_service.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _authService = AuthService();
   final _userService = UserService();
-  final _profileService = UserProfileService();
   final Stream<User?> _authStateStream = FirebaseAuth.instance
       .authStateChanges();
 
@@ -37,28 +34,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       }
-      // Use success (not initial) so the redirect's !isLoggedIn branch fires.
-      // initial is reserved for "app just started, haven't heard from Firebase yet."
       emit(AuthState.loggedOut());
     });
 
     on<AuthStateChanged>((event, emit) async {
-      // Always mark the Firebase user as present immediately so the redirect
-      // sends authenticated users to /home even if the backend call is slow.
       emit(
         state.copyWith(user: event.user, requestStatus: RequestStatus.loading),
       );
       try {
         final userData = await _userService.getUserByUid(event.user.uid);
-        UserProfile? profile;
-        if (userData != null) {
-          profile = await _profileService.getById(userData.id);
-        }
         emit(
           state.copyWith(
             requestStatus: RequestStatus.success,
             data: userData,
-            profile: profile,
             user: event.user,
           ),
         );

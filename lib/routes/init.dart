@@ -19,25 +19,25 @@ import 'package:zingo/blocs/user-profile/create/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
+import 'package:zingo/features/auth/screens/login_screen.dart';
+import 'package:zingo/features/auth/screens/register_screen.dart';
+import 'package:zingo/features/auth/screens/welcome_screen.dart';
+import 'package:zingo/features/user/screens/user_profile_anonymous_screen.dart';
+import 'package:zingo/features/user/screens/user_profile_screen.dart';
+import 'package:zingo/features/user/screens/user_setting_screen.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
-import 'package:zingo/screens/auth/login_screen.dart';
-import 'package:zingo/screens/auth/register_screen.dart';
-import 'package:zingo/screens/auth/welcome_screen.dart';
-import 'package:zingo/screens/congrats/streak_congrats_screen.dart';
-import 'package:zingo/screens/home/home_screen.dart';
-import 'package:zingo/screens/learn/learn-detail/learn_detail_screen.dart';
-import 'package:zingo/screens/learn/learn_screen.dart';
-import 'package:zingo/screens/onboarding/onboarding_screen.dart';
-import 'package:zingo/screens/practice/blocs/practice_screen_view_bloc.dart';
-import 'package:zingo/screens/practice/blocs/practice_screen_view_event.dart';
-import 'package:zingo/screens/practice/practice_screen.dart';
-import 'package:zingo/screens/settings/setting_screen.dart';
-import 'package:zingo/screens/shell/app_shell.dart';
-import 'package:zingo/screens/splash/splash_screen.dart';
-import 'package:zingo/screens/test/test_screen.dart';
-import 'package:zingo/screens/users/user_profile_anonymous_screen.dart';
-import 'package:zingo/screens/users/user_profile_screen.dart';
+import 'package:zingo/features/congrats/streak_congrats_screen.dart';
+import 'package:zingo/features/home/screens/home_screen.dart';
+import 'package:zingo/features/explore/explore-detail/screens/learn_detail_screen.dart';
+import 'package:zingo/features/explore/screens/learn_screen.dart';
+import 'package:zingo/features/onboarding/screens/onboarding_screen.dart';
+import 'package:zingo/features/practice/blocs/practice_screen_view_bloc.dart';
+import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
+import 'package:zingo/features/practice/practice_screen.dart';
+import 'package:zingo/features/app_shell.dart';
+import 'package:zingo/features/splash/splash_screen.dart';
+import 'package:zingo/features/test_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
@@ -304,7 +304,7 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             );
           },
           key: state.pageKey,
-          child: const SettingScreen(),
+          child: const UserSettingScreen(),
         );
       },
     ),
