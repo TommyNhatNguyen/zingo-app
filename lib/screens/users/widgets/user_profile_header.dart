@@ -56,7 +56,7 @@ class UserProfileHeader extends StatelessWidget {
                     PillBadge(
                       background: AppColors.primaryContainer,
                       foreground: AppColors.primaryDark,
-                      child: Text(state.data?.cefr_level ?? 'A1'),
+                      child: Text(state.data?.cefr_level.value ?? ''),
                     ),
                     PillBadge(
                       background: AppColors.highlightContainer,

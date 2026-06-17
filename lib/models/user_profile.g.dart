@@ -7,7 +7,7 @@ part of 'user_profile.dart';
 // **************************************************************************
 
 UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
-  cefr_level: json['cefr_level'] as String,
+  cefr_level: $enumDecode(_$EnglishLevelEnumMap, json['cefr_level']),
   level: json['level'] as String,
   xp: (json['xp'] as num).toInt(),
   streak: (json['streak'] as num).toInt(),
@@ -30,9 +30,6 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
   user_id: json['user_id'] as String,
   display_name: json['display_name'] as String?,
   mother_language: json['mother_language'] as String?,
-  display_language: json['display_language'] as String?,
-  practice_goal_per_day: (json['practice_goal_per_day'] as num?)?.toInt(),
-  notification_time: json['notification_time'] as String?,
 );
 
 Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
@@ -40,10 +37,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'user_id': instance.user_id,
       'display_name': instance.display_name,
       'mother_language': instance.mother_language,
-      'display_language': instance.display_language,
-      'practice_goal_per_day': instance.practice_goal_per_day,
-      'notification_time': instance.notification_time,
-      'cefr_level': instance.cefr_level,
+      'cefr_level': _$EnglishLevelEnumMap[instance.cefr_level]!,
       'level': instance.level,
       'xp': instance.xp,
       'streak': instance.streak,
@@ -54,3 +48,12 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'updated_at': instance.updated_at?.toIso8601String(),
       'deleted_at': instance.deleted_at?.toIso8601String(),
     };
+
+const _$EnglishLevelEnumMap = {
+  EnglishLevel.A1: 'A1',
+  EnglishLevel.A2: 'A2',
+  EnglishLevel.B1: 'B1',
+  EnglishLevel.B2: 'B2',
+  EnglishLevel.C1: 'C1',
+  EnglishLevel.C2: 'C2',
+};

@@ -4,6 +4,7 @@ import 'package:zingo/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
 import 'package:zingo/dtos/users/users_update_dto.dart';
 import 'package:zingo/interfaces/api_response.dart';
+import 'package:zingo/models/user_setting.dart';
 import 'package:zingo/models/users.dart';
 
 class UserService {
@@ -77,6 +78,19 @@ class UserService {
         return null;
       }
       return Users.fromJson(result.data!);
+    } else {
+      throw Exception(result.error);
+    }
+  }
+
+  Future<UserSetting?> getSetting(String userId) async {
+    final response = await dio.get('/v1/user-settings/$userId');
+    final result = ApiResponse.fromJson(response.data);
+    if (result.success) {
+      if (result.data == null) {
+        return null;
+      }
+      return UserSetting.fromJson(result.data!);
     } else {
       throw Exception(result.error);
     }

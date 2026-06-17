@@ -9,15 +9,18 @@ import 'package:zingo/constants/enums.dart';
 /// [onChanged]. Single-select; tap inside the sheet selects and closes.
 class EnglishLevelPicker extends StatelessWidget {
   final EnglishLevel? value;
-  final ValueChanged<EnglishLevel> onChanged;
+  final ValueChanged<EnglishLevel>? onChanged;
+  final bool disabled;
 
   const EnglishLevelPicker({
     super.key,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
+    this.disabled = false,
   });
 
   Future<void> _open(BuildContext context) async {
+    if (onChanged == null) return;
     final picked = await showModalBottomSheet<EnglishLevel>(
       context: context,
       isScrollControlled: true,
@@ -28,14 +31,14 @@ class EnglishLevelPicker extends StatelessWidget {
       ),
       builder: (_) => _EnglishLevelSheet(value: value),
     );
-    if (picked != null) onChanged(picked);
+    if (picked != null) onChanged!(picked);
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return InkWell(
-      onTap: () => _open(context),
+      onTap: disabled ? null : () => _open(context),
       borderRadius: BorderRadius.circular(12),
       child: Card.outlined(
         shape: RoundedRectangleBorder(
@@ -71,10 +74,11 @@ class EnglishLevelPicker extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
-              ),
+              if (!disabled)
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary,
+                ),
             ],
           ),
         ),

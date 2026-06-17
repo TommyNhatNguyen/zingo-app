@@ -11,9 +11,6 @@ UserProfileUpdateDto _$UserProfileUpdateDtoFromJson(
 ) => UserProfileUpdateDto(
   display_name: json['display_name'] as String?,
   mother_language: json['mother_language'] as String?,
-  display_language: json['display_language'] as String?,
-  practice_goal_per_day: (json['practice_goal_per_day'] as num?)?.toInt(),
-  notification_time: json['notification_time'] as String?,
 );
 
 Map<String, dynamic> _$UserProfileUpdateDtoToJson(
@@ -21,7 +18,4 @@ Map<String, dynamic> _$UserProfileUpdateDtoToJson(
 ) => <String, dynamic>{
   'display_name': ?instance.display_name,
   'mother_language': ?instance.mother_language,
-  'display_language': ?instance.display_language,
-  'practice_goal_per_day': ?instance.practice_goal_per_day,
-  'notification_time': ?instance.notification_time,
 };

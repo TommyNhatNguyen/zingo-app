@@ -16,10 +16,6 @@ import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/blocs/user-favorite-dialogs/list/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/blocs/user-profile/create/user_profile_create_bloc.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_bloc.dart';
-import 'package:zingo/blocs/user-profile/get/user_profile_get_event.dart';
-import 'package:zingo/blocs/user-settings/user_settings_bloc.dart';
-import 'package:zingo/blocs/user-settings/user_settings_event.dart';
 import 'package:zingo/blocs/users/get/users_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
@@ -260,33 +256,13 @@ GoRouter buildRoutes(AuthBloc authBloc) => GoRouter(
             GoRoute(
               path: '/profile',
               pageBuilder: (context, state) {
-                final authData = context.read<AuthBloc>().state.data;
                 final authUserData = context.read<AuthBloc>().state.user;
                 final isAnonymous = authUserData?.isAnonymous ?? true;
                 return NoTransitionPage(
                   key: state.pageKey,
-                  child: MultiBlocProvider(
-                    providers: [
-                      BlocProvider(
-                        create: (_) {
-                          final bloc = UserSettingsBloc(seedUser: authData);
-                          if (authData != null) {
-                            bloc.add(UserSettingsLoaded(userId: authData.id));
-                          }
-                          return bloc;
-                        },
-                      ),
-                      BlocProvider(
-                        create: (context) => UserProfileGetBloc()
-                          ..add(
-                            UserProfileGetFetched(userId: authData?.id ?? ''),
-                          ),
-                      ),
-                    ],
-                    child: isAnonymous
-                        ? const UserProfileAnonymousScreen()
-                        : const UserProfileScreen(),
-                  ),
+                  child: isAnonymous
+                      ? const UserProfileAnonymousScreen()
+                      : const UserProfileScreen(),
                 );
               },
             ),
