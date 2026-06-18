@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/l10n/l10n.dart';
@@ -17,6 +20,10 @@ class StreakCongratsScreen extends StatefulWidget {
 
 class _StreakCongratsScreenState extends State<StreakCongratsScreen>
     with TickerProviderStateMixin {
+  static const _levelUpSoundAsset = 'assets/level-up.aac';
+  static const _levelUpSoundDuration = Duration(milliseconds: 1886);
+
+  late final AudioPlayer _audioPlayer;
   late final AnimationController _lottieController;
   late final AnimationController _statsController;
   late final AnimationController _firesController;
@@ -35,9 +42,10 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer();
     _lottieController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: _levelUpSoundDuration,
     );
     _statsController = AnimationController(
       vsync: this,
@@ -111,7 +119,23 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
     _statsController.addStatusListener(_onStatsStatus);
     _firesController.addStatusListener(_onFiresStatus);
     _buttonController.addStatusListener(_onButtonStatus);
-    _lottieController.forward();
+    unawaited(_startExperience());
+  }
+
+  Future<void> _startExperience() async {
+    try {
+      await _audioPlayer.setAsset(_levelUpSoundAsset);
+      final soundDuration = _audioPlayer.duration ?? _levelUpSoundDuration;
+      if (soundDuration != _lottieController.duration) {
+        _lottieController.duration = soundDuration;
+      }
+      unawaited(_audioPlayer.play());
+    } catch (_) {
+      // Fall back to the measured asset duration if playback fails to load.
+    }
+
+    if (!mounted) return;
+    _lottieController.forward(from: 0);
   }
 
   void _onLottieStatus(AnimationStatus status) {
@@ -140,6 +164,8 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
 
   @override
   void dispose() {
+    unawaited(_audioPlayer.stop());
+    _audioPlayer.dispose();
     _lottieController.dispose();
     _statsController.dispose();
     _firesController.dispose();

@@ -77,7 +77,11 @@ GoRouter buildRoutes({
   ]),
   redirect: (context, state) {
     final authState = context.read<AuthBloc>().state;
-    final profile = context.read<UserConfigurationGetBloc>().state.data?.profile;
+    final profile = context
+        .read<UserConfigurationGetBloc>()
+        .state
+        .data
+        ?.profile;
     final location = state.matchedLocation;
     print("User: ${authState.user}");
     print("Profile: ${profile}");
