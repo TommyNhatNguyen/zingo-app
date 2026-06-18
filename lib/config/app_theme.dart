@@ -126,6 +126,7 @@ abstract final class AppTheme {
             borderRadius: BorderRadius.circular(18),
           ),
           elevation: 0,
+          fixedSize: const Size(double.infinity, 56),
           shadowColor: AppColors.shadow,
           textStyle: GoogleFonts.plusJakartaSans(
             fontSize: 16,

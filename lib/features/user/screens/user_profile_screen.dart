@@ -148,18 +148,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         _buildLanguageSection(context),
                         _buildPracticeGoalSection(context),
                         _buildNotificationTimeSection(context),
-                        FilledButton(
-                          onPressed: isLoading ? null : () => _onSave(context),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(l10n.saveChanges),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: isLoading
+                                ? null
+                                : () => _onSave(context),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(l10n.saveChanges),
+                          ),
                         ),
                       ],
                     ),
