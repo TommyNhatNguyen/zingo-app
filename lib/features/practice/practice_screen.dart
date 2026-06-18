@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -52,10 +54,14 @@ class PracticeScreen extends StatefulWidget {
 
 class _PracticeScreenState extends State<PracticeScreen> {
   static const double _retryThreshold = 0.4;
+  static const _successTurnSound = 'assets/success-turn.aac';
+  static const _errorTurnSound = 'assets/error-turn.aac';
+
   late final InMemoryChatController _chatController;
   late final PracticeScreenBloc _practiceScreenBloc;
   late final AuthBloc _authBloc;
   late final AudioPlayer _audioPlayer;
+  late final AudioPlayer _sfxPlayer;
   bool _isLoadingDialogTurns = true;
 
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
@@ -82,13 +88,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _practiceScreenBloc = context.read<PracticeScreenBloc>();
     _authBloc = context.read<AuthBloc>();
     _audioPlayer = AudioPlayer();
+    _sfxPlayer = AudioPlayer();
     _practiceScreenBloc.add(const PracticeScreenInitializeEvent());
   }
 
   @override
   void dispose() {
     _chatController.dispose();
+    unawaited(_sfxPlayer.stop());
     _audioPlayer.dispose();
+    _sfxPlayer.dispose();
     _activeMatchResult.dispose();
     super.dispose();
   }
@@ -150,13 +159,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
   // Audio playback
   // ---------------------------------------------------------------------------
 
-  Future<void> _playAudio({required String audioUrl}) async {
-    await _audioPlayer.setUrl(audioUrl);
-    await _audioPlayer.play();
-    await _audioPlayer.pause();
-    await _audioPlayer.seek(Duration.zero);
-  }
-
   Future<void> _playDialogTurnAudio({required DialogTurn turn}) async {
     if (!mounted) return;
     if (_currentPlayingTurnId == turn.id) return;
@@ -190,6 +192,25 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
+  Future<void> _playAudio({required String audioUrl}) async {
+    await _audioPlayer.setUrl(audioUrl);
+    await _audioPlayer.play();
+    await _audioPlayer.pause();
+    await _audioPlayer.seek(Duration.zero);
+  }
+
+  Future<void> _playTurnFeedback({required bool success}) async {
+    try {
+      await _sfxPlayer.stop();
+      await _sfxPlayer.setAsset(
+        success ? _successTurnSound : _errorTurnSound,
+      );
+      unawaited(_sfxPlayer.play());
+    } catch (_) {
+      // Ignore missing or unsupported sfx assets.
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Speech-to-text
   // ---------------------------------------------------------------------------
@@ -209,6 +230,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     final matchResult = _activeMatchResult.value;
 
     if (matchResult == null) {
+      unawaited(_playTurnFeedback(success: false));
       _practiceScreenBloc.add(
         PracticeScreenSetPhaseEvent(PracticePhase.awaitingRetry),
       );
@@ -216,6 +238,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
 
     if (!matchResult.passed) {
+      unawaited(_playTurnFeedback(success: false));
       Toastification().show(
         context: context,
         type: ToastificationType.warning,
@@ -239,6 +262,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (_activeTurnId != null) {
       _finalMatchResults[_activeTurnId!] = matchResult;
     }
+
+    unawaited(_playTurnFeedback(success: true));
 
     final nextTurnIndex = _currentTurnIndex + 1;
     final isLastTurn = nextTurnIndex >= totalTurns;
@@ -392,6 +417,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   Future<void> _onBack() async {
     await _audioPlayer.stop();
+    await _sfxPlayer.stop();
     await _speechToTextController.stop();
     if (!mounted) return;
     context.go('/learn');
