@@ -53,5 +53,9 @@ class UserConfigurationSettingsDto extends Equatable {
   Map<String, dynamic> toJson() => _$UserConfigurationSettingsDtoToJson(this);
 
   @override
-  List<Object?> get props => [practice_goal_per_day, notification_time, display_language];
+  List<Object?> get props => [
+    practice_goal_per_day,
+    notification_time,
+    display_language,
+  ];
 }
