@@ -7,6 +7,8 @@ import 'package:zingo/blocs/journey/journey_bloc.dart';
 import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/blocs/journey/journey_state.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/blocs/user/get-streak/user_streak_get_bloc.dart';
+import 'package:zingo/blocs/user/get-streak/user_streak_get_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';
@@ -153,83 +155,101 @@ class _StreakCard extends StatelessWidget {
 
   const _StreakCard({required this.profile});
 
+  static const _weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  static String _streakDateKey(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day-$month-${date.year}';
+  }
+
+  static List<DateTime> _currentWeekDays() {
+    final now = DateTime.now();
+    final monday = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
+    return List.generate(7, (i) => monday.add(Duration(days: i)));
+  }
+
+  static bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   @override
   Widget build(BuildContext context) {
     final streakDays = profile?.streak ?? 0;
     final bestStreak = profile?.longest_streak ?? 0;
-    final todayIndex = DateTime.now().weekday - 1;
-    final weekStreak = profile?.currentWeekStreak ?? {};
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+    return BlocBuilder<UserStreakGetBloc, UserStreakGetState>(
+      builder: (context, streakState) {
+        final streakDates = streakState.data?.streak_dates ?? {};
+        final weekDays = _currentWeekDays();
+        final today = DateTime.now();
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Column(
             children: [
-              const Icon(
-                Icons.local_fire_department_rounded,
-                color: AppColors.streak,
-                size: 30,
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    context.l10n.dailyStreak,
-                    style: AppTextStyles.bodySmall,
-                  ),
-                  Text(
-                    context.l10n.streakDaysCount(streakDays),
-                    style: AppTextStyles.h2,
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    context.l10n.bestStreakLabel,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textDisabled,
-                      fontSize: 10,
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.streak.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.local_fire_department_rounded,
+                      color: AppColors.streak,
+                      size: 30,
                     ),
                   ),
-                  Text('${bestStreak}d', style: AppTextStyles.h2),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.dailyStreak,
+                        style: AppTextStyles.bodySmall,
+                      ),
+                      Text(
+                        context.l10n.streakDaysCount(streakDays),
+                        style: AppTextStyles.h2,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  for (int i = 0; i < 7; i++)
+                    _DayCell(
+                      label: _weekdayLabels[i],
+                      isToday: _isSameDay(weekDays[i], today),
+                      isCompleted:
+                          streakDates[_streakDateKey(weekDays[i])] == true,
+                    ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              for (int i = 0; i < 7; i++)
-                _DayCell(
-                  label: const ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
-                  state: weekStreak[i.toString()] == true
-                      ? _DayCellState.completed
-                      : i == todayIndex
-                      ? _DayCellState.today
-                      : _DayCellState.inactive,
-                ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -238,12 +258,24 @@ enum _DayCellState { completed, today, inactive }
 
 class _DayCell extends StatelessWidget {
   final String label;
-  final _DayCellState state;
+  final bool isToday;
+  final bool isCompleted;
 
-  const _DayCell({required this.label, required this.state});
+  const _DayCell({
+    required this.label,
+    required this.isToday,
+    required this.isCompleted,
+  });
+
+  _DayCellState get _state {
+    if (isCompleted) return _DayCellState.completed;
+    if (isToday) return _DayCellState.today;
+    return _DayCellState.inactive;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = _state;
     return Column(
       children: [
         Text(
@@ -256,56 +288,41 @@ class _DayCell extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        _buildIcon(),
+        _buildIcon(state),
       ],
     );
   }
 
-  Widget _buildIcon() {
+  Widget _buildIcon(_DayCellState state) {
+    final Color backgroundColor;
+    final Color iconColor;
+
     switch (state) {
       case _DayCellState.completed:
-        return Container(
-          width: 34,
-          height: 34,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.accentContainer,
-          ),
-          child: const Icon(
-            Icons.local_fire_department_rounded,
-            color: AppColors.streak,
-            size: 19,
-          ),
-        );
+        backgroundColor = AppColors.accentContainer;
+        iconColor = AppColors.streak;
       case _DayCellState.today:
-        return Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primary, width: 2),
-          ),
-          child: const Icon(
-            Icons.local_fire_department_rounded,
-            color: AppColors.primary,
-            size: 19,
-          ),
-        );
+        backgroundColor = Colors.transparent;
+        iconColor = AppColors.primary;
       case _DayCellState.inactive:
-        return Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.border.withValues(alpha: 0.5),
-          ),
-          child: const Icon(
-            Icons.local_fire_department_rounded,
-            color: AppColors.textDisabled,
-            size: 19,
-          ),
-        );
+        backgroundColor = AppColors.border.withValues(alpha: 0.5);
+        iconColor = AppColors.textDisabled;
     }
+
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: backgroundColor,
+        border: isToday ? Border.all(color: AppColors.streak, width: 2) : null,
+      ),
+      child: Icon(
+        Icons.local_fire_department_rounded,
+        color: iconColor,
+        size: 19,
+      ),
+    );
   }
 }
 

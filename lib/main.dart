@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/blocs/locale/locale_cubit.dart';
@@ -11,8 +11,11 @@ import 'package:zingo/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_event.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_state.dart';
+import 'package:zingo/blocs/user/get-streak/user_streak_get_bloc.dart';
+import 'package:zingo/blocs/user/get-streak/user_streak_get_event.dart';
 import 'package:zingo/config/app_theme.dart';
 import 'package:zingo/constants/enums.dart';
+import 'package:zingo/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/l10n/app_localizations.dart';
 import 'package:zingo/routes/init.dart';
 
@@ -38,6 +41,7 @@ class _MainAppState extends State<MainApp> {
   late final AuthBloc _authBloc;
   late final SpeechToTextBloc _speechToTextBloc;
   late final UserConfigurationGetBloc _userConfigurationBloc;
+  late final UserStreakGetBloc _userStreakGetBloc;
   late final LocaleCubit _localeCubit;
   late final GoRouter _router;
 
@@ -48,6 +52,7 @@ class _MainAppState extends State<MainApp> {
     _speechToTextBloc = SpeechToTextBloc()
       ..add(const SpeechToTextInitializeEvent());
     _userConfigurationBloc = UserConfigurationGetBloc();
+    _userStreakGetBloc = UserStreakGetBloc();
     _localeCubit = LocaleCubit();
     _router = buildRoutes(
       authBloc: _authBloc,
@@ -60,6 +65,7 @@ class _MainAppState extends State<MainApp> {
     _authBloc.close();
     _speechToTextBloc.close();
     _userConfigurationBloc.close();
+    _userStreakGetBloc.close();
     _localeCubit.close();
     super.dispose();
   }
@@ -71,6 +77,7 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _authBloc),
         BlocProvider.value(value: _speechToTextBloc),
         BlocProvider.value(value: _userConfigurationBloc),
+        BlocProvider.value(value: _userStreakGetBloc),
         BlocProvider.value(value: _localeCubit),
       ],
       child: MultiBlocListener(
@@ -80,8 +87,15 @@ class _MainAppState extends State<MainApp> {
             listener: (context, state) {
               if (state.requestStatus == RequestStatus.success &&
                   state.data != null) {
+                final userId = state.data!.id;
                 _userConfigurationBloc.add(
-                  UserConfigurationGetFetched(userId: state.data!.id),
+                  UserConfigurationGetFetched(userId: userId),
+                );
+                _userStreakGetBloc.add(
+                  UserStreakGetFetched(
+                    userId: userId,
+                    payload: GetUserStreakPayload(year: DateTime.now().year),
+                  ),
                 );
               }
             },
