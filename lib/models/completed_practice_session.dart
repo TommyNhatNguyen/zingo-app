@@ -1,14 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/models/practice_session.dart';
+import 'package:zingo/models/user_streak.dart';
 
 part 'completed_practice_session.g.dart';
 
 @JsonSerializable()
 class CompletedPracticeSession extends PracticeSession {
   final int xp;
-  final Map<String, bool> currentWeekStreak;
   final int streak;
+  @JsonKey(name: 'userStreak')
+  final UserStreak? user_streak;
 
   const CompletedPracticeSession({
     required super.id,
@@ -28,8 +30,8 @@ class CompletedPracticeSession extends PracticeSession {
     super.updated_at,
     super.deleted_at,
     required this.xp,
-    required this.currentWeekStreak,
     required this.streak,
+    this.user_streak,
   });
 
   factory CompletedPracticeSession.fromJson(Map<String, dynamic> json) =>
@@ -39,5 +41,5 @@ class CompletedPracticeSession extends PracticeSession {
   Map<String, dynamic> toJson() => _$CompletedPracticeSessionToJson(this);
 
   @override
-  List<Object?> get props => [...super.props, xp, currentWeekStreak, streak];
+  List<Object?> get props => [...super.props, xp, streak, user_streak];
 }

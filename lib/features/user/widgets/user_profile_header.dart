@@ -32,9 +32,7 @@ class UserProfileHeader extends StatelessWidget {
                       radius: 32,
                       backgroundColor: AppColors.primaryContainer,
                       child: Text(
-                        profile?.display_name
-                                ?.substring(0, 1)
-                                .toUpperCase() ??
+                        profile?.display_name?.substring(0, 1).toUpperCase() ??
                             'N/A',
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
@@ -44,10 +42,13 @@ class UserProfileHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text(
-                      profile?.display_name ?? 'N/A',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Text(
+                        profile?.display_name ?? 'N/A',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

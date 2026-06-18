@@ -17,8 +17,7 @@ class HomeStreakCard extends StatelessWidget {
     return '$month/${date.year}';
   }
 
-  static String _dayLabel(DateTime date) =>
-      date.day.toString().padLeft(2, '0');
+  static String _dayLabel(DateTime date) => date.day.toString().padLeft(2, '0');
 
   static String _streakDateKey(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');

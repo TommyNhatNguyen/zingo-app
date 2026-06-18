@@ -36,8 +36,10 @@ CompletedPracticeSession _$CompletedPracticeSessionFromJson(
       ? null
       : DateTime.parse(json['deleted_at'] as String),
   xp: (json['xp'] as num).toInt(),
-  currentWeekStreak: Map<String, bool>.from(json['currentWeekStreak'] as Map),
   streak: (json['streak'] as num).toInt(),
+  user_streak: json['userStreak'] == null
+      ? null
+      : UserStreak.fromJson(json['userStreak'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$CompletedPracticeSessionToJson(
@@ -60,8 +62,8 @@ Map<String, dynamic> _$CompletedPracticeSessionToJson(
   'updated_at': instance.updated_at?.toIso8601String(),
   'deleted_at': instance.deleted_at?.toIso8601String(),
   'xp': instance.xp,
-  'currentWeekStreak': instance.currentWeekStreak,
   'streak': instance.streak,
+  'userStreak': instance.user_streak,
 };
 
 const _$PracticeModeEnumMap = {
