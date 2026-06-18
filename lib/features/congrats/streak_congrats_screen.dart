@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_event.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/completed_practice_session.dart';
@@ -36,6 +39,9 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
   late final Animation<double> _monthYearFade;
   late final List<Animation<double>> _fireCellAnimations;
   late final Animation<double> _buttonFade;
+
+  UserConfigurationGetBloc get _userConfigurationGetBloc =>
+      context.read<UserConfigurationGetBloc>();
 
   bool _animationsComplete = false;
 
@@ -162,6 +168,15 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
     }
   }
 
+  void _onContinuePressed() {
+    context.go('/learn');
+    _userConfigurationGetBloc.add(
+      UserConfigurationGetFetched(
+        userId: widget.session?.user_id ?? '',
+      ),
+    );
+  }
+
   @override
   void dispose() {
     unawaited(_audioPlayer.stop());
@@ -222,7 +237,7 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
                           width: double.infinity,
                           child: FilledButton(
                             onPressed: _animationsComplete
-                                ? () => context.go('/learn')
+                                ? _onContinuePressed
                                 : null,
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.accent,
