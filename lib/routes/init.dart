@@ -15,10 +15,10 @@ import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_di
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/blocs/user/create-profile/user_profile_create_bloc.dart';
-import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
-import 'package:zingo/blocs/user/get-setting/user_settings_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/blocs/user/get/users_bloc.dart';
 import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
+import 'package:zingo/blocs/user/update-configuration/user_configuration_update_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/features/app_shell.dart';
@@ -59,13 +59,10 @@ class GoRouterRefreshStream extends ChangeNotifier {
   }
 }
 
-GoRouter buildRoutes(
-  {
-    required AuthBloc authBloc,
-    required UserProfileGetBloc userProfileGetBloc,
-    required UserSettingsGetBloc userSettingsGetBloc,
-  }
-) => GoRouter(
+GoRouter buildRoutes({
+  required AuthBloc authBloc,
+  required UserConfigurationGetBloc userConfigurationGetBloc,
+}) => GoRouter(
   // initialLocation: '/onboarding',
   // initialLocation: '/learn',
   // initialLocation: '/streak-congrats',
@@ -76,12 +73,11 @@ GoRouter buildRoutes(
   // initialLocation: "/home",
   refreshListenable: GoRouterRefreshStream([
     authBloc.stream,
-    userProfileGetBloc.stream,
-    userSettingsGetBloc.stream,
+    userConfigurationGetBloc.stream,
   ]),
   redirect: (context, state) {
     final authState = context.read<AuthBloc>().state;
-    final profile = context.read<UserProfileGetBloc>().state.data;
+    final profile = context.read<UserConfigurationGetBloc>().state.data?.profile;
     final location = state.matchedLocation;
     print("User: ${authState.user}");
     print("Profile: ${profile}");
@@ -277,7 +273,10 @@ GoRouter buildRoutes(
                   key: state.pageKey,
                   child: isAnonymous
                       ? const UserProfileAnonymousScreen()
-                      : const UserProfileScreen(),
+                      : BlocProvider(
+                          create: (_) => UserConfigurationUpdateBloc(),
+                          child: const UserProfileScreen(),
+                        ),
                 );
               },
             ),

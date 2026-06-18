@@ -1,10 +1,13 @@
 import 'package:zingo/config/dio_http.dart';
+import 'package:zingo/dtos/user-configuration/user_configuration_update_dto.dart';
+import 'package:zingo/dtos/user-profile/user_profile_create_dto.dart';
 import 'package:zingo/dtos/users/users_create_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/dtos/users/users_create_from_login_google_dto.dart';
 import 'package:zingo/dtos/users/users_update_dto.dart';
 import 'package:zingo/interfaces/api_response.dart';
-import 'package:zingo/models/user_setting.dart';
+import 'package:zingo/models/user_configuration.dart';
+import 'package:zingo/models/user_profile.dart';
 import 'package:zingo/models/users.dart';
 
 class UserService {
@@ -74,23 +77,50 @@ class UserService {
     final response = await dio.put('/v1/user/$userId', data: payload.toJson());
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
-      if (result.data == null) {
-        return null;
-      }
+      if (result.data == null) return null;
       return Users.fromJson(result.data!);
     } else {
       throw Exception(result.error);
     }
   }
 
-  Future<UserSetting?> getSetting(String userId) async {
-    final response = await dio.get('/v1/user-setting/$userId');
+  Future<UserProfile?> onboarding(UserProfileCreateDto payload) async {
+    final response = await dio.post(
+      '/v1/user-profile/onboarding',
+      data: payload.toJson(),
+    );
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
-      if (result.data == null) {
-        return null;
-      }
-      return UserSetting.fromJson(result.data);
+      if (result.data == null) return null;
+      return UserProfile.fromJson(result.data!);
+    } else {
+      throw Exception(result.error);
+    }
+  }
+
+  Future<UserConfiguration?> getUserConfiguration(String userId) async {
+    final response = await dio.get('/v1/user-configuration/$userId');
+    final result = ApiResponse.fromJson(response.data);
+    if (result.success) {
+      if (result.data == null) return null;
+      return UserConfiguration.fromJson(result.data as Map<String, dynamic>);
+    } else {
+      throw Exception(result.error);
+    }
+  }
+
+  Future<UserConfiguration?> updateUserConfiguration(
+    String userId,
+    UserConfigurationUpdateDto payload,
+  ) async {
+    final response = await dio.put(
+      '/v1/user-configuration/$userId',
+      data: payload.toJson(),
+    );
+    final result = ApiResponse.fromJson(response.data);
+    if (result.success) {
+      if (result.data == null) return null;
+      return UserConfiguration.fromJson(result.data as Map<String, dynamic>);
     } else {
       throw Exception(result.error);
     }

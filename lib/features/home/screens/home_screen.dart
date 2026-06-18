@@ -6,14 +6,14 @@ import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/blocs/journey/journey_bloc.dart';
 import 'package:zingo/blocs/journey/journey_event.dart';
 import 'package:zingo/blocs/journey/journey_state.dart';
-import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/journey/journey_payload.dart';
+import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/journey.dart';
 import 'package:zingo/models/user_profile.dart';
-import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/users.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -66,7 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final user = authState.data;
-        final profile = context.read<UserProfileGetBloc>().state.data;
+        final profile = context
+            .read<UserConfigurationGetBloc>()
+            .state
+            .data
+            ?.profile;
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
@@ -183,7 +187,10 @@ class _StreakCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.l10n.dailyStreak, style: AppTextStyles.bodySmall),
+                  Text(
+                    context.l10n.dailyStreak,
+                    style: AppTextStyles.bodySmall,
+                  ),
                   Text(
                     context.l10n.streakDaysCount(streakDays),
                     style: AppTextStyles.h2,

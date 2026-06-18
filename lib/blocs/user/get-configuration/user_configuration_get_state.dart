@@ -1,26 +1,27 @@
 import 'package:equatable/equatable.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/models/user_setting.dart';
+import 'package:zingo/models/user_configuration.dart';
 
-class UserSettingsGetState extends Equatable {
-  final UserSetting? data;
+class UserConfigurationGetState extends Equatable {
+  final UserConfiguration? data;
   final RequestStatus requestStatus;
   final String? error;
 
-  const UserSettingsGetState({
+  const UserConfigurationGetState({
     this.data,
     this.requestStatus = RequestStatus.initial,
     this.error,
   });
 
-  factory UserSettingsGetState.initial() => const UserSettingsGetState();
+  factory UserConfigurationGetState.initial() =>
+      const UserConfigurationGetState();
 
-  UserSettingsGetState copyWith({
-    UserSetting? data,
+  UserConfigurationGetState copyWith({
+    UserConfiguration? data,
     RequestStatus? requestStatus,
     String? error,
   }) {
-    return UserSettingsGetState(
+    return UserConfigurationGetState(
       data: data ?? this.data,
       requestStatus: requestStatus ?? this.requestStatus,
       error: error ?? this.error,

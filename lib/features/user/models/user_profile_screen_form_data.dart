@@ -9,6 +9,7 @@ class UserProfileScreenFormData extends Equatable with ChangeNotifier {
   Language? displayLanguage;
   PracticeGoal? practiceGoal;
   TimeOfDay? notificationTime;
+
   UserProfileScreenFormData();
 
   void initialize({

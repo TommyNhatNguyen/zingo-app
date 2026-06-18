@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_event.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
-import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/l10n/l10n.dart';
 
@@ -17,8 +17,8 @@ class LoginWithAnonymousButton extends StatefulWidget {
 }
 
 class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
-  UserProfileGetBloc get _userProfileGetBloc =>
-      context.read<UserProfileGetBloc>();
+  UserConfigurationGetBloc get _userConfigurationBloc =>
+      context.read<UserConfigurationGetBloc>();
   bool _pending = false;
 
   void _loginWithAnonymous() {
@@ -36,7 +36,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
 
         setState(() => _pending = false);
         // No profile yet → onboarding; otherwise the redirect handles /home.
-        if (_userProfileGetBloc.state.data == null) {
+        if (_userConfigurationBloc.state.data?.profile == null) {
           context.go('/onboarding');
         }
       },

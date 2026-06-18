@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/user/update-favorite-dialog/update_favorite_dialog_event.dart';
 import 'package:zingo/blocs/user/update-favorite-dialog/update_favorite_dialog_state.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/services/user_favorite_dialog_service.dart';
+import 'package:zingo/services/user_favorite_dialogs_service.dart';
 
 class FavoriteDialogBloc
     extends Bloc<FavoriteDialogEvent, FavoriteDialogState> {
-  final _service = UserFavoriteDialogService();
+  final _service = UserFavoriteDialogsService();
 
   FavoriteDialogBloc()
       : super(FavoriteDialogState()) {

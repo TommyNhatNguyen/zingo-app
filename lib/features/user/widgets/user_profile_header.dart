@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/blocs/user/get-profile/user_profile_get_bloc.dart';
-import 'package:zingo/blocs/user/get-profile/user_profile_get_state.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/widgets/pill_badge.dart';
@@ -11,9 +11,10 @@ class UserProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UserProfileGetBloc, UserProfileGetState>(
+    return BlocBuilder<UserConfigurationGetBloc, UserConfigurationGetState>(
       builder: (context, state) {
         final l10n = context.l10n;
+        final profile = state.data?.profile;
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -31,7 +32,7 @@ class UserProfileHeader extends StatelessWidget {
                       radius: 32,
                       backgroundColor: AppColors.primaryContainer,
                       child: Text(
-                        state.data?.display_name
+                        profile?.display_name
                                 ?.substring(0, 1)
                                 .toUpperCase() ??
                             'N/A',
@@ -44,7 +45,7 @@ class UserProfileHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      state.data?.display_name ?? 'N/A',
+                      profile?.display_name ?? 'N/A',
                       style: Theme.of(context).textTheme.headlineMedium,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -58,19 +59,19 @@ class UserProfileHeader extends StatelessWidget {
                     PillBadge(
                       background: AppColors.primaryContainer,
                       foreground: AppColors.primaryDark,
-                      child: Text(state.data?.cefr_level.value ?? ''),
+                      child: Text(profile?.cefr_level.value ?? ''),
                     ),
                     PillBadge(
                       background: AppColors.highlightContainer,
                       foreground: AppColors.xp,
                       icon: Icons.star_rounded,
-                      child: Text(l10n.xpPoints(state.data?.xp ?? 0)),
+                      child: Text(l10n.xpPoints(profile?.xp ?? 0)),
                     ),
                     PillBadge(
                       background: AppColors.accentContainer,
                       foreground: AppColors.streak,
                       icon: Icons.local_fire_department_rounded,
-                      child: Text(l10n.streakDays(state.data?.streak ?? 0)),
+                      child: Text(l10n.streakDays(profile?.streak ?? 0)),
                     ),
                   ],
                 ),
