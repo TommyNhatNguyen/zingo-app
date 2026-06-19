@@ -19,11 +19,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         add(AuthStateChanged(user: user));
       } else {
-        add(const AuthLoggedOut());
+        if (state.user == null &&
+            state.requestStatus == RequestStatus.success &&
+            state.data == null) {
+          add(AuthLoggedOut());
+        }
       }
     });
 
     on<AuthLoggedOut>((event, emit) async {
+      if (FirebaseAuth.instance.currentUser == null) {
+        emit(AuthState.loggedOut());
+        return;
+      }
       try {
         await FirebaseAuth.instance.signOut();
       } catch (e) {
@@ -34,7 +42,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       }
-      emit(AuthState.loggedOut());
     });
 
     on<AuthStateChanged>((event, emit) async {

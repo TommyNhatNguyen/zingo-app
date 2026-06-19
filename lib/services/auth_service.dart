@@ -15,22 +15,14 @@ class AuthService {
   }
 
   Future<User?> loginWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount googleUser = await GoogleSignIn.instance
-        .authenticate();
-
-    // Obtain the auth details from the request
+    final GoogleSignInAccount googleUser =
+        await GoogleSignIn.instance.authenticate();
     final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
-
-    // Once signed in, return the UserCredential
     final result = await firebase.signInWithCredential(credential);
-    final user = result.user;
-    return user;
+    return result.user;
   }
 
   Future<User?> registerWithEmailAndPassword(RegisterDto payload) async {
