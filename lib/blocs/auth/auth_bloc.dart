@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Log out the user
       try {
         await FirebaseAuth.instance.signOut();
+        emit(AuthState.loggedOut());
       } catch (e) {
         emit(
           state.copyWith(
