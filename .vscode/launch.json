@@ -17,6 +17,12 @@
       "deviceId": "00008110-000C09412287601"
     },
     {
+      "name": "zingo (simulator debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "emulator-5554"
+    },
+    {
       "name": "zingo (profile mode)",
       "request": "launch",
       "type": "dart",

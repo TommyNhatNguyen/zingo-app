@@ -27,8 +27,8 @@ void main() async {
   await Future.wait([
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
     SharedPreferences.getInstance(), // warm up before runApp
-    GoogleSignIn.instance.initialize(),
   ]);
+  await GoogleSignIn.instance.initialize();
   runApp(const MainApp());
 }
 
