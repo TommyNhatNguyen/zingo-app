@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,11 @@ import 'package:zingo/routes/init.dart';
 
 import 'firebase_options.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Future.wait([
@@ -29,6 +35,24 @@ void main() async {
     SharedPreferences.getInstance(), // warm up before runApp
   ]);
   await GoogleSignIn.instance.initialize();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  final token = await messaging.getToken();
+  print("token : ${token}");
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  print("settings : ${settings}");
+
+  FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+    await _firebaseMessagingBackgroundHandler(message);
+  });
+
   runApp(const MainApp());
 }
 
@@ -60,6 +84,36 @@ class _MainAppState extends State<MainApp> {
       authBloc: _authBloc,
       userConfigurationGetBloc: _userConfigurationBloc,
     );
+
+    FirebaseMessaging.instance.getInitialMessage().then((
+      RemoteMessage? message,
+    ) {
+      if (message != null) {
+        print('Initial message: ${message.data}');
+        if (message.notification != null) {
+          print('Initial message notification: ${message.notification?.title}');
+          print('Initial message notification: ${message.notification?.body}');
+        }
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print(
+          'Message also contained a notification: ${message.notification?.title}',
+        );
+        print(
+          'Message also contained a notification: ${message.notification?.body}',
+        );
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Message opened app: ${message.data}');
+    });
   }
 
   @override
