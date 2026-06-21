@@ -23,6 +23,7 @@ import 'package:zingo/routes/init.dart';
 
 import 'firebase_options.dart';
 
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("Handling a background message: ${message.messageId}");
@@ -34,25 +35,29 @@ void main() async {
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
     SharedPreferences.getInstance(), // warm up before runApp
   ]);
-  await GoogleSignIn.instance.initialize();
+
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  final token = await messaging.getToken();
-  print("token : ${token}");
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
-  print("settings : ${settings}");
+  final [
+    _,
+    settings as NotificationSettings,
+    token as String,
+  ] = await Future.wait([
+    GoogleSignIn.instance.initialize(),
+    messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    ),
+    messaging.getToken(),
+  ]);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-    await _firebaseMessagingBackgroundHandler(message);
-  });
-
+  print("Notification Authorization Status: ${settings.authorizationStatus}");
+  print("FCM Token: ${token}");
   runApp(const MainApp());
 }
 
@@ -85,35 +90,39 @@ class _MainAppState extends State<MainApp> {
       userConfigurationGetBloc: _userConfigurationBloc,
     );
 
-    FirebaseMessaging.instance.getInitialMessage().then((
-      RemoteMessage? message,
-    ) {
-      if (message != null) {
-        print('Initial message: ${message.data}');
-        if (message.notification != null) {
-          print('Initial message notification: ${message.notification?.title}');
-          print('Initial message notification: ${message.notification?.body}');
-        }
-      }
-    });
+    setupInteractedMessage();
+  }
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
+  // It is assumed that all messages contain a data field with the key 'type'
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    // Handle messages while the app is in the foreground
+    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (message.data['type'] == 'chat') {
       print('Message data: ${message.data}');
+    }
+    print('Message data: ${message.data}');
+  }
 
-      if (message.notification != null) {
-        print(
-          'Message also contained a notification: ${message.notification?.title}',
-        );
-        print(
-          'Message also contained a notification: ${message.notification?.body}',
-        );
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Message opened app: ${message.data}');
-    });
+  void _handleForegroundMessage(RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
   }
 
   @override
