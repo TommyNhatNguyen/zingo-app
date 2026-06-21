@@ -13,10 +13,10 @@ import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_scor
 import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_title.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/learn_detail_app_bar.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_form.dart';
-import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_preview.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/start_practice_button.dart';
 import 'package:zingo/features/explore/explore-detail/widgets/youll_be_scored_on.dart';
+import 'package:zingo/l10n/l10n.dart';
 
 class LearnDetailScreen extends StatefulWidget {
   final String id;
