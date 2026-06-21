@@ -77,7 +77,8 @@ class _FavoriteSectionState extends State<FavoriteSection> {
       listener: (context, authState) => _fetch(authState.data!.id),
       child: BlocBuilder<ListFavoriteDialogsBloc, ListFavoriteDialogsState>(
         builder: (context, state) {
-          final isLoading = state.requestStatus == RequestStatus.loading;
+          final isLoading = state.requestStatus == RequestStatus.loading ||
+              state.requestStatus == RequestStatus.initial;
           final isLoadingMore =
               state.requestStatus == RequestStatus.loadingMore;
           final isEmpty =
@@ -105,7 +106,7 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                     ],
                   ),
                 ),
-                if (isEmpty)
+                if (isEmpty && state.requestStatus == RequestStatus.success)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: EmptySection(

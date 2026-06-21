@@ -37,7 +37,9 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
   Widget build(BuildContext context) {
     return BlocBuilder<ListActiveDialogsBloc, ListActiveDialogsState>(
       builder: (context, state) {
-        final isLoading = state.requestStatus == RequestStatus.loading;
+        final isLoading =
+            state.requestStatus == RequestStatus.loading ||
+            state.requestStatus == RequestStatus.initial;
         final isEmpty =
             (state.data == null || state.data!.isEmpty) && !isLoading;
         return AnimatedSize(
@@ -64,7 +66,7 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
                   ],
                 ),
               ),
-              if (isEmpty)
+              if (isEmpty && state.requestStatus == RequestStatus.success)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: EmptySection(
@@ -89,11 +91,12 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       spacing: 12,
-                      children: (isLoading
-                              ? List.generate(3, (_) => null)
-                              : state.data ?? [])
-                          .map((d) => TopicCard(dialog: d))
-                          .toList(),
+                      children:
+                          (isLoading
+                                  ? List.generate(3, (_) => null)
+                                  : state.data ?? [])
+                              .map((d) => TopicCard(dialog: d))
+                              .toList(),
                     ),
                   ),
                 ),
