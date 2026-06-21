@@ -40,11 +40,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     bloc.add(
-      DialogDetailFetchEvent(
-        payload: DialogDetailPayload(
-          id: widget.id ?? "13febbdf-a74c-4904-bc3b-c22bdec6a327",
-        ),
-      ),
+      DialogDetailFetchEvent(payload: DialogDetailPayload(id: widget.id)),
     );
   }
 

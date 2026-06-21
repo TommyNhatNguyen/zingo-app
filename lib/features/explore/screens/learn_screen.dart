@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
+import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_event.dart';
+import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
+import 'package:zingo/blocs/recommendations/list/recommendations_list_event.dart';
+import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
+import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
 import 'package:zingo/config/app_colors.dart';
+import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
+import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
+import 'package:zingo/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
 import 'package:zingo/features/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/features/explore/widgets/favorite_section.dart';
 import 'package:zingo/features/explore/widgets/recommendation_section.dart';
@@ -13,6 +24,24 @@ class LearnScreen extends StatefulWidget {
 }
 
 class _LearnScreenState extends State<LearnScreen> {
+  Future<void> _onRefresh() async {
+    final userId = context.read<AuthBloc>().state.data?.id;
+
+    context.read<ListActiveDialogsBloc>().add(
+      ListActiveDialogsFetch(payload: ListActiveDialogsPayload(userId: userId)),
+    );
+    context.read<ListFavoriteDialogsBloc>().add(
+      ListFavoriteDialogsFetch(
+        payload: ListFavoriteDialogsPayload(userId: userId),
+      ),
+    );
+    context.read<RecommendationsListBloc>().add(
+      RecommendationsListFetch(
+        payload: RecommendationsPayload(user_id: userId ?? ''),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,19 +62,20 @@ class _LearnScreenState extends State<LearnScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 12,
-            children: [
-              // In-progress dialogs
-              ContinuePracticeSection(),
-              // Your Favorites
-              FavoriteSection(),
-              // Recommended for you
-              RecommendationSection(),
-            ],
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                ContinuePracticeSection(),
+                FavoriteSection(),
+                RecommendationSection(),
+              ],
+            ),
           ),
         ),
       ),
