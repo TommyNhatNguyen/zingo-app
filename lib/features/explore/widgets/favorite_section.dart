@@ -21,7 +21,26 @@ class FavoriteSection extends StatefulWidget {
 }
 
 class _FavoriteSectionState extends State<FavoriteSection> {
+  final _scrollController = ScrollController();
   AuthBloc get authBloc => context.read<AuthBloc>();
+
+  ListFavoriteDialogsPayload get _basePayload =>
+      ListFavoriteDialogsPayload(userId: authBloc.state.data?.id);
+
+  @override
+  void initState() {
+    super.initState();
+    if (authBloc.state.data != null) {
+      _fetch(authBloc.state.data!.id);
+    }
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _fetch(String? userId) {
     context.read<ListFavoriteDialogsBloc>().add(
@@ -31,11 +50,23 @@ class _FavoriteSectionState extends State<FavoriteSection> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if (authBloc.state.data != null) {
-      _fetch(authBloc.state.data!.id);
+  void _onScroll() {
+    final bloc = context.read<ListFavoriteDialogsBloc>();
+    final state = bloc.state;
+    if (!_scrollController.hasClients) return;
+    final atEnd =
+        _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 120;
+    if (atEnd &&
+        state.hasMore &&
+        state.requestStatus != RequestStatus.loading &&
+        state.requestStatus != RequestStatus.loadingMore) {
+      final nextPage = (state.meta?.page ?? 1) + 1;
+      bloc.add(
+        ListFavoriteDialogsFetchMore(
+          payload: _basePayload.copyWith(page: nextPage),
+        ),
+      );
     }
   }
 
@@ -46,62 +77,92 @@ class _FavoriteSectionState extends State<FavoriteSection> {
       listener: (context, authState) => _fetch(authState.data!.id),
       child: BlocBuilder<ListFavoriteDialogsBloc, ListFavoriteDialogsState>(
         builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 8,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Icon(Icons.favorite, color: AppColors.favorite),
-                    Text(
-                      context.l10n.yourFavorites,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if ((state.data == null || state.data?.isEmpty == true) &&
-                  state.requestStatus != RequestStatus.loading)
+          final isLoading = state.requestStatus == RequestStatus.loading;
+          final isLoadingMore =
+              state.requestStatus == RequestStatus.loadingMore;
+          final isEmpty =
+              (state.data == null || state.data!.isEmpty) && !isLoading;
+          return AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: EmptySection(
-                    icon: Icon(Icons.favorite),
-                    title: Text(
-                      context.l10n.noFavoritesYet,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Icon(Icons.favorite, color: AppColors.favorite),
+                      Text(
+                        context.l10n.yourFavorites,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    subtitle: Text(
-                      context.l10n.addFavoritesHint,
-                      softWrap: true,
-                    ),
-                    backgroundColor: AppColors.white,
-                    borderColor: AppColors.favoriteLight,
-                    iconColor: AppColors.favoriteContainer,
-                  ),
-                )
-              else
-                Skeletonizer(
-                  enabled: state.requestStatus == RequestStatus.loading,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      spacing: 12,
-                      children: (state.data ?? [])
-                          .map((d) => TopicCard(dialog: d))
-                          .toList(),
-                    ),
+                    ],
                   ),
                 ),
-            ],
+                if (isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: EmptySection(
+                      icon: Icon(Icons.favorite),
+                      title: Text(
+                        context.l10n.noFavoritesYet,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        context.l10n.addFavoritesHint,
+                        softWrap: true,
+                      ),
+                      backgroundColor: AppColors.white,
+                      borderColor: AppColors.favoriteLight,
+                      iconColor: AppColors.favoriteContainer,
+                    ),
+                  )
+                else
+                  Skeletonizer(
+                    enabled: isLoading,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          ...(isLoading
+                              ? List<TopicCard>.generate(
+                                  3,
+                                  (_) => const TopicCard(dialog: null),
+                                )
+                              : (state.data ?? []).map(
+                                  (item) => TopicCard(dialog: item.dialog),
+                                )),
+                          if (isLoadingMore)
+                            const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),

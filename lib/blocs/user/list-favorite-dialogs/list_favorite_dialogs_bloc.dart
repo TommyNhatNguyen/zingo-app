@@ -14,19 +14,56 @@ class ListFavoriteDialogsBloc
   }) : _userFavoriteDialogsService =
            userFavoriteDialogsService ?? UserFavoriteDialogsService(),
        super(ListFavoriteDialogsState.initial()) {
-    on<ListFavoriteDialogsFetch>(_onListFavoriteDialogsFetch);
+    on<ListFavoriteDialogsFetch>(_onFetch);
+    on<ListFavoriteDialogsFetchMore>(_onFetchMore);
   }
 
-  Future<void> _onListFavoriteDialogsFetch(
+  Future<void> _onFetch(
     ListFavoriteDialogsFetch event,
     Emitter<ListFavoriteDialogsState> emit,
   ) async {
     emit(state.copyWith(requestStatus: RequestStatus.loading));
     try {
-      final dialogs = await _userFavoriteDialogsService.getFavoriteDialogs(
+      final result = await _userFavoriteDialogsService.getFavoriteDialogs(
         event.payload,
       );
-      emit(state.copyWith(data: dialogs, requestStatus: RequestStatus.success));
+      emit(
+        state.copyWith(
+          data: result.data,
+          meta: result.meta,
+          requestStatus: RequestStatus.success,
+        ),
+      );
+    } on DioException catch (e) {
+      emit(
+        state.copyWith(
+          requestStatus: RequestStatus.error,
+          error: e.response?.data?['message']?.toString() ?? e.message,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(requestStatus: RequestStatus.error, error: e.toString()),
+      );
+    }
+  }
+
+  Future<void> _onFetchMore(
+    ListFavoriteDialogsFetchMore event,
+    Emitter<ListFavoriteDialogsState> emit,
+  ) async {
+    emit(state.copyWith(requestStatus: RequestStatus.loadingMore));
+    try {
+      final result = await _userFavoriteDialogsService.getFavoriteDialogs(
+        event.payload,
+      );
+      emit(
+        state.copyWith(
+          data: [...(state.data ?? []), ...(result.data ?? [])],
+          meta: result.meta,
+          requestStatus: RequestStatus.success,
+        ),
+      );
     } on DioException catch (e) {
       emit(
         state.copyWith(

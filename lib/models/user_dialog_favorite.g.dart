@@ -10,6 +10,7 @@ UserDialogFavorite _$UserDialogFavoriteFromJson(Map<String, dynamic> json) =>
     UserDialogFavorite(
       user_id: json['user_id'] as String,
       dialog_id: json['dialog_id'] as String,
+      dialog: Dialog.fromJson(json['dialog'] as Map<String, dynamic>),
       created_at: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -25,6 +26,7 @@ Map<String, dynamic> _$UserDialogFavoriteToJson(UserDialogFavorite instance) =>
     <String, dynamic>{
       'user_id': instance.user_id,
       'dialog_id': instance.dialog_id,
+      'dialog': instance.dialog,
       'created_at': instance.created_at?.toIso8601String(),
       'updated_at': instance.updated_at?.toIso8601String(),
       'deleted_at': instance.deleted_at?.toIso8601String(),

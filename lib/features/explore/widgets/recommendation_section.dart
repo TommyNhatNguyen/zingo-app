@@ -63,7 +63,11 @@ class _RecommendationSectionState extends State<RecommendationSection> {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
@@ -128,7 +132,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
               ],
             ),
           ),
-        );
+        ));
       },
     );
   }

@@ -37,59 +37,68 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
   Widget build(BuildContext context) {
     return BlocBuilder<ListActiveDialogsBloc, ListActiveDialogsState>(
       builder: (context, state) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                spacing: 8,
-                children: [
-                  Icon(Icons.play_arrow, color: AppColors.accent),
-                  Text(
-                    context.l10n.continuePracticing,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if ((state.data == null || state.data?.isEmpty == true) &&
-                state.requestStatus != RequestStatus.loading)
+        final isLoading = state.requestStatus == RequestStatus.loading;
+        final isEmpty =
+            (state.data == null || state.data!.isEmpty) && !isLoading;
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: EmptySection(
-                  icon: Icon(Icons.coffee),
-                  title: Text(
-                    context.l10n.noSessionsInProgress,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Icon(Icons.play_arrow, color: AppColors.accent),
+                    Text(
+                      context.l10n.continuePracticing,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  subtitle: Text(context.l10n.startNewSession),
-                  backgroundColor: AppColors.white,
-                  borderColor: AppColors.border,
-                  iconColor: AppColors.primaryContainer,
-                ),
-              )
-            else
-              Skeletonizer(
-                enabled: state.requestStatus == RequestStatus.loading,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    spacing: 12,
-                    children: (state.data ?? [])
-                        .map((d) => TopicCard(dialog: d))
-                        .toList(),
-                  ),
+                  ],
                 ),
               ),
-          ],
+              if (isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: EmptySection(
+                    icon: Icon(Icons.coffee),
+                    title: Text(
+                      context.l10n.noSessionsInProgress,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(context.l10n.startNewSession),
+                    backgroundColor: AppColors.white,
+                    borderColor: AppColors.border,
+                    iconColor: AppColors.primaryContainer,
+                  ),
+                )
+              else
+                Skeletonizer(
+                  enabled: isLoading,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      spacing: 12,
+                      children: (isLoading
+                              ? List.generate(3, (_) => null)
+                              : state.data ?? [])
+                          .map((d) => TopicCard(dialog: d))
+                          .toList(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );

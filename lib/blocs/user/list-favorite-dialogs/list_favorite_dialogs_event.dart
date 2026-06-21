@@ -16,3 +16,12 @@ class ListFavoriteDialogsFetch extends ListFavoriteDialogsEvent {
   @override
   List<Object?> get props => [payload];
 }
+
+class ListFavoriteDialogsFetchMore extends ListFavoriteDialogsEvent {
+  final ListFavoriteDialogsPayload payload;
+
+  const ListFavoriteDialogsFetchMore({required this.payload});
+
+  @override
+  List<Object?> get props => [payload];
+}

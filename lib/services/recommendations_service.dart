@@ -8,7 +8,7 @@ class RecommendationsService {
   ) async {
     try {
       final response = await dio.get(
-        '/v1/recommendations',
+        '/v1/user-info/recommendations',
         queryParameters: payload.toJson(),
       );
 

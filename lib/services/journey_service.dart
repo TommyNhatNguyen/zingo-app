@@ -3,10 +3,7 @@ import 'package:zingo/dtos/journey/journey_payload.dart';
 import 'package:zingo/interfaces/api_response.dart';
 import 'package:zingo/models/journey.dart';
 
-typedef JourneyResult = ({
-  List<JourneyChapter> chapters,
-  PaginationMeta meta,
-});
+typedef JourneyResult = ({List<JourneyChapter> chapters, PaginationMeta meta});
 
 class JourneyService {
   Future<JourneyResult> getJourney(JourneyPayload payload) async {
@@ -32,7 +29,9 @@ class JourneyService {
           .map((e) => JourneyChapter.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      final meta = PaginationMeta.fromJson(data['meta'] as Map<String, dynamic>);
+      final meta = PaginationMeta.fromJson(
+        data['meta'] as Map<String, dynamic>,
+      );
 
       return (chapters: chapters, meta: meta);
     } catch (e) {
