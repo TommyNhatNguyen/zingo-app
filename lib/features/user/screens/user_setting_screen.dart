@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zingo/blocs/auth/auth_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/blocs/user/get-configuration/user_configuration_get_event.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/features/user/widgets/logout_button.dart';
 import 'package:zingo/l10n/l10n.dart';
@@ -22,8 +26,17 @@ class UserSettingScreen extends StatelessWidget {
           icon: const Icon(Icons.close),
         ),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final userId = context.read<AuthBloc>().state.data?.id;
+          if (userId != null) {
+            context.read<UserConfigurationGetBloc>().add(
+              UserConfigurationGetFetched(userId: userId),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -112,6 +125,7 @@ class UserSettingScreen extends StatelessWidget {
               ],
             ),
           ],
+        ),
         ),
       ),
     );

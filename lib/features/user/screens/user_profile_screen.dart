@@ -37,6 +37,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context.read<UserConfigurationGetBloc>();
   LocaleCubit get _localeCubit => context.read<LocaleCubit>();
 
+  Future<void> _onRefresh() async {
+    final userId = context.read<AuthBloc>().state.data?.id;
+    if (userId != null) {
+      _userConfigBloc.add(UserConfigurationGetFetched(userId: userId));
+    }
+  }
+
   void _onSave(BuildContext context) {
     final userId = context.read<AuthBloc>().state.data?.id;
     if (userId == null) return;
@@ -136,7 +143,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               body: Skeletonizer(
                 enabled: false,
                 child: SafeArea(
-                  child: SingleChildScrollView(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,6 +177,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ),
                         ),
                       ],
+                    ),
                     ),
                   ),
                 ),

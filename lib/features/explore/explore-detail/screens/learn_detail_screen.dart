@@ -70,6 +70,12 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
     setState(() => _selectedMode = mode);
   }
 
+  Future<void> _onRefresh() async {
+    bloc.add(
+      DialogDetailFetchEvent(payload: DialogDetailPayload(id: widget.id)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DialogDetailBloc, DialogDetailState>(
@@ -92,36 +98,42 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      LearnDetailAppBar(data: state.data, isAtTop: _isAtTop),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 16,
-                            bottom: 32,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 8,
-                            children: [
-                              DialogDetailTitle(dialog: state.data),
-                              DialogDetailScoring(dialog: state.data),
-                              PracticeModeForm(
-                                selectedMode: _selectedMode,
-                                onModeSelected: _onModeSelected,
-                              ),
-                              PracticeModePreview(selectedMode: _selectedMode),
-                              YoullBeScoredOn(selectedMode: _selectedMode),
-                            ],
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        LearnDetailAppBar(data: state.data, isAtTop: _isAtTop),
+                        SliverToBoxAdapter(
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              top: 16,
+                              bottom: 32,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 8,
+                              children: [
+                                DialogDetailTitle(dialog: state.data),
+                                DialogDetailScoring(dialog: state.data),
+                                PracticeModeForm(
+                                  selectedMode: _selectedMode,
+                                  onModeSelected: _onModeSelected,
+                                ),
+                                PracticeModePreview(
+                                  selectedMode: _selectedMode,
+                                ),
+                                YoullBeScoredOn(selectedMode: _selectedMode),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
