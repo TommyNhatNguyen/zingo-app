@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog_turn.dart';
-import 'package:zingo/services/matching_text_service.dart';
+import 'package:zingo/utils/matching_text_service.dart';
 
 class UserMessage extends StatefulWidget {
   const UserMessage({

@@ -8,6 +8,7 @@ import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/blocs/dialog/recent/recent_dialogs_bloc.dart';
 import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
@@ -266,6 +267,7 @@ GoRouter buildRoutes({
                       BlocProvider(create: (_) => ListActiveDialogsBloc()),
                       BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
                       BlocProvider(create: (_) => RecommendationsListBloc()),
+                      BlocProvider(create: (_) => RecentDialogsBloc()),
                     ],
                     child: const LearnScreen(),
                   ),

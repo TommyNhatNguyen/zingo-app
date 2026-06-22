@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
-import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
-import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_event.dart';
-import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_state.dart';
+import 'package:zingo/blocs/dialog/recent/recent_dialogs_bloc.dart';
+import 'package:zingo/blocs/dialog/recent/recent_dialogs_event.dart';
+import 'package:zingo/blocs/dialog/recent/recent_dialogs_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
+import 'package:zingo/dtos/dialog/recent_dialogs_payload.dart';
 import 'package:zingo/features/explore/widgets/empty_section.dart';
 import 'package:zingo/features/explore/widgets/topic_card.dart';
 import 'package:zingo/l10n/l10n.dart';
@@ -21,21 +21,21 @@ class ContinuePracticeSection extends StatefulWidget {
 }
 
 class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
-  AuthBloc get authBloc => context.read<AuthBloc>();
-
   @override
   void initState() {
     super.initState();
-    context.read<ListActiveDialogsBloc>().add(
-      ListActiveDialogsFetch(
-        payload: ListActiveDialogsPayload(userId: authBloc.state.data?.id),
+    final userId = context.read<AuthBloc>().state.data?.id ?? '';
+    context.read<RecentDialogsBloc>().add(
+      RecentDialogsFetchEvent(
+        userId: userId,
+        payload: const RecentDialogsPayload(),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ListActiveDialogsBloc, ListActiveDialogsState>(
+    return BlocBuilder<RecentDialogsBloc, RecentDialogsState>(
       builder: (context, state) {
         final isLoading =
             state.requestStatus == RequestStatus.loading ||

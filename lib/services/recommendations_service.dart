@@ -12,7 +12,7 @@ class RecommendationsService {
   ) async {
     try {
       final response = await dio.get(
-        '/v1/user-info/recommendations',
+        '/v1/recommend-dialogs/${payload.user_id}',
         queryParameters: payload.toJson(),
       );
 
