@@ -8,8 +8,11 @@ part of 'get_user_streak_payload.dart';
 
 GetUserStreakPayload _$GetUserStreakPayloadFromJson(
   Map<String, dynamic> json,
-) => GetUserStreakPayload(year: (json['year'] as num).toInt());
+) => GetUserStreakPayload(
+  user_id: json['user_id'] as String,
+  year: (json['year'] as num).toInt(),
+);
 
 Map<String, dynamic> _$GetUserStreakPayloadToJson(
   GetUserStreakPayload instance,
-) => <String, dynamic>{'year': instance.year};
+) => <String, dynamic>{'user_id': instance.user_id, 'year': instance.year};

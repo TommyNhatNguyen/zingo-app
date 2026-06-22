@@ -5,11 +5,10 @@ import 'package:zingo/models/user_streak.dart';
 
 class UserStreakService {
   Future<UserStreak?> getUserStreak(
-    String userId,
     GetUserStreakPayload payload,
   ) async {
     final response = await dio.get(
-      '/v1/user-streak/$userId',
+      '/v1/streak',
       queryParameters: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);

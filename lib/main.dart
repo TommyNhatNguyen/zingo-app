@@ -158,8 +158,10 @@ class _MainAppState extends State<MainApp> {
                 );
                 _userStreakGetBloc.add(
                   UserStreakGetFetched(
-                    userId: userId,
-                    payload: GetUserStreakPayload(year: DateTime.now().year),
+                    payload: GetUserStreakPayload(
+                      user_id: userId,
+                      year: DateTime.now().year,
+                    ),
                   ),
                 );
               }

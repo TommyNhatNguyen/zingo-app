@@ -33,7 +33,7 @@ class PracticeSessionsService {
   Future<PracticeSession?> startSession(CreateSessionPayload payload) async {
     try {
       final response = await dio.post(
-        '/v1/practice-sessions',
+        '/v1/practice-start',
         data: payload.toJson(),
       );
       final result = ApiResponse.fromJson(response.data);
@@ -52,7 +52,7 @@ class PracticeSessionsService {
   ) async {
     try {
       final response = await dio.post(
-        '/v1/practice-sessions/complete',
+        '/v1/practice-complete',
         data: payload.toJson(),
       );
       final result = ApiResponse.fromJson(response.data);

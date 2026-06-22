@@ -21,7 +21,6 @@ class UserStreakGetBloc extends Bloc<UserStreakGetEvent, UserStreakGetState> {
     emit(state.copyWith(requestStatus: RequestStatus.loading));
     try {
       final streak = await _userStreakService.getUserStreak(
-        event.userId,
         event.payload,
       );
       emit(

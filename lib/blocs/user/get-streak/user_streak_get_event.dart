@@ -9,14 +9,10 @@ class UserStreakGetEvent extends Equatable {
 }
 
 class UserStreakGetFetched extends UserStreakGetEvent {
-  final String userId;
   final GetUserStreakPayload payload;
 
-  const UserStreakGetFetched({
-    required this.userId,
-    required this.payload,
-  });
+  const UserStreakGetFetched({required this.payload});
 
   @override
-  List<Object?> get props => [userId, payload];
+  List<Object?> get props => [payload];
 }
