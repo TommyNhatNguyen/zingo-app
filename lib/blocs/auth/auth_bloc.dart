@@ -46,7 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.copyWith(user: event.user, requestStatus: RequestStatus.loading),
       );
       try {
-        final userData = await _userService.getUserByUid(event.user.uid);
+        final userData = await _userService.getUserByUid();
         emit(
           state.copyWith(
             requestStatus: RequestStatus.success,
@@ -73,7 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           event.payload,
         );
         if (user != null) {
-          final userData = await _userService.getUserByUid(user.uid);
+          final userData = await _userService.getUserByUid();
           if (userData != null) {
             emit(
               state.copyWith(

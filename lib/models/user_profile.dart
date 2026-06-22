@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/constants/languages.dart';
 
 part 'user_profile.g.dart';
 

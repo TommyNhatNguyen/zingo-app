@@ -23,7 +23,7 @@ class UserConfigurationGetBloc
   ) async {
     emit(state.copyWith(requestStatus: RequestStatus.loading));
     try {
-      final config = await _service.getUserConfiguration(event.userId);
+      final config = await _service.getUserConfiguration();
       emit(
         state.copyWith(
           requestStatus: RequestStatus.success,

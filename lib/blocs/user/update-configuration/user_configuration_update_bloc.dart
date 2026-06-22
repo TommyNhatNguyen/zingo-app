@@ -10,7 +10,7 @@ class UserConfigurationUpdateBloc
   final _service = UserService();
 
   UserConfigurationUpdateBloc()
-      : super(UserConfigurationUpdateState.initial()) {
+    : super(UserConfigurationUpdateState.initial()) {
     on<UserConfigurationUpdateTriggered>(_onTriggered);
   }
 
@@ -20,7 +20,7 @@ class UserConfigurationUpdateBloc
   ) async {
     emit(state.copyWith(requestStatus: RequestStatus.loading));
     try {
-      await _service.updateUserConfiguration(event.userId, event.payload);
+      await _service.updateUserConfiguration(event.payload);
       emit(state.copyWith(requestStatus: RequestStatus.success));
     } on DioException catch (e) {
       emit(

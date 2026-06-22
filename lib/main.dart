@@ -37,11 +37,7 @@ void main() async {
   ]);
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  final [
-    _,
-    settings as NotificationSettings,
-    token as String,
-  ] = await Future.wait([
+  final [_, settings as NotificationSettings] = await Future.wait([
     GoogleSignIn.instance.initialize(),
     messaging.requestPermission(
       alert: true,
@@ -52,12 +48,16 @@ void main() async {
       provisional: false,
       sound: true,
     ),
-    messaging.getToken(),
   ]);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // APNS may not be available (missing entitlement, simulator, etc.) — never block startup.
+  try {
+    final token = await messaging.getToken();
+    print("FCM Token: $token");
+  } catch (_) {}
+
   print("Notification Authorization Status: ${settings.authorizationStatus}");
-  print("FCM Token: ${token}");
   runApp(const MainApp());
 }
 

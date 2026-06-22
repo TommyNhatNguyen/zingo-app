@@ -27,10 +27,7 @@ class UserService {
   Future<Users?> registerWithGoogle(
     UsersCreateFromLoginGoogleDto payload,
   ) async {
-    final response = await dio.post(
-      '/v1/register-google',
-      data: payload.toJson(),
-    );
+    final response = await dio.post('/v1/auth-google', data: payload.toJson());
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) {
@@ -46,7 +43,7 @@ class UserService {
     UsersCreateFromAnonymousDto payload,
   ) async {
     final response = await dio.post(
-      '/v1/register-anonymous',
+      '/v1/auth-anonymous',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
@@ -60,8 +57,8 @@ class UserService {
     }
   }
 
-  Future<Users?> getUserByUid(String userUid) async {
-    final response = await dio.get('/v1/user/uid/$userUid');
+  Future<Users?> getUserByUid() async {
+    final response = await dio.get('/v1/user');
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) {
@@ -85,10 +82,7 @@ class UserService {
   }
 
   Future<UserProfile?> onboarding(UserProfileCreateDto payload) async {
-    final response = await dio.post(
-      '/v1/user-profile/onboarding',
-      data: payload.toJson(),
-    );
+    final response = await dio.post('/v1/onboarding', data: payload.toJson());
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) return null;
@@ -98,8 +92,8 @@ class UserService {
     }
   }
 
-  Future<UserConfiguration?> getUserConfiguration(String userId) async {
-    final response = await dio.get('/v1/user-configuration/$userId');
+  Future<UserConfiguration?> getUserConfiguration() async {
+    final response = await dio.get('/v1/user-configuration');
     final result = ApiResponse.fromJson(response.data);
     if (result.success) {
       if (result.data == null) return null;
@@ -110,11 +104,10 @@ class UserService {
   }
 
   Future<UserConfiguration?> updateUserConfiguration(
-    String userId,
     UserConfigurationUpdateDto payload,
   ) async {
     final response = await dio.put(
-      '/v1/user-configuration/$userId',
+      '/v1/user-configuration',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
@@ -125,6 +118,4 @@ class UserService {
       throw Exception(result.error);
     }
   }
-
-  
 }

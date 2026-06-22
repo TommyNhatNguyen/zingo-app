@@ -143,7 +143,7 @@ class HomeStreakCard extends StatelessWidget {
   }
 }
 
-enum StreakDayCellState { completed, today, inactive }
+enum StreakDayCellState { completed, today, inactive, todayCompleted }
 
 class StreakDayCell extends StatelessWidget {
   const StreakDayCell({
@@ -158,6 +158,7 @@ class StreakDayCell extends StatelessWidget {
   final bool isCompleted;
 
   StreakDayCellState get _state {
+    if (isToday && isCompleted) return StreakDayCellState.todayCompleted;
     if (isCompleted) return StreakDayCellState.completed;
     if (isToday) return StreakDayCellState.today;
     return StreakDayCellState.inactive;
@@ -197,6 +198,9 @@ class StreakDayCell extends StatelessWidget {
       case StreakDayCellState.inactive:
         backgroundColor = AppColors.border.withValues(alpha: 0.5);
         iconColor = AppColors.textDisabled;
+      case StreakDayCellState.todayCompleted:
+        backgroundColor = AppColors.accentContainer;
+        iconColor = AppColors.streak;
     }
 
     return Container(
