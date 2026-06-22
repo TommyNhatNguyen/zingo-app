@@ -30,7 +30,7 @@ import 'package:zingo/features/practice/widgets/practice_control_bar.dart';
 import 'package:zingo/features/practice/widgets/user_message.dart';
 import 'package:zingo/services/cache_service.dart';
 import 'package:zingo/services/matching_text_service.dart';
-import 'package:zingo/services/speech_to_text_service.dart';
+import 'package:zingo/utils/speech_to_text_service.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/utils/debounce_util.dart';
 

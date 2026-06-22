@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/blocs/journey/journey_bloc.dart';
-import 'package:zingo/blocs/journey/journey_state.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';

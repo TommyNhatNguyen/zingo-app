@@ -9,7 +9,7 @@ class UserFavoriteDialogsService {
     ListFavoriteDialogsPayload payload,
   ) async {
     final response = await dio.get(
-      '/v1/user-favorite-dialogs/${payload.userId}',
+      '/v1/favorite-dialogs/${payload.userId}',
       queryParameters: {'page': payload.page, 'limit': payload.limit},
     );
 
@@ -32,27 +32,19 @@ class UserFavoriteDialogsService {
 
   Future<bool> addFavorite(UsersFavoriteDialogDto payload) async {
     final response = await dio.post(
-      '/v1/user-favorite-dialogs',
+      '/v1/favorite-dialogs',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
-    if (result.success) {
-      return result.data ?? false;
-    } else {
-      throw Exception(result.error);
-    }
+    return result.success;
   }
 
   Future<bool> removeFavorite(UsersFavoriteDialogDto payload) async {
     final response = await dio.delete(
-      '/v1/user-favorite-dialogs',
+      '/v1/favorite-dialogs',
       data: payload.toJson(),
     );
     final result = ApiResponse.fromJson(response.data);
-    if (result.success) {
-      return true;
-    } else {
-      throw Exception(result.error);
-    }
+    return result.success;
   }
 }

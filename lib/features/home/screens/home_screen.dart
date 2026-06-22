@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/auth/auth_bloc.dart';
 import 'package:zingo/blocs/auth/auth_state.dart';
-import 'package:zingo/blocs/journey/journey_bloc.dart';
-import 'package:zingo/blocs/journey/journey_event.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
@@ -35,7 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onRefresh() async {
-    context.read<JourneyBloc>().add(const JourneyFetchEvent());
+    context.read<JourneyBloc>().add(
+      JourneyFetchEvent(
+        payload: JourneyPayload(
+          user_id: context.read<AuthBloc>().state.data?.id ?? '',
+        ),
+      ),
+    );
   }
 
   void _onScroll() {
@@ -57,7 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     context.read<JourneyBloc>().add(
       JourneyFetchMoreEvent(
-        payload: JourneyPayload(page: (state.meta?.page ?? 1) + 1),
+        payload: JourneyPayload(
+          page: (state.meta?.page ?? 1) + 1,
+          user_id: context.read<AuthBloc>().state.data?.id ?? '',
+        ),
       ),
     );
   }
@@ -78,21 +87,21 @@ class _HomeScreenState extends State<HomeScreen> {
             child: RefreshIndicator(
               onRefresh: _onRefresh,
               child: SingleChildScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HomeGreetingRow(user: user, profile: profile),
-                  const SizedBox(height: 14),
-                  HomeStreakCard(profile: profile),
-                  const SizedBox(height: 28),
-                  const HomeLessonPath(),
-                ],
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeGreetingRow(user: user, profile: profile),
+                    const SizedBox(height: 14),
+                    HomeStreakCard(profile: profile),
+                    const SizedBox(height: 28),
+                    const HomeLessonPath(),
+                  ],
+                ),
               ),
             ),
-          ),
           ),
         );
       },

@@ -8,8 +8,8 @@ import 'package:zingo/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
-import 'package:zingo/blocs/journey/journey_bloc.dart';
-import 'package:zingo/blocs/journey/journey_event.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
@@ -21,6 +21,7 @@ import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_blo
 import 'package:zingo/blocs/user/update-configuration/user_configuration_update_bloc.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
+import 'package:zingo/dtos/journey/journey_payload.dart';
 import 'package:zingo/features/app_shell.dart';
 import 'package:zingo/features/auth/screens/login_screen.dart';
 import 'package:zingo/features/auth/screens/register_screen.dart';
@@ -236,8 +237,15 @@ GoRouter buildRoutes({
                 return NoTransitionPage(
                   key: state.pageKey,
                   child: BlocProvider(
-                    create: (_) =>
-                        JourneyBloc()..add(const JourneyFetchEvent()),
+                    create: (context) => JourneyBloc()
+                      ..add(
+                        JourneyFetchEvent(
+                          payload: JourneyPayload(
+                            user_id:
+                                context.read<AuthBloc>().state.data?.id ?? '',
+                          ),
+                        ),
+                      ),
                     child: const HomeScreen(),
                   ),
                 );

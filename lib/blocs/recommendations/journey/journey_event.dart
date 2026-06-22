@@ -11,7 +11,7 @@ abstract class JourneyEvent extends Equatable {
 class JourneyFetchEvent extends JourneyEvent {
   final JourneyPayload payload;
 
-  const JourneyFetchEvent({this.payload = const JourneyPayload()});
+  const JourneyFetchEvent({required this.payload});
 
   @override
   List<Object?> get props => [payload];
