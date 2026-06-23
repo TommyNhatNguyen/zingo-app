@@ -1,42 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:toastification/toastification.dart';
-import 'package:zingo/config/dio_http.dart';
 import 'package:zingo/features/auth/widgets/login_with_anonymous_button.dart';
 import 'package:zingo/features/auth/widgets/logo_info.dart';
 import 'package:zingo/l10n/l10n.dart';
-import 'package:zingo/ver_2/data/model/result.dart';
-import 'package:zingo/ver_2/data/repositories/test_repository.dart';
-import 'package:zingo/ver_2/data/services/api_client_service.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  Future<void> _test(BuildContext context) async {
-    final testRepository = TestRepository(
-      apiClientService: ApiClientService(httpClient: dio),
-    );
-    final result = await testRepository.test();
-    switch (result) {
-      case Ok(:final data):
-        print(data);
-      case ErrorAPI(:final error):
-        print(error.error.code);
-        Toastification().show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          title: Text(error.error.title),
-          description: Text(error.error.detail),
-        );
-      case Error(:final error):
-        print(error);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _test(context);
     final l10n = context.l10n;
     return Scaffold(
       body: SafeArea(

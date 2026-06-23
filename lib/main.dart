@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +17,13 @@ import 'package:zingo/blocs/user/get-configuration/user_configuration_get_state.
 import 'package:zingo/blocs/user/get-streak/user_streak_get_bloc.dart';
 import 'package:zingo/blocs/user/get-streak/user_streak_get_event.dart';
 import 'package:zingo/config/app_theme.dart';
+import 'package:zingo/config/dio_http.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/l10n/app_localizations.dart';
 import 'package:zingo/routes/init.dart';
+import 'package:zingo/ver_2/data/model/api_error.dart';
+import 'package:zingo/ver_2/data/model/result.dart';
 
 import 'firebase_options.dart';
 
@@ -89,9 +93,9 @@ class _MainAppState extends State<MainApp> {
       authBloc: _authBloc,
       userConfigurationGetBloc: _userConfigurationBloc,
     );
-
     setupInteractedMessage();
   }
+
 
   // It is assumed that all messages contain a data field with the key 'type'
   Future<void> setupInteractedMessage() async {
