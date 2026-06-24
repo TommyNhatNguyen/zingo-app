@@ -100,6 +100,7 @@ GoRouter buildRoutes({
       '/register',
       '/splash',
     ].contains(location);
+    final isAnonymous = authState.user?.isAnonymous ?? true;
     final isOnboardingRoute = location == '/onboarding';
 
     if (!isLoggedIn) {
@@ -108,12 +109,16 @@ GoRouter buildRoutes({
 
     // Logged in but no profile yet — allow welcome + onboarding only.
     if (!hasProfile) {
-      if (isPublicRoute || isOnboardingRoute) return null;
+      if (isPublicRoute || isOnboardingRoute || isAnonymous) return null;
       return '/welcome';
     }
 
     // Logged in with profile — leave protected routes alone, redirect public to home.
-    return isPublicRoute ? '/profile' : null;
+    return isPublicRoute
+        ? isAnonymous
+              ? '/welcome'
+              : '/profile'
+        : null;
   },
   routes: [
     GoRoute(

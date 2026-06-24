@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_event.dart';
+import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_event.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 
 class LogoutButton extends StatelessWidget {
@@ -10,6 +12,9 @@ class LogoutButton extends StatelessWidget {
 
   void _logout(BuildContext context) {
     context.read<AuthBloc>().add(const AuthLoggedOut());
+    context.read<UserConfigurationGetBloc>().add(
+      const UserConfigurationGetReset(),
+    );
   }
 
   @override

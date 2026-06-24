@@ -19,6 +19,7 @@ class AuthState extends Equatable {
   factory AuthState.initial() {
     return const AuthState(
       data: null,
+      user: null,
       requestStatus: RequestStatus.initial,
       error: null,
     );
@@ -27,6 +28,7 @@ class AuthState extends Equatable {
   factory AuthState.loggedOut() {
     return const AuthState(
       data: null,
+      user: null,
       requestStatus: RequestStatus.success,
       error: null,
     );

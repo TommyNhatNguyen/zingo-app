@@ -14,7 +14,11 @@ class UserConfigurationGetState extends Equatable {
   });
 
   factory UserConfigurationGetState.initial() =>
-      const UserConfigurationGetState();
+      const UserConfigurationGetState(
+        data: null,
+        requestStatus: RequestStatus.initial,
+        error: null,
+      );
 
   UserConfigurationGetState copyWith({
     UserConfiguration? data,

@@ -16,10 +16,14 @@ class UserConfigurationGetBloc
   final UserConfigurationRepository _repository;
 
   UserConfigurationGetBloc({UserConfigurationRepository? repository})
-      : _repository = repository ??
-            UserConfigurationRepository(apiClientService: ApiClientService(httpClient: dio)),
-        super(UserConfigurationGetState.initial()) {
+    : _repository =
+          repository ??
+          UserConfigurationRepository(
+            apiClientService: ApiClientService(httpClient: dio),
+          ),
+      super(UserConfigurationGetState.initial()) {
     on<UserConfigurationGetFetched>(_onFetched);
+    on<UserConfigurationGetReset>(_onReset);
   }
 
   Future<void> _onFetched(
@@ -64,5 +68,12 @@ class UserConfigurationGetBloc
     return settings.copyWith(
       display_language: Platform.localeName.split('_').first,
     );
+  }
+
+  Future<void> _onReset(
+    UserConfigurationGetReset event,
+    Emitter<UserConfigurationGetState> emit,
+  ) async {
+    emit(UserConfigurationGetState.initial());
   }
 }

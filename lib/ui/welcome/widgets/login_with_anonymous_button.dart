@@ -17,12 +17,22 @@ class LoginWithAnonymousButton extends StatefulWidget {
 }
 
 class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
+  bool _isLoggingIn = false;
+
   UserConfigurationGetBloc get _userConfigurationBloc =>
       context.read<UserConfigurationGetBloc>();
-  bool _pending = false;
+  bool get hasProfile => _userConfigurationBloc.state.data?.profile != null;
 
-  void _loginWithAnonymous() {
-    setState(() => _pending = true);
+  void _loginWithAnonymous(AuthState state) {
+    if (state.user != null && !hasProfile) {
+      context.go('/onboarding');
+      return;
+    }
+    if (state.user != null && hasProfile) {
+      context.go('/home');
+      return;
+    }
+    setState(() => _isLoggingIn = true);
     context.read<AuthBloc>().add(AuthLoginWithAnonymous());
   }
 
@@ -30,13 +40,16 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (!_pending) return;
-        if (state.requestStatus != RequestStatus.success) return;
-        if (state.user == null || state.data == null) return;
-
-        setState(() => _pending = false);
-        // No profile yet → onboarding; otherwise the redirect handles /home.
-        if (_userConfigurationBloc.state.data?.profile == null) {
+        if (!_isLoggingIn) return;
+        if (state.requestStatus == RequestStatus.error) {
+          setState(() => _isLoggingIn = false);
+          return;
+        }
+        if (state.requestStatus == RequestStatus.success &&
+            state.user != null &&
+            (state.user?.isAnonymous ?? true) &&
+            !hasProfile) {
+          setState(() => _isLoggingIn = false);
           context.go('/onboarding');
         }
       },
@@ -44,8 +57,14 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
         builder: (context, state) {
           final isLoading = state.requestStatus == RequestStatus.loading;
           return OutlinedButton(
-            onPressed: isLoading ? null : _loginWithAnonymous,
-            child: Text(context.l10n.startNow),
+            onPressed: isLoading ? null : () => _loginWithAnonymous(state),
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(context.l10n.startNow),
           );
         },
       ),

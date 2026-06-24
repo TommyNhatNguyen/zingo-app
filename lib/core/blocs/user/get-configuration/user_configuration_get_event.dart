@@ -15,3 +15,10 @@ class UserConfigurationGetFetched extends UserConfigurationGetEvent {
   @override
   List<Object?> get props => [userId];
 }
+
+class UserConfigurationGetReset extends UserConfigurationGetEvent {
+  const UserConfigurationGetReset();
+
+  @override
+  List<Object?> get props => [];
+}

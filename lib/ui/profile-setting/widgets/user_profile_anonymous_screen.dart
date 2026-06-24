@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class UserProfileAnonymousScreen extends StatelessWidget {
   const UserProfileAnonymousScreen({super.key});
