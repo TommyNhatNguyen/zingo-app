@@ -8,10 +8,10 @@ import 'package:zingo/blocs/auth/auth_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
-import 'package:zingo/features/auth/widgets/auth_divider.dart';
-import 'package:zingo/features/auth/widgets/login_with_google_button.dart';
-import 'package:zingo/features/auth/widgets/logo_info.dart';
 import 'package:zingo/l10n/l10n.dart';
+import 'package:zingo/ver_2/ui/auth/widgets/auth_divider.dart';
+import 'package:zingo/ver_2/ui/auth/widgets/login_with_google_button.dart';
+import 'package:zingo/ver_2/ui/core/ui/logo_info.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

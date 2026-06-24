@@ -9,11 +9,11 @@ import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/dialog/recent/recent_dialogs_bloc.dart';
-import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
-import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/blocs/user/create-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
@@ -24,9 +24,6 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/dtos/journey/journey_payload.dart';
 import 'package:zingo/features/app_shell.dart';
-import 'package:zingo/features/auth/screens/login_screen.dart';
-import 'package:zingo/features/auth/screens/register_screen.dart';
-import 'package:zingo/features/auth/screens/welcome_screen.dart';
 import 'package:zingo/features/congrats/streak_congrats_screen.dart';
 import 'package:zingo/features/explore/explore-detail/screens/learn_detail_screen.dart';
 import 'package:zingo/features/explore/screens/learn_screen.dart';
@@ -42,6 +39,9 @@ import 'package:zingo/features/user/screens/user_profile_screen.dart';
 import 'package:zingo/features/user/screens/user_setting_screen.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
+import 'package:zingo/ver_2/ui/auth/login/widgets/login_screen.dart';
+import 'package:zingo/ver_2/ui/auth/register/widgets/register_screen.dart';
+import 'package:zingo/ver_2/ui/welcome/widgets/welcome_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(List<Stream<dynamic>> streams) {

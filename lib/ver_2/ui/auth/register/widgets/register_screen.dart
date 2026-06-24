@@ -12,9 +12,9 @@ import 'package:zingo/blocs/user/get/users_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/auth/login_dto.dart';
-import 'package:zingo/features/auth/widgets/auth_divider.dart';
-import 'package:zingo/features/auth/widgets/login_with_google_button.dart';
 import 'package:zingo/l10n/l10n.dart';
+import 'package:zingo/ver_2/ui/auth/widgets/auth_divider.dart';
+import 'package:zingo/ver_2/ui/auth/widgets/login_with_google_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -228,9 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Text.rich(
                             TextSpan(
                               children: [
-                                TextSpan(
-                                  text: "${l10n.alreadyHaveAccount} ",
-                                ),
+                                TextSpan(text: "${l10n.alreadyHaveAccount} "),
                                 TextSpan(
                                   text: l10n.signIn,
                                   style: Theme.of(
