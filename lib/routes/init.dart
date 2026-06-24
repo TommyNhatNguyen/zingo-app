@@ -34,13 +34,13 @@ import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/features/practice/practice_screen.dart';
 import 'package:zingo/features/splash/splash_screen.dart';
 import 'package:zingo/features/test_screen.dart';
-import 'package:zingo/features/user/screens/user_profile_anonymous_screen.dart';
-import 'package:zingo/features/user/screens/user_profile_screen.dart';
-import 'package:zingo/features/user/screens/user_setting_screen.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
 import 'package:zingo/ver_2/ui/auth/login/widgets/login_screen.dart';
 import 'package:zingo/ver_2/ui/auth/register/widgets/register_screen.dart';
+import 'package:zingo/ver_2/ui/profile-setting/widgets/user_profile_anonymous_screen.dart';
+import 'package:zingo/ver_2/ui/profile-setting/widgets/user_profile_screen.dart';
+import 'package:zingo/ver_2/ui/user-setting/widgets/user_setting_screen.dart';
 import 'package:zingo/ver_2/ui/welcome/widgets/welcome_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
