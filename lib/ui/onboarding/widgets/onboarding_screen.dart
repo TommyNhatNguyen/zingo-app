@@ -201,7 +201,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
         final totalPages = _totalPages;
-        return Scaffold(
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
           body: Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -227,6 +230,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ],
           ),
+        ),
         );
       },
     );
