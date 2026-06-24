@@ -12,6 +12,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'Lingo Snack';
 
   @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
   String get save => 'Save';
 
   @override
@@ -94,16 +100,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailHint => 'Enter your email';
 
   @override
-  String get emailRequired => 'Email is required';
-
-  @override
   String get passwordLabel => 'Password';
 
   @override
   String get passwordHint => 'Enter your password';
-
-  @override
-  String get passwordRequired => 'Password is required';
 
   @override
   String get passwordsDoNotMatch => 'Passwords do not match';

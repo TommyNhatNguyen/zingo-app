@@ -164,6 +164,11 @@ class _MainAppState extends State<MainApp> {
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state.requestStatus == RequestStatus.success &&
+                  state.user == null) {
+                _userConfigurationBloc.add(const UserConfigurationGetReset());
+                return;
+              }
+              if (state.requestStatus == RequestStatus.success &&
                   state.data != null) {
                 final userId = state.data!.id;
                 _userConfigurationBloc.add(

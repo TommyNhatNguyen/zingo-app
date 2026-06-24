@@ -4,6 +4,8 @@
   "appName": "Lingo Snack",
   "@appName": { "description": "App name" },
 
+  "passwordRequired": "Password is required",
+  "emailRequired": "Email is required",
   "save": "Save",
   "saveChanges": "Save changes",
   "cancel": "Cancel",

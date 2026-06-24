@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
+import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/core/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/core/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
@@ -16,6 +17,7 @@ import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/core/blocs/user/get/users_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/update-configuration/user_configuration_update_bloc.dart';
@@ -42,23 +44,72 @@ import 'package:zingo/ui/splash/splash_screen.dart';
 import 'package:zingo/ui/user-setting/widgets/user_setting_screen.dart';
 import 'package:zingo/ui/welcome/widgets/welcome_screen.dart';
 
-class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(List<Stream<dynamic>> streams) {
-    _subscriptions = streams
-        .map((s) => s.listen((_) => notifyListeners()))
-        .toList();
+class RouterRefreshNotifier extends ChangeNotifier {
+  RouterRefreshNotifier({
+    required AuthBloc authBloc,
+    required UserConfigurationGetBloc configBloc,
+  }) {
+    _lastUserId = authBloc.state.user?.uid;
+    _lastHasProfile = configBloc.state.data?.profile != null;
+
+    _authSub = authBloc.stream.listen((AuthState s) {
+      final uid = s.user?.uid;
+      if (uid != _lastUserId) {
+        _lastUserId = uid;
+        notifyListeners();
+      }
+    });
+
+    _configSub = configBloc.stream.listen((UserConfigurationGetState s) {
+      final hasProfile = s.data?.profile != null;
+      if (hasProfile != _lastHasProfile) {
+        _lastHasProfile = hasProfile;
+        notifyListeners();
+      }
+    });
   }
 
-  late final List<StreamSubscription<dynamic>> _subscriptions;
+  StreamSubscription<AuthState>? _authSub;
+  StreamSubscription<UserConfigurationGetState>? _configSub;
+  String? _lastUserId;
+  bool? _lastHasProfile;
 
   @override
   void dispose() {
-    for (final sub in _subscriptions) {
-      sub.cancel();
-    }
+    _authSub?.cancel();
+    _configSub?.cancel();
     super.dispose();
   }
 }
+
+Page<dynamic> _noTransitionPage(LocalKey key, Widget child) =>
+    NoTransitionPage(key: key, child: child);
+
+Page<dynamic> _fadePage(LocalKey key, Widget child) => CustomTransitionPage(
+  key: key,
+  child: child,
+  transitionDuration: const Duration(milliseconds: 300),
+  transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+      FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeIn),
+        child: child,
+      ),
+);
+
+Page<dynamic> _slidePage(LocalKey key, Widget child) => CustomTransitionPage(
+  key: key,
+  child: child,
+  transitionDuration: const Duration(milliseconds: 300),
+  reverseTransitionDuration: const Duration(milliseconds: 250),
+  transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+      SlideTransition(
+        position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic),
+            ),
+        child: child,
+      ),
+);
 
 GoRouter buildRoutes({
   required AuthBloc authBloc,
@@ -72,10 +123,10 @@ GoRouter buildRoutes({
   // initialLocation: '/profile',
   initialLocation: '/welcome',
   // initialLocation: "/home",
-  refreshListenable: GoRouterRefreshStream([
-    authBloc.stream,
-    userConfigurationGetBloc.stream,
-  ]),
+  refreshListenable: RouterRefreshNotifier(
+    authBloc: authBloc,
+    configBloc: userConfigurationGetBloc,
+  ),
   redirect: (context, state) {
     final authState = context.read<AuthBloc>().state;
     final profile = context
@@ -117,19 +168,14 @@ GoRouter buildRoutes({
     return isPublicRoute
         ? isAnonymous
               ? '/welcome'
-              : '/profile'
+              : '/home'
         : null;
   },
   routes: [
-    GoRoute(
-      path: '/test',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(key: state.pageKey, child: TestScreen());
-      },
-    ),
+    GoRoute(path: '/test', builder: (context, state) => TestScreen()),
     GoRoute(
       path: '/practice',
-      pageBuilder: (context, state) {
+      builder: (context, state) {
         final practiceSessionId =
             (state.extra as Map<String, dynamic>?)?['practice_session_id'];
         final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
@@ -138,120 +184,90 @@ GoRouter buildRoutes({
                 as PracticeMode?;
         final dialog =
             (state.extra as Map<String, dynamic>?)?['dialog'] as Dialog?;
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (context) => DialogTurnsListByDialogBloc()
-                  ..add(
-                    DialogTurnsListByDialogFetchEvent(
-                      payload: DialogTurnsByDialogIdPayload(
-                        dialogId:
-                            dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
-                      ),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => DialogTurnsListByDialogBloc()
+                ..add(
+                  DialogTurnsListByDialogFetchEvent(
+                    payload: DialogTurnsByDialogIdPayload(
+                      dialogId:
+                          dialogId ?? '13febbdf-a74c-4904-bc3b-c22bdec6a327',
                     ),
                   ),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    PracticeScreenBloc()..add(PracticeScreenInitializeEvent()),
-              ),
-              BlocProvider(create: (_) => CompletePracticeBloc()),
-            ],
-            child: PracticeScreen(
-              practiceSessionId: practiceSessionId ?? '',
-              dialogId: dialogId ?? '',
-              practiceMode: praceticeMode ?? PracticeMode.readAloud,
-              dialog: dialog,
+                ),
             ),
+            BlocProvider(
+              create: (context) =>
+                  PracticeScreenBloc()..add(PracticeScreenInitializeEvent()),
+            ),
+            BlocProvider(create: (_) => CompletePracticeBloc()),
+          ],
+          child: PracticeScreen(
+            practiceSessionId: practiceSessionId ?? '',
+            dialogId: dialogId ?? '',
+            practiceMode: praceticeMode ?? PracticeMode.readAloud,
+            dialog: dialog,
           ),
         );
       },
     ),
     GoRoute(
       path: '/streak-congrats',
-      pageBuilder: (context, state) {
+      builder: (context, state) {
         final session =
             (state.extra as Map<String, dynamic>?)?['session']
                 as CompletedPracticeSession?;
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: StreakCongratsScreen(session: session),
-        );
+        return StreakCongratsScreen(session: session);
       },
     ),
     GoRoute(
       path: '/splash',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: const SplashScreen(),
-        );
-      },
+      pageBuilder: (context, state) =>
+          _noTransitionPage(state.pageKey, const SplashScreen()),
     ),
     GoRoute(
       path: '/onboarding',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: const OnboardingScreen(),
-        );
-      },
+      pageBuilder: (context, state) =>
+          _fadePage(state.pageKey, const OnboardingScreen()),
     ),
     GoRoute(
       path: '/welcome',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: const WelcomeScreen(),
-        );
-      },
+      pageBuilder: (context, state) =>
+          _noTransitionPage(state.pageKey, const WelcomeScreen()),
     ),
     GoRoute(
       path: '/login',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(key: state.pageKey, child: const LoginScreen());
-      },
+      pageBuilder: (context, state) =>
+          _noTransitionPage(state.pageKey, const LoginScreen()),
     ),
     GoRoute(
       path: '/register',
-      pageBuilder: (context, state) {
-        return NoTransitionPage(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => UsersBloc(),
-            child: const RegisterScreen(),
-          ),
-        );
-      },
+      pageBuilder: (context, state) => _noTransitionPage(
+        state.pageKey,
+        BlocProvider(create: (_) => UsersBloc(), child: const RegisterScreen()),
+      ),
     ),
     // ── Main tabs (with bottom nav) ──────────────────────────────────────────
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          AppShell(navigationShell: navigationShell),
+      pageBuilder: (context, state, navigationShell) =>
+          _fadePage(state.pageKey, AppShell(navigationShell: navigationShell)),
       branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/home',
-              pageBuilder: (context, state) {
-                return NoTransitionPage(
-                  key: state.pageKey,
-                  child: BlocProvider(
-                    create: (context) => JourneyBloc()
-                      ..add(
-                        JourneyFetchEvent(
-                          payload: JourneyPayload(
-                            user_id:
-                                context.read<AuthBloc>().state.data?.id ?? '',
-                          ),
-                        ),
+              builder: (context, state) => BlocProvider(
+                create: (context) => JourneyBloc()
+                  ..add(
+                    JourneyFetchEvent(
+                      payload: JourneyPayload(
+                        user_id: context.read<AuthBloc>().state.data?.id ?? '',
                       ),
-                    child: const HomeScreen(),
+                    ),
                   ),
-                );
-              },
+                child: const HomeScreen(),
+              ),
             ),
           ],
         ),
@@ -259,21 +275,16 @@ GoRouter buildRoutes({
           routes: [
             GoRoute(
               path: '/learn',
-              pageBuilder: (context, state) {
-                return NoTransitionPage(
-                  key: state.pageKey,
-                  child: MultiBlocProvider(
-                    providers: [
-                      BlocProvider(create: (_) => DialogListBloc()),
-                      BlocProvider(create: (_) => ListActiveDialogsBloc()),
-                      BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
-                      BlocProvider(create: (_) => RecommendationsListBloc()),
-                      BlocProvider(create: (_) => RecentDialogsBloc()),
-                    ],
-                    child: const LearnScreen(),
-                  ),
-                );
-              },
+              builder: (context, state) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(create: (_) => DialogListBloc()),
+                  BlocProvider(create: (_) => ListActiveDialogsBloc()),
+                  BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
+                  BlocProvider(create: (_) => RecommendationsListBloc()),
+                  BlocProvider(create: (_) => RecentDialogsBloc()),
+                ],
+                child: const LearnScreen(),
+              ),
             ),
           ],
         ),
@@ -281,18 +292,15 @@ GoRouter buildRoutes({
           routes: [
             GoRoute(
               path: '/profile',
-              pageBuilder: (context, state) {
+              builder: (context, state) {
                 final authUserData = context.read<AuthBloc>().state.user;
                 final isAnonymous = authUserData?.isAnonymous ?? true;
-                return NoTransitionPage(
-                  key: state.pageKey,
-                  child: isAnonymous
-                      ? const UserProfileAnonymousScreen()
-                      : BlocProvider(
-                          create: (_) => UserConfigurationUpdateBloc(),
-                          child: const UserProfileScreen(),
-                        ),
-                );
+                return isAnonymous
+                    ? const UserProfileAnonymousScreen()
+                    : BlocProvider(
+                        create: (_) => UserConfigurationUpdateBloc(),
+                        child: const UserProfileScreen(),
+                      );
               },
             ),
           ],

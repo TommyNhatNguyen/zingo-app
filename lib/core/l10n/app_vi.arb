@@ -3,6 +3,8 @@
 
   "appName": "Lingo Snack",
 
+  "passwordRequired": "Vui lòng nhập mật khẩu",
+  "emailRequired": "Email là bắt buộc",
   "save": "Lưu",
   "saveChanges": "Lưu thay đổi",
   "cancel": "Hủy",

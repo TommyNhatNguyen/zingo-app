@@ -47,8 +47,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
         }
         if (state.requestStatus == RequestStatus.success &&
             state.user != null &&
-            (state.user?.isAnonymous ?? true) &&
-            !hasProfile) {
+            (state.user?.isAnonymous ?? true)) {
           setState(() => _isLoggingIn = false);
           context.go('/onboarding');
         }

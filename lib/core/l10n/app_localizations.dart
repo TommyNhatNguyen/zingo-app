@@ -106,6 +106,18 @@ abstract class AppLocalizations {
   /// **'Lingo Snack'**
   String get appName;
 
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequired;
+
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
@@ -268,12 +280,6 @@ abstract class AppLocalizations {
   /// **'Enter your email'**
   String get emailHint;
 
-  /// No description provided for @emailRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Email is required'**
-  String get emailRequired;
-
   /// No description provided for @passwordLabel.
   ///
   /// In en, this message translates to:
@@ -285,12 +291,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your password'**
   String get passwordHint;
-
-  /// No description provided for @passwordRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Password is required'**
-  String get passwordRequired;
 
   /// No description provided for @passwordsDoNotMatch.
   ///

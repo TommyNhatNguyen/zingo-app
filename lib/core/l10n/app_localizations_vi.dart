@@ -12,6 +12,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get appName => 'Lingo Snack';
 
   @override
+  String get passwordRequired => 'Mật khẩu là bắt buộc';
+
+  @override
+  String get emailRequired => 'Email là bắt buộc';
+
+  @override
   String get save => 'Lưu';
 
   @override
@@ -94,16 +100,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get emailHint => 'Nhập email';
 
   @override
-  String get emailRequired => 'Email là bắt buộc';
-
-  @override
   String get passwordLabel => 'Mật khẩu';
 
   @override
   String get passwordHint => 'Nhập mật khẩu';
-
-  @override
-  String get passwordRequired => 'Mật khẩu là bắt buộc';
 
   @override
   String get passwordsDoNotMatch => 'Mật khẩu không khớp';
