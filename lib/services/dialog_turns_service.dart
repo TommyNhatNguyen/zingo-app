@@ -8,9 +8,7 @@ class DialogTurnsService {
     DialogTurnsByDialogIdPayload payload,
   ) async {
     try {
-      final response = await dio.get(
-        '/v1/dialog-turns/${payload.dialogId}/turns',
-      );
+      final response = await dio.get('/v1/dialogs/${payload.dialogId}/turns');
       final result = ApiResponse.fromJson(response.data);
       if (result.success) {
         final data = result.data as List<dynamic>?;

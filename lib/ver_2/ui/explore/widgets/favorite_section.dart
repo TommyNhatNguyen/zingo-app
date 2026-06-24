@@ -9,8 +9,8 @@ import 'package:zingo/blocs/user/list-favorite-dialogs/list_favorite_dialogs_sta
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
-import 'package:zingo/features/explore/widgets/empty_section.dart';
-import 'package:zingo/features/explore/widgets/topic_card.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/empty_section.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/topic_card.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class FavoriteSection extends StatefulWidget {

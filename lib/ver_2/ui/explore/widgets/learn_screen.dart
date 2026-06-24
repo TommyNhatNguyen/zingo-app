@@ -11,9 +11,9 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
-import 'package:zingo/features/explore/widgets/continue_practice_section.dart';
-import 'package:zingo/features/explore/widgets/favorite_section.dart';
-import 'package:zingo/features/explore/widgets/recommendation_section.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/continue_practice_section.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/favorite_section.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/recommendation_section.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class LearnScreen extends StatefulWidget {

@@ -352,7 +352,7 @@ class ApiClientService {
   ) async {
     try {
       final response = await _httpClient.get(
-        '/v1/dialog-turns/${payload.dialogId}/turns',
+        '/v1/dialogs/${payload.dialogId}/turns',
       );
       final result = ApiResponse.fromJson(response.data);
       if (result.success) {

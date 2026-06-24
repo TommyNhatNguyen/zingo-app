@@ -9,13 +9,13 @@ import 'package:zingo/blocs/dialog/detail/dialog_detail_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_detail_payload.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_scoring.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/dialog_detail_title.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/learn_detail_app_bar.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_form.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/practice_mode_preview.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/start_practice_button.dart';
-import 'package:zingo/features/explore/explore-detail/widgets/youll_be_scored_on.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/dialog_detail_scoring.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/dialog_detail_title.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/learn_detail_app_bar.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/practice_mode_form.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/practice_mode_preview.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/start_practice_button.dart';
+import 'package:zingo/ver_2/ui/explore-detail/widgets/youll_be_scored_on.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class LearnDetailScreen extends StatefulWidget {

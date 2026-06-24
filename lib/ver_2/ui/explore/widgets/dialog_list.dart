@@ -6,7 +6,7 @@ import 'package:zingo/blocs/dialog/list/dialog_list_event.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/dialog/dialog_list_payload.dart';
-import 'package:zingo/features/explore/widgets/topic_card.dart';
+import 'package:zingo/ver_2/ui/explore/widgets/topic_card.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class DialogList extends StatefulWidget {
