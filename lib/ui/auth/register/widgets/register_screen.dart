@@ -108,10 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context, state) {
           final isLoading =
               state.requestStatus == RequestStatus.loading || _isRegistering;
-          return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: Scaffold(
+          return Scaffold(
             appBar: AppBar(backgroundColor: AppColors.background),
             body: SingleChildScrollView(
               child: SafeArea(
@@ -272,7 +269,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ),
-          ),
           );
         },
       ),

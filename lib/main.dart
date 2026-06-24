@@ -229,8 +229,16 @@ class _MainAppState extends State<MainApp> {
               theme: AppTheme.light,
               routerConfig: _router,
               locale: locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              localizationsDelegates:
+                  AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
+              builder: (context, child) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                  child: child,
+                );
+              },
             );
           },
         ),

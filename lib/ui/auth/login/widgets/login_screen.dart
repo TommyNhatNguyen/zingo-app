@@ -73,10 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Scaffold(
+        return Scaffold(
           appBar: AppBar(backgroundColor: AppColors.background),
           body: SingleChildScrollView(
             child: SafeArea(
@@ -165,7 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-        ),
         );
       },
     );
