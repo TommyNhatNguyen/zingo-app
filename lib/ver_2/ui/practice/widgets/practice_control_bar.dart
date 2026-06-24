@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/config/app_colors.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_state.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class PracticeControlBar extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/constants/topics.dart';
-import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/profile_page.dart';
 import 'package:zingo/widgets/card_select.dart';
 
 class InterestTopicsPage extends StatefulWidget {

@@ -12,12 +12,12 @@ import 'package:zingo/constants/languages.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/constants/topics.dart';
 import 'package:zingo/dtos/user-profile/user_profile_create_dto.dart';
-import 'package:zingo/features/onboarding/widgets/daily_goal_page.dart';
-import 'package:zingo/features/onboarding/widgets/display_name_page.dart';
-import 'package:zingo/features/onboarding/widgets/english_level_page.dart';
-import 'package:zingo/features/onboarding/widgets/interest_topics_page.dart';
-import 'package:zingo/features/onboarding/widgets/native_language_page.dart';
-import 'package:zingo/features/onboarding/widgets/reminder_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/daily_goal_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/display_name_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/english_level_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/interest_topics_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/native_language_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/reminder_page.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {

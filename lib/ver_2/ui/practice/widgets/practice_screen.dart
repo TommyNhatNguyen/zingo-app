@@ -22,17 +22,17 @@ import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/practice-sessions/complete_session_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/dialog_turn.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_bloc.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_state.dart';
-import 'package:zingo/features/practice/widgets/ai_message.dart';
-import 'package:zingo/features/practice/widgets/practice_control_bar.dart';
-import 'package:zingo/features/practice/widgets/user_message.dart';
 import 'package:zingo/utils/cache_service.dart';
 import 'package:zingo/utils/matching_text_service.dart';
 import 'package:zingo/utils/speech_to_text_service.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/utils/debounce_util.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_bloc.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_event.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/ver_2/ui/practice/widgets/ai_message.dart';
+import 'package:zingo/ver_2/ui/practice/widgets/practice_control_bar.dart';
+import 'package:zingo/ver_2/ui/practice/widgets/user_message.dart';
 
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({

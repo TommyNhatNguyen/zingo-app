@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_event.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_state.dart';
 
 class PracticeScreenBloc
     extends Bloc<PracticeScreenEvent, PracticeScreenViewState> {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/profile_page.dart';
 import 'package:zingo/l10n/l10n.dart';
 
 class DisplayNamePage extends StatelessWidget {

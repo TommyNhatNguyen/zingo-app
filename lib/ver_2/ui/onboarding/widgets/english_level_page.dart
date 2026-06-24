@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/profile_page.dart';
 
 class EnglishLevelPage extends StatelessWidget {
   const EnglishLevelPage({

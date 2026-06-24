@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:zingo/models/dialog_turn.dart';
-import 'package:zingo/features/practice/blocs/practice_screen_view_state.dart';
+import 'package:zingo/ver_2/ui/practice/blocs/practice_screen_view_state.dart';
 
 class PracticeScreenEvent extends Equatable {
   const PracticeScreenEvent();

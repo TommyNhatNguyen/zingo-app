@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/practice_goal.dart';
-import 'package:zingo/features/onboarding/widgets/profile_page.dart';
+import 'package:zingo/ver_2/ui/onboarding/widgets/profile_page.dart';
 
 class DailyGoalPage extends StatefulWidget {
   const DailyGoalPage({super.key, this.selectedGoal, required this.onSelect});
