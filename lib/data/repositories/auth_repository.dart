@@ -14,8 +14,8 @@ class AuthRepository {
   AuthRepository({
     required FirebaseAuthService firebaseAuthService,
     required ApiClientService apiClientService,
-  })  : _firebaseAuthService = firebaseAuthService,
-        _apiClientService = apiClientService;
+  }) : _firebaseAuthService = firebaseAuthService,
+       _apiClientService = apiClientService;
 
   Future<User?> loginWithEmailAndPassword(LoginDto payload) {
     return _firebaseAuthService.loginWithEmailAndPassword(payload);
@@ -29,7 +29,7 @@ class AuthRepository {
     return _firebaseAuthService.loginWithAnonymous();
   }
 
-  Future<Result<Users>> getUserByUid() {
+  Future<Result<Users?>> getUserByUid() {
     return _apiClientService.getUserByUid();
   }
 
@@ -43,5 +43,9 @@ class AuthRepository {
     UsersCreateFromAnonymousDto payload,
   ) {
     return _apiClientService.registerWithAnonymous(payload);
+  }
+
+  Future<void> logout() {
+    return _firebaseAuthService.logout();
   }
 }

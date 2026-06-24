@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/ui/welcome/widgets/login_with_anonymous_button.dart';
 import 'package:zingo/ui/core/ui/logo_info.dart';
+import 'package:zingo/ui/welcome/widgets/login_with_anonymous_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -26,7 +26,6 @@ class WelcomeScreen extends StatelessWidget {
                 onPressed: () => context.push('/login'),
                 child: Text(l10n.signIn),
               ),
-              const SizedBox(height: 32),
             ],
           ),
         ),

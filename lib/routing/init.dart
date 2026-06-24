@@ -15,7 +15,6 @@ import 'package:zingo/core/blocs/practice-sessions/start-practice/start_practice
 import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
-import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get/users_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
@@ -191,10 +190,7 @@ GoRouter buildRoutes({
       pageBuilder: (context, state) {
         return NoTransitionPage(
           key: state.pageKey,
-          child: BlocProvider(
-            create: (context) => UserProfileCreateBloc(),
-            child: const OnboardingScreen(),
-          ),
+          child: const OnboardingScreen(),
         );
       },
     ),

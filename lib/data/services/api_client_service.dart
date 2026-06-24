@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:zingo/data/model/api_error.dart';
+import 'package:zingo/data/model/api_response.dart';
+import 'package:zingo/data/model/result.dart';
 import 'package:zingo/domain/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_detail_payload.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_list_payload.dart';
@@ -17,7 +20,6 @@ import 'package:zingo/domain/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/domain/dtos/users/users_create_from_login_google_dto.dart';
 import 'package:zingo/domain/dtos/users/users_favorite_dialog_dto.dart';
 import 'package:zingo/domain/dtos/users/users_update_dto.dart';
-import 'package:zingo/data/model/api_response.dart';
 import 'package:zingo/domain/models/completed_practice_session.dart';
 import 'package:zingo/domain/models/dialog.dart';
 import 'package:zingo/domain/models/dialog_turn.dart';
@@ -28,8 +30,6 @@ import 'package:zingo/domain/models/user_dialog_favorite.dart';
 import 'package:zingo/domain/models/user_profile.dart';
 import 'package:zingo/domain/models/user_streak.dart';
 import 'package:zingo/domain/models/users.dart';
-import 'package:zingo/data/model/api_error.dart';
-import 'package:zingo/data/model/result.dart';
 
 typedef JourneyResult = ({List<JourneyChapter> chapters, PaginationMeta meta});
 
@@ -75,12 +75,14 @@ class ApiClientService {
 
   // --- User ---
 
-  Future<Result<Users>> getUserByUid() async {
+  Future<Result<Users?>> getUserByUid() async {
     try {
       final response = await _httpClient.get('/v1/user');
       final result = ApiResponse.fromJson(response.data);
       if (result.success) {
-        return Result.ok(Users.fromJson(result.data));
+        return Result.ok(
+          result.data == null ? null : Users.fromJson(result.data),
+        );
       } else {
         return Result.error(Exception(result.error));
       }

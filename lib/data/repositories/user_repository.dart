@@ -14,7 +14,7 @@ class UserRepository {
   const UserRepository({required ApiClientService apiClientService})
       : _apiClientService = apiClientService;
 
-  Future<Result<Users>> getUserByUid() {
+  Future<Result<Users?>> getUserByUid() {
     return _apiClientService.getUserByUid();
   }
 

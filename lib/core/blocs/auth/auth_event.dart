@@ -33,9 +33,9 @@ class AuthLoginWithAnonymous extends AuthEvent {
 }
 
 class AuthStateChanged extends AuthEvent {
-  final User user;
+  final User? user;
 
-  const AuthStateChanged({required this.user});
+  const AuthStateChanged({this.user});
 
   @override
   List<Object?> get props => [user];

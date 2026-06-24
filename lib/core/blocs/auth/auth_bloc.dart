@@ -3,11 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zingo/core/blocs/auth/auth_event.dart';
 import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/constants/enums.dart';
-import 'package:zingo/core/network/dio_http.dart';
 import 'package:zingo/data/model/result.dart';
 import 'package:zingo/data/repositories/auth_repository.dart';
-import 'package:zingo/data/services/api_client_service.dart';
-import 'package:zingo/data/services/firebase_auth_service.dart';
 import 'package:zingo/domain/dtos/users/users_create_from_anonymous_dto.dart';
 import 'package:zingo/domain/dtos/users/users_create_from_login_google_dto.dart';
 
@@ -16,20 +13,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Stream<User?> _authStateStream = FirebaseAuth.instance
       .authStateChanges();
 
-  AuthBloc({AuthRepository? authRepository})
-      : _authRepository = authRepository ??
-            AuthRepository(
-              firebaseAuthService: FirebaseAuthService(),
-              apiClientService: ApiClientService(httpClient: dio),
-            ),
-        super(AuthState.initial()) {
+  AuthBloc({required AuthRepository authRepository})
+    : _authRepository = authRepository,
+      super(AuthState.initial()) {
     _authStateStream.listen((user) {
-      if (user != null) {
+      final isAuthenticated = state.user != null;
+      if (isAuthenticated && user == null) {
+        add(AuthLoggedOut());
+      } else if (!isAuthenticated && user != null) {
         add(AuthStateChanged(user: user));
       }
     });
 
     on<AuthLoggedOut>((event, emit) async {
+      emit(state.copyWith(requestStatus: RequestStatus.loading));
       // Already logged out, do nothing
       if (FirebaseAuth.instance.currentUser == null) {
         emit(AuthState.loggedOut());
@@ -37,11 +34,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       // Log out the user
       try {
-        await FirebaseAuth.instance.signOut();
-        emit(AuthState.loggedOut());
+        await _authRepository.logout();
       } catch (e) {
         emit(
           state.copyWith(
+            user: null,
+            data: null,
             requestStatus: RequestStatus.error,
             error: e.toString(),
           ),
@@ -64,11 +62,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ),
           );
         case Error(:final error):
-          // Keep user set so the router doesn't kick authenticated users to /welcome.
           emit(
             state.copyWith(
               requestStatus: RequestStatus.error,
               user: event.user,
+              data: null,
               error: error.toString(),
             ),
           );
@@ -77,7 +75,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             state.copyWith(
               requestStatus: RequestStatus.error,
               user: event.user,
-              error: error.error.detail,
+              data: null,
+              error: error.error.title,
             ),
           );
       }
@@ -100,18 +99,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   user: user,
                 ),
               );
-            case Error():
+            case Error(:final error):
               emit(
                 state.copyWith(
                   requestStatus: RequestStatus.success,
+                  data: null,
                   user: user,
+                  error: error.toString(),
                 ),
               );
-            case ErrorAPI():
+            case ErrorAPI(:final error):
               emit(
                 state.copyWith(
                   requestStatus: RequestStatus.success,
+                  data: null,
                   user: user,
+                  error: error.error.title,
                 ),
               );
           }
@@ -120,7 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(
           state.copyWith(requestStatus: RequestStatus.error, error: e.message),
         );
-      } catch (e) {
+      } on Exception catch (e) {
         emit(
           state.copyWith(
             requestStatus: RequestStatus.error,
@@ -156,26 +159,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                 state.copyWith(
                   requestStatus: RequestStatus.error,
                   error: error.toString(),
+                  user: null,
+                  data: null,
                 ),
               );
             case ErrorAPI(:final error):
               emit(
                 state.copyWith(
                   requestStatus: RequestStatus.error,
-                  error: error.error.detail,
+                  error: error.error.title,
+                  data: null,
+                  user: null,
                 ),
               );
           }
         }
       } on FirebaseException catch (e) {
         emit(
-          state.copyWith(requestStatus: RequestStatus.error, error: e.message),
+          state.copyWith(
+            requestStatus: RequestStatus.error,
+            error: e.message,
+            user: null,
+            data: null,
+          ),
         );
-      } catch (e) {
+      } on Exception catch (e) {
         emit(
           state.copyWith(
             requestStatus: RequestStatus.error,
             error: e.toString(),
+            user: null,
+            data: null,
           ),
         );
       }
@@ -203,26 +217,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                 state.copyWith(
                   requestStatus: RequestStatus.error,
                   error: error.toString(),
+                  user: null,
+                  data: null,
                 ),
               );
             case ErrorAPI(:final error):
               emit(
                 state.copyWith(
                   requestStatus: RequestStatus.error,
-                  error: error.error.detail,
+                  error: error.error.title,
+                  user: null,
+                  data: null,
                 ),
               );
           }
         }
       } on FirebaseException catch (e) {
         emit(
-          state.copyWith(requestStatus: RequestStatus.error, error: e.message),
+          state.copyWith(
+            requestStatus: RequestStatus.error,
+            error: e.message,
+            user: null,
+            data: null,
+          ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             requestStatus: RequestStatus.error,
             error: e.toString(),
+            user: null,
+            data: null,
           ),
         );
       }

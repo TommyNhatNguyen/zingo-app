@@ -8,7 +8,7 @@ class ApiResponse {
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
     return ApiResponse(
       success: json['success'] ?? false,
-      data: json['data'],
+      data: json['data'] ,
       error: json['error'],
     );
   }

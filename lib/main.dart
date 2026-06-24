@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -11,19 +10,22 @@ import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/locale/locale_cubit.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_event.dart';
+import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
+import 'package:zingo/core/blocs/user/create-profile/user_profile_create_state.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_event.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_event.dart';
-import 'package:zingo/ui/core/themes/app_theme.dart';
-import 'package:zingo/core/network/dio_http.dart';
 import 'package:zingo/core/constants/enums.dart';
-import 'package:zingo/domain/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/core/l10n/app_localizations.dart';
+import 'package:zingo/core/network/dio_http.dart';
+import 'package:zingo/data/repositories/auth_repository.dart';
+import 'package:zingo/data/services/api_client_service.dart';
+import 'package:zingo/data/services/firebase_auth_service.dart';
+import 'package:zingo/domain/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/routing/init.dart';
-import 'package:zingo/data/model/api_error.dart';
-import 'package:zingo/data/model/result.dart';
+import 'package:zingo/ui/core/themes/app_theme.dart';
 
 import 'firebase_options.dart';
 
@@ -79,23 +81,29 @@ class _MainAppState extends State<MainApp> {
   late final UserStreakGetBloc _userStreakGetBloc;
   late final LocaleCubit _localeCubit;
   late final GoRouter _router;
+  late final UserProfileCreateBloc _userProfileCreateBloc;
 
   @override
   void initState() {
     super.initState();
-    _authBloc = AuthBloc();
+    _authBloc = AuthBloc(
+      authRepository: AuthRepository(
+        firebaseAuthService: FirebaseAuthService(),
+        apiClientService: ApiClientService(httpClient: dio),
+      ),
+    );
     _speechToTextBloc = SpeechToTextBloc()
       ..add(const SpeechToTextInitializeEvent());
     _userConfigurationBloc = UserConfigurationGetBloc();
     _userStreakGetBloc = UserStreakGetBloc();
     _localeCubit = LocaleCubit();
+    _userProfileCreateBloc = UserProfileCreateBloc();
     _router = buildRoutes(
       authBloc: _authBloc,
       userConfigurationGetBloc: _userConfigurationBloc,
     );
     setupInteractedMessage();
   }
-
 
   // It is assumed that all messages contain a data field with the key 'type'
   Future<void> setupInteractedMessage() async {
@@ -148,6 +156,7 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _userConfigurationBloc),
         BlocProvider.value(value: _userStreakGetBloc),
         BlocProvider.value(value: _localeCubit),
+        BlocProvider.value(value: _userProfileCreateBloc),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -157,6 +166,25 @@ class _MainAppState extends State<MainApp> {
               if (state.requestStatus == RequestStatus.success &&
                   state.data != null) {
                 final userId = state.data!.id;
+                _userConfigurationBloc.add(
+                  UserConfigurationGetFetched(userId: userId),
+                );
+                _userStreakGetBloc.add(
+                  UserStreakGetFetched(
+                    payload: GetUserStreakPayload(
+                      user_id: userId,
+                      year: DateTime.now().year,
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+          BlocListener<UserProfileCreateBloc, UserProfileCreateState>(
+            listener: (context, state) {
+              if (state.requestStatus == RequestStatus.success &&
+                  state.data != null) {
+                final userId = state.data!.user_id;
                 _userConfigurationBloc.add(
                   UserConfigurationGetFetched(userId: userId),
                 );
