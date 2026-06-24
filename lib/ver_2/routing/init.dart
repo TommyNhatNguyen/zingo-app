@@ -9,11 +9,11 @@ import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_
 import 'package:zingo/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
 import 'package:zingo/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/blocs/dialog/recent/recent_dialogs_bloc.dart';
-import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
-import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/practice-sessions/complete-practice/complete_practice_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_bloc.dart';
+import 'package:zingo/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/blocs/user/create-profile/user_profile_create_bloc.dart';
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.dart';
@@ -27,22 +27,22 @@ import 'package:zingo/features/app_shell.dart';
 import 'package:zingo/features/congrats/streak_congrats_screen.dart';
 import 'package:zingo/features/explore/explore-detail/screens/learn_detail_screen.dart';
 import 'package:zingo/features/explore/screens/learn_screen.dart';
-import 'package:zingo/features/home/screens/home_screen.dart';
 import 'package:zingo/features/onboarding/screens/onboarding_screen.dart';
 import 'package:zingo/features/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/features/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/features/practice/practice_screen.dart';
-import 'package:zingo/features/splash/splash_screen.dart';
 import 'package:zingo/features/test_screen.dart';
-import 'package:zingo/features/user/screens/user_profile_anonymous_screen.dart';
-import 'package:zingo/features/user/screens/user_profile_screen.dart';
-import 'package:zingo/features/user/screens/user_setting_screen.dart';
 import 'package:zingo/models/completed_practice_session.dart';
 import 'package:zingo/models/dialog.dart';
 import 'package:zingo/ver_2/ui/auth/login/widgets/login_screen.dart';
 import 'package:zingo/ver_2/ui/auth/register/widgets/register_screen.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_screen.dart';
+import 'package:zingo/ver_2/ui/profile-setting/widgets/user_profile_anonymous_screen.dart';
+import 'package:zingo/ver_2/ui/profile-setting/widgets/user_profile_screen.dart';
+import 'package:zingo/ver_2/ui/splash/splash_screen.dart';
+import 'package:zingo/ver_2/ui/user-setting/widgets/user_setting_screen.dart';
 import 'package:zingo/ver_2/ui/welcome/widgets/welcome_screen.dart';
-  
+
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(List<Stream<dynamic>> streams) {
     _subscriptions = streams

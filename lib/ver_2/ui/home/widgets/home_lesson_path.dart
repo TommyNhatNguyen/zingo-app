@@ -5,10 +5,10 @@ import 'package:zingo/blocs/recommendations/journey/journey_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/config/app_text_styles.dart';
 import 'package:zingo/constants/enums.dart';
-import 'package:zingo/features/home/widgets/home_lesson.dart';
-import 'package:zingo/features/home/widgets/home_lesson_widgets.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/journey.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_lesson.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_lesson_widgets.dart';
 
 class HomeLessonPath extends StatelessWidget {
   const HomeLessonPath({super.key});

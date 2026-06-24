@@ -8,9 +8,9 @@ import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.d
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/enums.dart';
 import 'package:zingo/dtos/journey/journey_payload.dart';
-import 'package:zingo/features/home/widgets/home_greeting_row.dart';
-import 'package:zingo/features/home/widgets/home_lesson_path.dart';
-import 'package:zingo/features/home/widgets/home_streak_card.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_greeting_row.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_lesson_path.dart';
+import 'package:zingo/ver_2/ui/home/widgets/home_streak_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
