@@ -60,16 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
       //     current.data != null &&
       //     previous.requestStatus != RequestStatus.success,
       listener: (context, state) {
-        if (state.data != null &&
-            state.requestStatus == RequestStatus.success) {
-          Toastification().show(
-            context: context,
-            type: ToastificationType.success,
-            style: ToastificationStyle.flat,
-            title: Text(l10n.signIn),
-            autoCloseDuration: const Duration(seconds: 4),
-          );
-        }
         if (state.requestStatus == RequestStatus.error) {
           Toastification().show(
             context: context,

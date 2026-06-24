@@ -45,6 +45,8 @@
   "registrationSuccessTitle": "Vamos começar!",
   "registrationSuccessDesc": "Configure seu perfil para iniciar sua jornada de aprendizado de inglês",
   "registrationFailed": "Falha no cadastro",
+  "welcomeLearnerTitle": "Bem-vindo, aprendiz!",
+  "welcomeLearnerDesc": "Conte-nos mais sobre você para sugerirmos a melhor rota de aprendizado",
   "signInWithGoogle": "Entrar com Google",
   "orGetStartedWith": "Ou continue com",
   "startNow": "Começar agora",

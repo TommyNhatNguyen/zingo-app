@@ -134,6 +134,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registrationFailed => 'Registration failed';
 
   @override
+  String get welcomeLearnerTitle => 'Welcome, learner!';
+
+  @override
+  String get welcomeLearnerDesc =>
+      'Let us know more about you to suggest the best learning route for you';
+
+  @override
   String get signInWithGoogle => 'Sign in with Google';
 
   @override

@@ -134,6 +134,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registrationFailed => 'Falha no cadastro';
 
   @override
+  String get welcomeLearnerTitle => 'Bem-vindo, aprendiz!';
+
+  @override
+  String get welcomeLearnerDesc =>
+      'Conte-nos mais sobre você para sugerirmos a melhor rota de aprendizado';
+
+  @override
   String get signInWithGoogle => 'Entrar com Google';
 
   @override

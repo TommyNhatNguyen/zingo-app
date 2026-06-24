@@ -134,6 +134,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get registrationFailed => 'Đăng ký thất bại';
 
   @override
+  String get welcomeLearnerTitle => 'Chào mừng bạn học viên!';
+
+  @override
+  String get welcomeLearnerDesc =>
+      'Hãy cho chúng tôi biết thêm về bạn để gợi ý lộ trình học tốt nhất';
+
+  @override
   String get signInWithGoogle => 'Đăng nhập với Google';
 
   @override

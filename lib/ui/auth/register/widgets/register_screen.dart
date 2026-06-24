@@ -81,14 +81,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         BlocListener<UsersBloc, UsersState>(
           listener: (context, state) {
             if (state.requestStatus == RequestStatus.success) {
-              Toastification().show(
-                context: context,
-                type: ToastificationType.success,
-                style: ToastificationStyle.flat,
-                title: Text(l10n.registrationSuccessTitle),
-                description: Text(l10n.registrationSuccessDesc),
-                autoCloseDuration: const Duration(seconds: 4),
-              );
               context.read<AuthBloc>().add(
                 AuthLoginWithEmailAndPassword(
                   payload: LoginDto(

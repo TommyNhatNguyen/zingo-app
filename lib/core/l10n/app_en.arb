@@ -48,6 +48,8 @@
   "registrationSuccessTitle": "Let's get you started!",
   "registrationSuccessDesc": "Set your profile to start your English learning journey",
   "registrationFailed": "Registration failed",
+  "welcomeLearnerTitle": "Welcome, learner!",
+  "welcomeLearnerDesc": "Let us know more about you to suggest the best learning route for you",
   "signInWithGoogle": "Sign in with Google",
   "orGetStartedWith": "Or get started with",
   "startNow": "Start now",

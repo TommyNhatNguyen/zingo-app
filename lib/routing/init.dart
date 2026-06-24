@@ -62,7 +62,8 @@ class RouterRefreshNotifier extends ChangeNotifier {
 
     _configSub = configBloc.stream.listen((UserConfigurationGetState s) {
       final hasProfile = s.data?.profile != null;
-      final configJustLoaded = s.requestStatus == RequestStatus.success &&
+      final configJustLoaded =
+          s.requestStatus == RequestStatus.success &&
           _lastConfigStatus != RequestStatus.success;
       _lastConfigStatus = s.requestStatus;
       if (hasProfile != _lastHasProfile ||
@@ -126,7 +127,8 @@ GoRouter buildRoutes({
   // initialLocation: '/learn/13febbdf-a74c-4904-bc3b-c22bdec6a327',
   // initialLocation: '/practice',
   // initialLocation: '/profile',
-  initialLocation: '/welcome',
+  // initialLocation: '/welcome',
+  initialLocation: '/splash',
   // initialLocation: "/home",
   refreshListenable: RouterRefreshNotifier(
     authBloc: authBloc,
@@ -170,8 +172,10 @@ GoRouter buildRoutes({
       if (!isPublicRoute) return '/welcome';
       // Non-anonymous user on a public route: wait for config to confirm no
       // profile before sending to onboarding (avoids redirect before fetch).
-      final configStatus =
-          context.read<UserConfigurationGetBloc>().state.requestStatus;
+      final configStatus = context
+          .read<UserConfigurationGetBloc>()
+          .state
+          .requestStatus;
       if (configStatus == RequestStatus.success) return '/onboarding';
       return null;
     }

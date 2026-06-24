@@ -28,6 +28,22 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: Text(context.l10n.welcomeLearnerTitle),
+        description: Text(context.l10n.welcomeLearnerDesc),
+        autoCloseDuration: const Duration(seconds: 5),
+      );
+    });
+  }
   Language? _selectedLanguage;
   PracticeGoal? _selectedDailyGoal = PracticeGoal.all.first;
   EnglishLevel? _selectedEnglishLevel;

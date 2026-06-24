@@ -346,6 +346,18 @@ abstract class AppLocalizations {
   /// **'Registration failed'**
   String get registrationFailed;
 
+  /// No description provided for @welcomeLearnerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, learner!'**
+  String get welcomeLearnerTitle;
+
+  /// No description provided for @welcomeLearnerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Let us know more about you to suggest the best learning route for you'**
+  String get welcomeLearnerDesc;
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:
