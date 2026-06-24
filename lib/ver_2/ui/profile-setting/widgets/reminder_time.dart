@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/constants/notification_time.dart';
-import 'package:zingo/widgets/card_select.dart';
-import 'package:zingo/widgets/pickers/time_picker.dart';
+import 'package:zingo/ver_2/ui/core/ui/card_select.dart';
+import 'package:zingo/ver_2/ui/core/ui/pickers/time_picker.dart';
 
 class ReminderTime extends StatelessWidget {
   const ReminderTime({

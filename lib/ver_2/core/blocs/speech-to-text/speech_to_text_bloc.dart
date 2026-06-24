@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/blocs/speech-to-text/speech_to_text_state.dart';
-import 'package:zingo/utils/speech_to_text_service.dart';
+import 'package:zingo/ver_2/utils/speech_to_text_service.dart';
 
 class SpeechToTextBloc extends Bloc<SpeechToTextEvent, SpeechToTextState> {
   SpeechToTextBloc() : super(const SpeechToTextState()) {

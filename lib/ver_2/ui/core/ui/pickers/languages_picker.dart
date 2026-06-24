@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/languages.dart';
-import 'package:zingo/widgets/card_select.dart';
+import 'package:zingo/ver_2/ui/core/ui/card_select.dart';
 
 class LanguagesPicker extends StatelessWidget {
   final Language? value;

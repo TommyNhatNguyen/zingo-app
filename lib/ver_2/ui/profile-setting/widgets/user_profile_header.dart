@@ -4,7 +4,7 @@ import 'package:zingo/blocs/user/get-configuration/user_configuration_get_bloc.d
 import 'package:zingo/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/l10n/l10n.dart';
-import 'package:zingo/widgets/pill_badge.dart';
+import 'package:zingo/ver_2/ui/core/ui/pill_badge.dart';
 
 class UserProfileHeader extends StatelessWidget {
   const UserProfileHeader({super.key});

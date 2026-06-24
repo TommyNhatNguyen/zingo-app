@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
-import 'package:zingo/utils/capitalize_util.dart';
+import 'package:zingo/ver_2/utils/capitalize_util.dart';
 
 class DialogDetailTitle extends StatelessWidget {
   const DialogDetailTitle({super.key, required this.dialog});

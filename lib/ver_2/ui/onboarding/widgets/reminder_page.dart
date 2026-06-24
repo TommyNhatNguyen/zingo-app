@@ -3,8 +3,8 @@ import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/notification_time.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/ver_2/ui/onboarding/widgets/profile_page.dart';
-import 'package:zingo/widgets/card_select.dart';
-import 'package:zingo/widgets/pickers/time_picker.dart';
+import 'package:zingo/ver_2/ui/core/ui/card_select.dart';
+import 'package:zingo/ver_2/ui/core/ui/pickers/time_picker.dart';
 
 class ReminderPage extends StatelessWidget {
   const ReminderPage({

@@ -10,7 +10,7 @@ import 'package:zingo/blocs/user/get-configuration/user_configuration_get_event.
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/l10n/l10n.dart';
 import 'package:zingo/models/completed_practice_session.dart';
-import 'package:zingo/widgets/streak_week_view.dart';
+import 'package:zingo/ver_2/ui/core/ui/streak_week_view.dart';
 
 class StreakCongratsScreen extends StatefulWidget {
   const StreakCongratsScreen({super.key, this.session});

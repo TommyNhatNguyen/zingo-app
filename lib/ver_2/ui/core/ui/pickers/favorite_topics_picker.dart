@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/constants/topics.dart';
-import 'package:zingo/widgets/card_select.dart';
+import 'package:zingo/ver_2/ui/core/ui/card_select.dart';
 
 /// Trigger row showing how many topics are picked. Opens a tall bottom-sheet
 /// with a 2-col grid for multi-select and commits via a Done button.

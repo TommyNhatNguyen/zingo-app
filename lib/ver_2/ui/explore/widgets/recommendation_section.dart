@@ -13,7 +13,7 @@ import 'package:zingo/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/models/journey.dart';
 import 'package:zingo/l10n/l10n.dart';
-import 'package:zingo/utils/capitalize_util.dart';
+import 'package:zingo/ver_2/utils/capitalize_util.dart';
 
 class RecommendationSection extends StatefulWidget {
   const RecommendationSection({super.key});

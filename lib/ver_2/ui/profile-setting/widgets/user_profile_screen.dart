@@ -15,7 +15,7 @@ import 'package:zingo/constants/languages.dart';
 import 'package:zingo/constants/practice_goal.dart';
 import 'package:zingo/dtos/user-configuration/user_configuration_update_dto.dart';
 import 'package:zingo/l10n/l10n.dart';
-import 'package:zingo/utils/parser_util.dart';
+import 'package:zingo/ver_2/utils/parser_util.dart';
 import 'package:zingo/ver_2/ui/core/ui/pickers/languages_picker.dart';
 import 'package:zingo/ver_2/ui/core/ui/pickers/practice_goal_picker.dart';
 import 'package:zingo/ver_2/ui/core/ui/pickers/time_picker.dart';

@@ -5,7 +5,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zingo/config/app_colors.dart';
 import 'package:zingo/models/dialog.dart' as dialog_model;
 import 'package:zingo/ver_2/ui/explore-detail/widgets/favorite_dialog_trigger.dart';
-import 'package:zingo/utils/capitalize_util.dart';
+import 'package:zingo/ver_2/utils/capitalize_util.dart';
 
 class LearnDetailAppBar extends StatefulWidget {
   const LearnDetailAppBar({super.key, this.data, this.isAtTop = true});
