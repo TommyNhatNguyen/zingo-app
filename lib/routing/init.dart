@@ -62,7 +62,11 @@ class RouterRefreshNotifier extends ChangeNotifier {
 
     _configSub = configBloc.stream.listen((UserConfigurationGetState s) {
       final hasProfile = s.data?.profile != null;
-      if (hasProfile != _lastHasProfile) {
+      final configJustLoaded = s.requestStatus == RequestStatus.success &&
+          _lastConfigStatus != RequestStatus.success;
+      _lastConfigStatus = s.requestStatus;
+      if (hasProfile != _lastHasProfile ||
+          (configJustLoaded && _lastUserId != null)) {
         _lastHasProfile = hasProfile;
         notifyListeners();
       }
@@ -73,6 +77,7 @@ class RouterRefreshNotifier extends ChangeNotifier {
   StreamSubscription<UserConfigurationGetState>? _configSub;
   String? _lastUserId;
   bool? _lastHasProfile;
+  RequestStatus _lastConfigStatus = RequestStatus.initial;
 
   @override
   void dispose() {
@@ -158,13 +163,21 @@ GoRouter buildRoutes({
       return isPublicRoute ? null : '/welcome';
     }
 
-    // Logged in but no profile yet — allow welcome + onboarding only.
+    // Logged in but no profile yet.
     if (!hasProfile) {
-      if (isPublicRoute || isOnboardingRoute || isAnonymous) return null;
-      return '/welcome';
+      if (isOnboardingRoute) return null;
+      if (isAnonymous) return null;
+      if (!isPublicRoute) return '/welcome';
+      // Non-anonymous user on a public route: wait for config to confirm no
+      // profile before sending to onboarding (avoids redirect before fetch).
+      final configStatus =
+          context.read<UserConfigurationGetBloc>().state.requestStatus;
+      if (configStatus == RequestStatus.success) return '/onboarding';
+      return null;
     }
 
-    // Logged in with profile — leave protected routes alone, redirect public to home.
+    // Logged in with profile — redirect public routes and onboarding to home.
+    if (isOnboardingRoute) return '/home';
     return isPublicRoute
         ? isAnonymous
               ? '/welcome'

@@ -55,10 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return BlocConsumer<AuthBloc, AuthState>(
-      listenWhen: (previous, current) =>
-          current.requestStatus == RequestStatus.success &&
-          current.data != null &&
-          previous.requestStatus != RequestStatus.success,
+      // listenWhen: (previous, current) =>
+      //     current.requestStatus == RequestStatus.success &&
+      //     current.data != null &&
+      //     previous.requestStatus != RequestStatus.success,
       listener: (context, state) {
         if (state.data != null &&
             state.requestStatus == RequestStatus.success) {
@@ -75,17 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
             context: context,
             type: ToastificationType.error,
             style: ToastificationStyle.flat,
-            title: Text(state.error ?? l10n.errorGeneric),
-            description: Text(state.error ?? l10n.errorGeneric),
+            title: Text('Sai tên đăng nhập hoặc mật khẩu'),
+            description: Text("Vui lòng thử lại!"),
             autoCloseDuration: const Duration(seconds: 4),
           );
         }
       },
       builder: (context, state) {
-        final isLoading =
-            state.requestStatus == RequestStatus.loading ||
-            (state.requestStatus == RequestStatus.success &&
-                state.data != null);
+        final isLoading = state.requestStatus == RequestStatus.loading;
         return Scaffold(
           appBar: AppBar(backgroundColor: AppColors.background),
           body: SingleChildScrollView(
