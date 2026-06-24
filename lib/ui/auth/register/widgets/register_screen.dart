@@ -29,6 +29,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _usernameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
+  bool _isRegistering = false;
 
   @override
   void dispose() {
@@ -36,12 +41,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _usernameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     _formKey.currentState?.dispose();
     super.dispose();
   }
 
   void _register(BuildContext context) {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() => _isRegistering = true);
     context.read<UsersBloc>().add(
       UsersRegister(
         username: _usernameController.text.trim(),
@@ -58,9 +68,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       listeners: [
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
+            if (!_isRegistering) return;
             if (state.user != null &&
                 state.requestStatus == RequestStatus.success) {
               context.go('/onboarding');
+            }
+            if (state.requestStatus == RequestStatus.error) {
+              setState(() => _isRegistering = false);
             }
           },
         ),
@@ -85,6 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               );
             }
             if (state.requestStatus == RequestStatus.error) {
+              setState(() => _isRegistering = false);
               Toastification().show(
                 context: context,
                 type: ToastificationType.error,
@@ -99,7 +114,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ],
       child: BlocBuilder<UsersBloc, UsersState>(
         builder: (context, state) {
-          final isLoading = state.requestStatus == RequestStatus.loading;
+          final isLoading =
+              state.requestStatus == RequestStatus.loading || _isRegistering;
           return Scaffold(
             appBar: AppBar(backgroundColor: AppColors.background),
             body: SingleChildScrollView(
@@ -154,7 +170,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 28),
                         TextFormField(
+                          autofocus: true,
                           controller: _usernameController,
+                          focusNode: _usernameFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              _emailFocusNode.requestFocus(),
                           decoration: InputDecoration(
                             labelText: l10n.usernameLabel,
                             prefixIcon: const Icon(Icons.person),
@@ -169,7 +190,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         TextFormField(
                           controller: _emailController,
+                          focusNode: _emailFocusNode,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              _passwordFocusNode.requestFocus(),
                           decoration: InputDecoration(
                             labelText: l10n.emailLabel,
                             prefixIcon: const Icon(Icons.email),
@@ -184,6 +209,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         TextFormField(
                           controller: _passwordController,
+                          focusNode: _passwordFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              _confirmPasswordFocusNode.requestFocus(),
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: l10n.passwordLabel,
@@ -202,6 +231,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         TextFormField(
                           controller: _confirmPasswordController,
+                          focusNode: _confirmPasswordFocusNode,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _register(context),
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: l10n.confirmPasswordLabel,

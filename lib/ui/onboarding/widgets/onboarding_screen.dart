@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
@@ -167,7 +166,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             description: Text(context.l10n.onboardingSuccessDesc),
             autoCloseDuration: const Duration(seconds: 4),
           );
-          context.go('/home');
         } else if (state.requestStatus == RequestStatus.error) {
           Toastification().show(
             context: context,

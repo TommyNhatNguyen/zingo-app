@@ -190,6 +190,12 @@ class _MainAppState extends State<MainApp> {
               if (state.requestStatus == RequestStatus.success &&
                   state.data != null) {
                 final userId = state.data!.user_id;
+                // Immediately update profile so the router can redirect to /home
+                // without waiting for the network round-trip.
+                _userConfigurationBloc.add(
+                  UserConfigurationGetProfileUpdated(profile: state.data!),
+                );
+                // Fetch full config in the background to populate settings.
                 _userConfigurationBloc.add(
                   UserConfigurationGetFetched(userId: userId),
                 );

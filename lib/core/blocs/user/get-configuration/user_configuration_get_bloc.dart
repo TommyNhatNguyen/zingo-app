@@ -24,6 +24,7 @@ class UserConfigurationGetBloc
       super(UserConfigurationGetState.initial()) {
     on<UserConfigurationGetFetched>(_onFetched);
     on<UserConfigurationGetReset>(_onReset);
+    on<UserConfigurationGetProfileUpdated>(_onProfileUpdated);
   }
 
   Future<void> _onFetched(
@@ -75,5 +76,20 @@ class UserConfigurationGetBloc
     Emitter<UserConfigurationGetState> emit,
   ) async {
     emit(UserConfigurationGetState.initial());
+  }
+
+  void _onProfileUpdated(
+    UserConfigurationGetProfileUpdated event,
+    Emitter<UserConfigurationGetState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        requestStatus: RequestStatus.success,
+        data: UserConfiguration(
+          profile: event.profile,
+          settings: _normalizeSettings(state.data?.settings),
+        ),
+      ),
+    );
   }
 }

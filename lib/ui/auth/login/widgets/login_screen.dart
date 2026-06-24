@@ -102,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const LogoInfo(),
                       const SizedBox(height: 28),
                       TextFormField(
-                        autofocus: true,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,

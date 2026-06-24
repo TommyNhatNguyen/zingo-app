@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
- import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/domain/models/user_profile.dart';
 
 class UserProfileCreateState extends Equatable {
