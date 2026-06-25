@@ -21,11 +21,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final isAuthenticated = state.user != null;
       if (isAuthenticated && user == null) {
         add(AuthLoggedOut());
-      } else if (!isAuthenticated && user != null) {
-        add(AuthStateChanged(user: user));
-      } else if (!isAuthenticated && user == null) {
-        add(AuthStateChanged(user: user));
+        return;
       }
+      add(AuthStateChanged(user: user));
     });
 
     on<AuthStateLoading>((event, emit) async {
@@ -62,9 +60,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthStateChanged>((event, emit) async {
-      emit(
-        state.copyWith(user: event.user, requestStatus: RequestStatus.success),
-      );
+      // emit(
+      //   state.copyWith(user: event.user, requestStatus: RequestStatus.success),
+      // );
       if (event.user != null) {
         final result = await _authRepository.getUserByUid();
         switch (result) {
@@ -95,46 +93,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               ),
             );
         }
+      } else {
+        emit(
+          state.copyWith(
+            user: event.user,
+            requestStatus: RequestStatus.success,
+          ),
+        );
       }
     });
 
     on<AuthLoginWithEmailAndPassword>((event, emit) async {
       try {
         emit(state.copyWith(requestStatus: RequestStatus.loading));
-        final user = await _authRepository.loginWithEmailAndPassword(
-          event.payload,
-        );
-        if (user != null) {
-          final result = await _authRepository.getUserByUid();
-          switch (result) {
-            case Ok(:final data):
-              emit(
-                state.copyWith(
-                  requestStatus: RequestStatus.success,
-                  data: data,
-                  user: user,
-                ),
-              );
-            case Error(:final error):
-              emit(
-                state.copyWith(
-                  requestStatus: RequestStatus.success,
-                  data: null,
-                  user: user,
-                  error: error.toString(),
-                ),
-              );
-            case ErrorAPI(:final error):
-              emit(
-                state.copyWith(
-                  requestStatus: RequestStatus.success,
-                  data: null,
-                  user: user,
-                  error: error.error.title,
-                ),
-              );
-          }
-        }
+        await _authRepository.loginWithEmailAndPassword(event.payload);
       } on FirebaseException catch (e) {
         emit(
           state.copyWith(requestStatus: RequestStatus.error, error: e.message),

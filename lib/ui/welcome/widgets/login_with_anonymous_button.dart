@@ -49,7 +49,7 @@ class _LoginWithAnonymousButtonState extends State<LoginWithAnonymousButton> {
             state.user != null &&
             (state.user?.isAnonymous ?? true)) {
           setState(() => _isLoggingIn = false);
-          // context.go('/onboarding');
+          context.go('/onboarding');
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
