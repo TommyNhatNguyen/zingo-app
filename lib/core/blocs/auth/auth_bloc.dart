@@ -60,9 +60,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthStateChanged>((event, emit) async {
-      // emit(
-      //   state.copyWith(user: event.user, requestStatus: RequestStatus.success),
-      // );
       if (event.user != null) {
         final result = await _authRepository.getUserByUid();
         switch (result) {
