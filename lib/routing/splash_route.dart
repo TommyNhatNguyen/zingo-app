@@ -6,6 +6,6 @@ class SplashRoute {
   static GoRoute buildRoute() => GoRoute(
     path: '/splash',
     pageBuilder: (context, state) =>
-        RoutePageBuilders.noTransition(state.pageKey, const SplashScreen()),
+        RoutePageBuilders.fade(state.pageKey, const SplashScreen()),
   );
 }

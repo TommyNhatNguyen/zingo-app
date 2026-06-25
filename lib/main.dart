@@ -27,6 +27,7 @@ import 'package:zingo/data/services/api_client_service.dart';
 import 'package:zingo/data/services/firebase_auth_service.dart';
 import 'package:zingo/domain/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/routing/init.dart';
+import 'package:zingo/routing/splash_guard.dart';
 import 'package:zingo/ui/core/themes/app_theme.dart';
 
 import 'firebase_options.dart';
@@ -139,7 +140,9 @@ class _MainAppState extends State<MainApp> {
     _refreshStream = GoRouterRefreshStream(
       streams: [_authBloc.stream, _userConfigurationBloc.stream],
     );
-    _router = buildRoutes(refreshListenable: _refreshStream);
+    _router = buildRoutes(
+      refreshListenable: Listenable.merge([_refreshStream, SplashGuard.instance]),
+    );
     setupInteractedMessage();
   }
 

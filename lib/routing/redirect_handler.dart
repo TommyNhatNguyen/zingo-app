@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/routing/splash_guard.dart';
 
 class RedirectHandler {
   static FutureOr<String?> redirectHandler(
@@ -24,6 +25,8 @@ class RedirectHandler {
     final isOnboardingRoute = curLoc == '/onboarding';
     final isWelcomeRoute = curLoc == '/welcome';
     final isSplashRoute = curLoc == '/splash';
+    // 0. Hold on splash until minimum display time has elapsed
+    if (isSplashRoute && !SplashGuard.instance.ready) return null;
     // 1. Wait for auth
     final isLoadingAuth = [
       RequestStatus.initial,

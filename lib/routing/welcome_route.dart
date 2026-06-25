@@ -6,6 +6,6 @@ class WelcomeRoute {
   static GoRoute buildRoute() => GoRoute(
     path: '/welcome',
     pageBuilder: (context, state) =>
-        RoutePageBuilders.noTransition(state.pageKey, const WelcomeScreen()),
+        RoutePageBuilders.fade(state.pageKey, const WelcomeScreen()),
   );
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:zingo/routing/splash_guard.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,9 +13,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    SplashGuard.instance.reset();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
+      SplashGuard.instance.markReady();
     });
   }
 
@@ -40,9 +42,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 24),
                 Text(
                   'Zingo',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
                   width: 200,
