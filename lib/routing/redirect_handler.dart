@@ -34,7 +34,6 @@ class RedirectHandler {
       RequestStatus.loading,
     ].contains(userConfigBloc.state.requestStatus);
     if (isLoadingAuth || isLoadingConfig) {
-      // if (isSplashRoute) return '/welcome';
       return null;
     }
     // 2. No auth, public route
