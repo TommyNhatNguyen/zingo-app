@@ -17,12 +17,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     : _authRepository = authRepository,
       super(AuthState.initial()) {
     _authStateStream.listen((user) {
+      add(AuthStateLoading());
       final isAuthenticated = state.user != null;
       if (isAuthenticated && user == null) {
         add(AuthLoggedOut());
       } else if (!isAuthenticated && user != null) {
         add(AuthStateChanged(user: user));
+      } else if (!isAuthenticated && user == null) {
+        add(AuthStateChanged(user: user));
       }
+    });
+
+    on<AuthStateLoading>((event, emit) async {
+      emit(
+        state.copyWith(
+          requestStatus: RequestStatus.loading,
+          user: null,
+          data: null,
+          error: null,
+        ),
+      );
     });
 
     on<AuthLoggedOut>((event, emit) async {
@@ -49,36 +63,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthStateChanged>((event, emit) async {
       emit(
-        state.copyWith(user: event.user, requestStatus: RequestStatus.loading),
+        state.copyWith(user: event.user, requestStatus: RequestStatus.success),
       );
-      final result = await _authRepository.getUserByUid();
-      switch (result) {
-        case Ok(:final data):
-          emit(
-            state.copyWith(
-              requestStatus: RequestStatus.success,
-              data: data,
-              user: event.user,
-            ),
-          );
-        case Error(:final error):
-          emit(
-            state.copyWith(
-              requestStatus: RequestStatus.error,
-              user: event.user,
-              data: null,
-              error: error.toString(),
-            ),
-          );
-        case ErrorAPI(:final error):
-          emit(
-            state.copyWith(
-              requestStatus: RequestStatus.error,
-              user: event.user,
-              data: null,
-              error: error.error.title,
-            ),
-          );
+      if (event.user != null) {
+        final result = await _authRepository.getUserByUid();
+        switch (result) {
+          case Ok(:final data):
+            emit(
+              state.copyWith(
+                requestStatus: RequestStatus.success,
+                data: data,
+                user: event.user,
+              ),
+            );
+          case Error(:final error):
+            emit(
+              state.copyWith(
+                requestStatus: RequestStatus.error,
+                user: event.user,
+                data: null,
+                error: error.toString(),
+              ),
+            );
+          case ErrorAPI(:final error):
+            emit(
+              state.copyWith(
+                requestStatus: RequestStatus.error,
+                user: event.user,
+                data: null,
+                error: error.error.title,
+              ),
+            );
+        }
       }
     });
 

@@ -47,3 +47,10 @@ class AuthLoggedOut extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
+
+class AuthStateLoading extends AuthEvent {
+  const AuthStateLoading();
+
+  @override
+  List<Object?> get props => [];
+}

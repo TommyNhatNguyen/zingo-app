@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 final dio = Dio(
   BaseOptions(
-    // baseUrl: 'http://127.0.0.1:3000',
+    baseUrl: 'http://127.0.0.1:3000',
     // baseUrl: 'http://10.0.2.2:3000',
     // baseUrl: 'http://192.168.1.230:3000',
     // baseUrl: 'http://172.16.100.210:3000',
-    baseUrl: 'http://192.168.1.248:3000',
+    // baseUrl: 'http://192.168.1.248:3000',
     // baseUrl: "http://192.168.1.132:3000",
     connectTimeout: Duration(seconds: 5),
     receiveTimeout: Duration(seconds: 3),

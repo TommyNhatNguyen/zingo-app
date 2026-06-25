@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
-import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/dialog/detail/dialog_detail_bloc.dart';
 import 'package:zingo/core/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_bloc.dart';
 import 'package:zingo/core/blocs/dialog/get-dialog-turns/dialog_turns_list_by_dialog_event.dart';
@@ -16,8 +13,6 @@ import 'package:zingo/core/blocs/practice-sessions/start-practice/start_practice
 import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
-import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
-import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/core/blocs/user/get/users_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/update-configuration/user_configuration_update_bloc.dart';
@@ -26,6 +21,7 @@ import 'package:zingo/domain/dtos/dialog-turns/dialog_turns_by_dialog_id_payload
 import 'package:zingo/domain/dtos/journey/journey_payload.dart';
 import 'package:zingo/domain/models/completed_practice_session.dart';
 import 'package:zingo/domain/models/dialog.dart';
+import 'package:zingo/routing/redirect-handler.dart';
 import 'package:zingo/ui/auth/login/widgets/login_screen.dart';
 import 'package:zingo/ui/auth/register/widgets/register_screen.dart';
 import 'package:zingo/ui/congrats/widgets/streak_congrats_screen.dart';
@@ -43,50 +39,6 @@ import 'package:zingo/ui/profile-setting/widgets/user_profile_screen.dart';
 import 'package:zingo/ui/splash/splash_screen.dart';
 import 'package:zingo/ui/user-setting/widgets/user_setting_screen.dart';
 import 'package:zingo/ui/welcome/widgets/welcome_screen.dart';
-
-class RouterRefreshNotifier extends ChangeNotifier {
-  RouterRefreshNotifier({
-    required AuthBloc authBloc,
-    required UserConfigurationGetBloc configBloc,
-  }) {
-    _lastUserId = authBloc.state.user?.uid;
-    _lastHasProfile = configBloc.state.data?.profile != null;
-
-    _authSub = authBloc.stream.listen((AuthState s) {
-      final uid = s.user?.uid;
-      if (uid != _lastUserId) {
-        _lastUserId = uid;
-        notifyListeners();
-      }
-    });
-
-    _configSub = configBloc.stream.listen((UserConfigurationGetState s) {
-      final hasProfile = s.data?.profile != null;
-      final configJustLoaded =
-          s.requestStatus == RequestStatus.success &&
-          _lastConfigStatus != RequestStatus.success;
-      _lastConfigStatus = s.requestStatus;
-      if (hasProfile != _lastHasProfile ||
-          (configJustLoaded && _lastUserId != null)) {
-        _lastHasProfile = hasProfile;
-        notifyListeners();
-      }
-    });
-  }
-
-  StreamSubscription<AuthState>? _authSub;
-  StreamSubscription<UserConfigurationGetState>? _configSub;
-  String? _lastUserId;
-  bool? _lastHasProfile;
-  RequestStatus _lastConfigStatus = RequestStatus.initial;
-
-  @override
-  void dispose() {
-    _authSub?.cancel();
-    _configSub?.cancel();
-    super.dispose();
-  }
-}
 
 Page<dynamic> _noTransitionPage(LocalKey key, Widget child) =>
     NoTransitionPage(key: key, child: child);
@@ -117,10 +69,7 @@ Page<dynamic> _slidePage(LocalKey key, Widget child) => CustomTransitionPage(
       ),
 );
 
-GoRouter buildRoutes({
-  required AuthBloc authBloc,
-  required UserConfigurationGetBloc userConfigurationGetBloc,
-}) => GoRouter(
+GoRouter buildRoutes({Listenable? refreshListenable}) => GoRouter(
   // initialLocation: '/onboarding',
   // initialLocation: '/learn',
   // initialLocation: '/streak-congrats',
@@ -130,64 +79,63 @@ GoRouter buildRoutes({
   // initialLocation: '/welcome',
   initialLocation: '/splash',
   // initialLocation: "/home",
-  refreshListenable: RouterRefreshNotifier(
-    authBloc: authBloc,
-    configBloc: userConfigurationGetBloc,
-  ),
-  redirect: (context, state) {
-    final authState = context.read<AuthBloc>().state;
-    final profile = context
-        .read<UserConfigurationGetBloc>()
-        .state
-        .data
-        ?.profile;
-    final location = state.matchedLocation;
-    print("User: ${authState.user}");
-    print("Profile: ${profile}");
-    // Wait for the auth check to finish before redirecting.
-    if (authState.requestStatus == RequestStatus.initial ||
-        authState.requestStatus == RequestStatus.loading) {
-      return null;
-    }
+  refreshListenable: refreshListenable,
+  redirect: (context, state) => RedirectHandler.redirectHandler(context, state),
 
-    final isLoggedIn = authState.user != null;
-    final hasProfile = profile != null;
-    final isPublicRoute = const [
-      '/welcome',
-      '/login',
-      '/register',
-      '/splash',
-    ].contains(location);
-    final isAnonymous = authState.user?.isAnonymous ?? true;
-    final isOnboardingRoute = location == '/onboarding';
+  // redirect: (context, state) {
+  //   final authState = context.read<AuthBloc>().state;
+  //   final profile = context
+  //       .read<UserConfigurationGetBloc>()
+  //       .state
+  //       .data
+  //       ?.profile;
+  //   final location = state.matchedLocation;
+  //   print("User: ${authState.user}");
+  //   print("Profile: ${profile}");
+  //   // Wait for the auth check to finish before redirecting.
+  //   if (authState.requestStatus == RequestStatus.initial ||
+  //       authState.requestStatus == RequestStatus.loading) {
+  //     return null;
+  //   }
 
-    if (!isLoggedIn) {
-      return isPublicRoute ? null : '/welcome';
-    }
+  //   final isLoggedIn = authState.user != null;
+  //   final hasProfile = profile != null;
+  //   final isPublicRoute = const [
+  //     '/welcome',
+  //     '/login',
+  //     '/register',
+  //     '/splash',
+  //   ].contains(location);
+  //   final isAnonymous = authState.user?.isAnonymous ?? true;
+  //   final isOnboardingRoute = location == '/onboarding';
 
-    // Logged in but no profile yet.
-    if (!hasProfile) {
-      if (isOnboardingRoute) return null;
-      if (isAnonymous) return null;
-      if (!isPublicRoute) return '/welcome';
-      // Non-anonymous user on a public route: wait for config to confirm no
-      // profile before sending to onboarding (avoids redirect before fetch).
-      final configStatus = context
-          .read<UserConfigurationGetBloc>()
-          .state
-          .requestStatus;
-      if (configStatus == RequestStatus.success) return '/onboarding';
-      return null;
-    }
+  //   if (!isLoggedIn) {
+  //     return isPublicRoute ? null : '/welcome';
+  //   }
 
-    // Logged in with profile — redirect public routes and onboarding to home.
-    if (isOnboardingRoute) return '/home';
-    return isPublicRoute
-        ? isAnonymous
-              ? '/welcome'
-              : '/home'
-        : null;
-  },
+  //   // Logged in but no profile yet.
+  //   if (!hasProfile) {
+  //     if (isOnboardingRoute) return null;
+  //     if (isAnonymous) return null;
+  //     if (!isPublicRoute) return '/welcome';
+  //     // Non-anonymous user on a public route: wait for config to confirm no
+  //     // profile before sending to onboarding (avoids redirect before fetch).
+  //     final configStatus = context
+  //         .read<UserConfigurationGetBloc>()
+  //         .state
+  //         .requestStatus;
+  //     if (configStatus == RequestStatus.success) return '/onboarding';
+  //     return null;
+  //   }
+
+  //   // Logged in with profile — redirect public routes and onboarding to home.
+  //   if (isOnboardingRoute) return '/home';
+  //   return isPublicRoute
+  //       ? isAnonymous
+  //             ? '/welcome'
+  //             : '/home'
+  //       : null;
+  // },
   routes: [
     GoRoute(path: '/test', builder: (context, state) => TestScreen()),
     GoRoute(

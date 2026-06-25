@@ -75,7 +75,13 @@ class UserConfigurationGetBloc
     UserConfigurationGetReset event,
     Emitter<UserConfigurationGetState> emit,
   ) async {
-    emit(UserConfigurationGetState.initial());
+    emit(
+      state.copyWith(
+        data: null,
+        error: null,
+        requestStatus: RequestStatus.success,
+      ),
+    );
   }
 
   void _onProfileUpdated(

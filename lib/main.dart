@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +76,41 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
+class GoRouterRefreshStream extends ChangeNotifier {
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
+
+  GoRouterRefreshStream({required Iterable<Stream<dynamic>> streams}) {
+    for (final stream in streams) {
+      final subscription = stream.listen((data) {
+        debugPrint("GoRouterRefreshStream: $data");
+        switch (data) {
+          case AuthState(:final requestStatus):
+            debugPrint("AuthState: $requestStatus");
+            if (requestStatus == RequestStatus.success) {
+              notifyListeners();
+            }
+            break;
+          case UserConfigurationGetState(:final requestStatus):
+            debugPrint("UserConfigurationGetState: $requestStatus");
+            if (requestStatus == RequestStatus.success) {
+              notifyListeners();
+            }
+            break;
+        }
+      });
+      _subscriptions.add(subscription);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
+  }
+}
+
 class _MainAppState extends State<MainApp> {
   late final AuthBloc _authBloc;
   late final SpeechToTextBloc _speechToTextBloc;
@@ -82,6 +119,7 @@ class _MainAppState extends State<MainApp> {
   late final LocaleCubit _localeCubit;
   late final GoRouter _router;
   late final UserProfileCreateBloc _userProfileCreateBloc;
+  late final GoRouterRefreshStream _refreshStream;
 
   @override
   void initState() {
@@ -98,10 +136,10 @@ class _MainAppState extends State<MainApp> {
     _userStreakGetBloc = UserStreakGetBloc();
     _localeCubit = LocaleCubit();
     _userProfileCreateBloc = UserProfileCreateBloc();
-    _router = buildRoutes(
-      authBloc: _authBloc,
-      userConfigurationGetBloc: _userConfigurationBloc,
+    _refreshStream = GoRouterRefreshStream(
+      streams: [_authBloc.stream, _userConfigurationBloc.stream],
     );
+    _router = buildRoutes(refreshListenable: _refreshStream);
     setupInteractedMessage();
   }
 
@@ -229,8 +267,7 @@ class _MainAppState extends State<MainApp> {
               theme: AppTheme.light,
               routerConfig: _router,
               locale: locale,
-              localizationsDelegates:
-                  AppLocalizations.localizationsDelegates,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) {
                 return GestureDetector(

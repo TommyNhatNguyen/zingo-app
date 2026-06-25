@@ -9,12 +9,12 @@ import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/user/get/users_bloc.dart';
 import 'package:zingo/core/blocs/user/get/users_event.dart';
 import 'package:zingo/core/blocs/user/get/users_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
-import 'package:zingo/domain/dtos/auth/login_dto.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/domain/dtos/auth/login_dto.dart';
 import 'package:zingo/ui/auth/widgets/auth_divider.dart';
 import 'package:zingo/ui/auth/widgets/login_with_google_button.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
