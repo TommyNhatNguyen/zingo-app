@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/locale/locale_cubit.dart';
@@ -85,15 +86,18 @@ class GoRouterRefreshStream extends ChangeNotifier {
       final subscription = stream.listen((data) {
         debugPrint("GoRouterRefreshStream: $data");
         switch (data) {
-          case AuthState(:final requestStatus):
+          case AuthState(:final requestStatus, :final error):
             debugPrint("AuthState: $requestStatus");
-            if (requestStatus == RequestStatus.success) {
+            debugPrint("AuthState: $error");
+            if (requestStatus == RequestStatus.success ||
+                requestStatus == RequestStatus.error) {
               notifyListeners();
             }
             break;
           case UserConfigurationGetState(:final requestStatus):
             debugPrint("UserConfigurationGetState: $requestStatus");
-            if (requestStatus == RequestStatus.success) {
+            if (requestStatus == RequestStatus.success ||
+                requestStatus == RequestStatus.error) {
               notifyListeners();
             }
             break;
@@ -141,7 +145,10 @@ class _MainAppState extends State<MainApp> {
       streams: [_authBloc.stream, _userConfigurationBloc.stream],
     );
     _router = buildRoutes(
-      refreshListenable: Listenable.merge([_refreshStream, SplashGuard.instance]),
+      refreshListenable: Listenable.merge([
+        _refreshStream,
+        SplashGuard.instance,
+      ]),
     );
     setupInteractedMessage();
   }
@@ -199,88 +206,103 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _localeCubit),
         BlocProvider.value(value: _userProfileCreateBloc),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          // Trigger configuration fetch when auth succeeds
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state.requestStatus == RequestStatus.success &&
-                  state.user == null) {
-                _userConfigurationBloc.add(const UserConfigurationGetReset());
-                return;
-              }
-              if (state.requestStatus == RequestStatus.success &&
-                  state.data != null) {
-                final userId = state.data!.id;
-                _userConfigurationBloc.add(
-                  UserConfigurationGetFetched(userId: userId),
-                );
-                _userStreakGetBloc.add(
-                  UserStreakGetFetched(
-                    payload: GetUserStreakPayload(
-                      user_id: userId,
-                      year: DateTime.now().year,
+      child: ToastificationWrapper(
+        child: MultiBlocListener(
+          listeners: [
+            // Trigger configuration fetch when auth succeeds
+            BlocListener<AuthBloc, AuthState>(
+              listenWhen: (previous, current) =>
+                  previous.requestStatus != current.requestStatus ||
+                  previous.error != current.error,
+              listener: (context, state) {
+                if (state.requestStatus == RequestStatus.error &&
+                    state.error != null) {
+                  Toastification().show(
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.flat,
+                    title: Text(state.error!),
+                    autoCloseDuration: const Duration(seconds: 4),
+                  );
+                  return;
+                }
+
+                if (state.requestStatus == RequestStatus.success &&
+                    state.user == null) {
+                  _userConfigurationBloc.add(const UserConfigurationGetReset());
+                  return;
+                }
+
+                if (state.requestStatus == RequestStatus.success &&
+                    state.data != null) {
+                  final userId = state.data!.id;
+                  _userConfigurationBloc.add(
+                    UserConfigurationGetFetched(userId: userId),
+                  );
+                  _userStreakGetBloc.add(
+                    UserStreakGetFetched(
+                      payload: GetUserStreakPayload(
+                        user_id: userId,
+                        year: DateTime.now().year,
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-          ),
-          BlocListener<UserProfileCreateBloc, UserProfileCreateState>(
-            listener: (context, state) {
-              if (state.requestStatus == RequestStatus.success &&
-                  state.data != null) {
-                final userId = state.data!.user_id;
-                // Immediately update profile so the router can redirect to /home
-                // without waiting for the network round-trip.
-                _userConfigurationBloc.add(
-                  UserConfigurationGetProfileUpdated(profile: state.data!),
-                );
-                // Fetch full config in the background to populate settings.
-                _userConfigurationBloc.add(
-                  UserConfigurationGetFetched(userId: userId),
-                );
-                _userStreakGetBloc.add(
-                  UserStreakGetFetched(
-                    payload: GetUserStreakPayload(
-                      user_id: userId,
-                      year: DateTime.now().year,
-                    ),
-                  ),
-                );
-              }
-            },
-          ),
-          // Sync backend display_language into LocaleCubit on successful fetch
-          BlocListener<UserConfigurationGetBloc, UserConfigurationGetState>(
-            listenWhen: (prev, curr) =>
-                curr.requestStatus == RequestStatus.success &&
-                prev.requestStatus != RequestStatus.success,
-            listener: (context, state) {
-              final code = state.data?.settings?.display_language;
-              if (code != null) {
-                context.read<LocaleCubit>().setLocale(code);
-              }
-            },
-          ),
-        ],
-        child: BlocBuilder<LocaleCubit, Locale>(
-          builder: (context, locale) {
-            return MaterialApp.router(
-              theme: AppTheme.light,
-              routerConfig: _router,
-              locale: locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              builder: (context, child) {
-                return GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-                  child: child,
-                );
+                  );
+                  return;
+                }
               },
-            );
-          },
+            ),
+            BlocListener<UserProfileCreateBloc, UserProfileCreateState>(
+              listener: (context, state) {
+                if (state.requestStatus == RequestStatus.success &&
+                    state.data != null) {
+                  final userId = state.data!.user_id;
+                  // Immediately update profile so the router can redirect to /home
+                  // without waiting for the network round-trip.
+                  _userConfigurationBloc.add(
+                    UserConfigurationGetProfileUpdated(profile: state.data!),
+                  );
+                  // Fetch full config in the background to populate settings.
+                  _userConfigurationBloc.add(
+                    UserConfigurationGetFetched(userId: userId),
+                  );
+                  _userStreakGetBloc.add(
+                    UserStreakGetFetched(
+                      payload: GetUserStreakPayload(
+                        user_id: userId,
+                        year: DateTime.now().year,
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+            // Sync backend display_language into LocaleCubit on successful fetch
+            BlocListener<UserConfigurationGetBloc, UserConfigurationGetState>(
+              listener: (context, state) {
+                final code = state.data?.settings?.display_language;
+                if (code != null) {
+                  context.read<LocaleCubit>().setLocale(code);
+                }
+              },
+            ),
+          ],
+          child: BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, locale) {
+              return MaterialApp.router(
+                theme: AppTheme.light,
+                routerConfig: _router,
+                locale: locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                builder: (context, child) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                    child: child,
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -36,6 +36,15 @@ class RedirectHandler {
       RequestStatus.initial,
       RequestStatus.loading,
     ].contains(userConfigBloc.state.requestStatus);
+
+    final isError =
+        authBloc.state.requestStatus == RequestStatus.error ||
+        userConfigBloc.state.requestStatus == RequestStatus.error;
+
+    if (isError) {
+      return '/welcome';
+    }
+
     if (isLoadingAuth || isLoadingConfig) {
       return null;
     }

@@ -2,8 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore-detail/widgets/favorite_dialog_trigger.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
@@ -49,6 +49,7 @@ class _LearnDetailAppBarState extends State<LearnDetailAppBar> {
       floating: false,
       pinned: true,
       snap: false,
+      stretch: true,
       title: AnimatedOpacity(
         opacity: widget.isAtTop ? 0 : 1,
         duration: Duration(milliseconds: 300),
@@ -59,6 +60,7 @@ class _LearnDetailAppBarState extends State<LearnDetailAppBar> {
       ),
       centerTitle: true,
       flexibleSpace: FlexibleSpaceBar(
+        stretchModes: [StretchMode.zoomBackground, StretchMode.blurBackground],
         centerTitle: true,
         expandedTitleScale: 1,
         collapseMode: CollapseMode.pin,

@@ -5,19 +5,19 @@ import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_event.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/constants/languages.dart';
 import 'package:zingo/core/constants/practice_goal.dart';
 import 'package:zingo/core/constants/topics.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/user-profile/user_profile_create_dto.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/onboarding/widgets/daily_goal_page.dart';
 import 'package:zingo/ui/onboarding/widgets/display_name_page.dart';
 import 'package:zingo/ui/onboarding/widgets/english_level_page.dart';
 import 'package:zingo/ui/onboarding/widgets/interest_topics_page.dart';
 import 'package:zingo/ui/onboarding/widgets/native_language_page.dart';
 import 'package:zingo/ui/onboarding/widgets/reminder_page.dart';
-import 'package:zingo/core/l10n/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -28,22 +28,6 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      Toastification().show(
-        context: context,
-        type: ToastificationType.success,
-        style: ToastificationStyle.flat,
-        title: Text(context.l10n.welcomeLearnerTitle),
-        description: Text(context.l10n.welcomeLearnerDesc),
-        autoCloseDuration: const Duration(seconds: 5),
-      );
-    });
-  }
   Language? _selectedLanguage;
   PracticeGoal? _selectedDailyGoal = PracticeGoal.all.first;
   EnglishLevel? _selectedEnglishLevel;
@@ -162,6 +146,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: Text(context.l10n.welcomeLearnerTitle),
+        description: Text(context.l10n.welcomeLearnerDesc),
+        autoCloseDuration: const Duration(seconds: 5),
+      );
+    });
+  }
+
+  @override
   void dispose() {
     _pageViewController.dispose();
     _nameController.dispose();
@@ -172,8 +172,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserProfileCreateBloc, UserProfileCreateState>(
       listener: (context, state) {
-        if (state.data != null &&
-            state.requestStatus == RequestStatus.success) {
+        final isSuccess =
+            state.data != null && state.requestStatus == RequestStatus.success;
+        final isError = state.requestStatus == RequestStatus.error;
+        if (isSuccess) {
           Toastification().show(
             context: context,
             type: ToastificationType.success,
@@ -182,7 +184,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             description: Text(context.l10n.onboardingSuccessDesc),
             autoCloseDuration: const Duration(seconds: 4),
           );
-        } else if (state.requestStatus == RequestStatus.error) {
+          return;
+        }
+        if (isError) {
           Toastification().show(
             context: context,
             type: ToastificationType.error,
@@ -196,6 +200,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
           );
+          return;
         }
       },
       builder: (context, state) {
@@ -307,7 +312,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color: Colors.white,
                   ),
                 )
-              : Text(isLastPage ? context.l10n.letsGo : context.l10n.continueLabel),
+              : Text(
+                  isLastPage ? context.l10n.letsGo : context.l10n.continueLabel,
+                ),
         ),
       ),
     );

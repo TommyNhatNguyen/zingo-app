@@ -46,6 +46,12 @@ class ApiClientService {
       } catch (_) {}
     }
 
+    if (e.type == DioExceptionType.connectionTimeout) {
+      return Result.error(
+        Exception('Lost connection, please check your internet connection'),
+      );
+    }
+
     return Result.errorAPI(
       ApiErrorResponse(
         error: BaseError(

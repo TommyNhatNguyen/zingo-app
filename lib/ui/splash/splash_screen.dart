@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     SplashGuard.instance.reset();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(microseconds: 600));
       if (!mounted) return;
       SplashGuard.instance.markReady();
     });
