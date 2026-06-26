@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/routing/app_shell_route.dart';
+import 'package:zingo/routing/error_route.dart';
 import 'package:zingo/routing/learn_detail_route.dart';
 import 'package:zingo/routing/login_route.dart';
+import 'package:zingo/routing/no_connection_route.dart';
 import 'package:zingo/routing/onboarding_route.dart';
 import 'package:zingo/routing/practice_route.dart';
 import 'package:zingo/routing/redirect_handler.dart';
@@ -29,5 +31,7 @@ GoRouter buildRoutes({Listenable? refreshListenable}) => GoRouter(
     AppShellRoute.buildRoute(),
     LearnDetailRoute.buildRoute(),
     SettingRoute.buildRoute(),
+    ErrorRoute.buildRoute(),
+    NoConnectionRoute.buildRoute(),
   ],
 );

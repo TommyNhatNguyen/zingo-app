@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:zingo/core/blocs/auth/auth_event.dart';
 import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/constants/enums.dart';
@@ -17,13 +18,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     : _authRepository = authRepository,
       super(AuthState.initial()) {
     _authStateStream.listen((user) {
-      add(AuthStateLoading());
-      final isAuthenticated = state.user != null;
-      if (isAuthenticated && user == null) {
+      try {
+        add(AuthStateLoading());
+        final isAuthenticated = state.user != null;
+        if (isAuthenticated && user == null) {
+          add(AuthLoggedOut());
+          return;
+        }
+        add(AuthStateChanged(user: user));
+      } catch (e) {
+        debugPrint("State error: ${e.toString()}");
         add(AuthLoggedOut());
-        return;
       }
-      add(AuthStateChanged(user: user));
     });
 
     on<AuthStateLoading>((event, emit) async {

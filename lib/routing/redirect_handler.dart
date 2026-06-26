@@ -25,6 +25,7 @@ class RedirectHandler {
     final isOnboardingRoute = curLoc == '/onboarding';
     final isWelcomeRoute = curLoc == '/welcome';
     final isSplashRoute = curLoc == '/splash';
+    final isErrorRoute = curLoc == '/error' || curLoc == '/no-connection';
     // 0. Hold on splash until minimum display time has elapsed
     if (isSplashRoute && !SplashGuard.instance.ready) return null;
     // 1. Wait for auth
@@ -42,7 +43,7 @@ class RedirectHandler {
         userConfigBloc.state.requestStatus == RequestStatus.error;
 
     if (isError) {
-      return '/welcome';
+      return '/error';
     }
 
     if (isLoadingAuth || isLoadingConfig) {
@@ -51,10 +52,10 @@ class RedirectHandler {
     // 2. No auth, public route
     final isAuthenticated = authBloc.state.user != null;
     final hasProfile = userConfigBloc.state.data?.profile != null;
-    debugPrint("isAuthenticated: ${isAuthenticated}");
-    debugPrint("Has profile: ${hasProfile}");
+    debugPrint("isAuthenticated: $isAuthenticated");
+    debugPrint("Has profile: $hasProfile");
     if (!isAuthenticated) {
-      if (isSplashRoute) return '/welcome';
+      if (isSplashRoute || isErrorRoute) return '/welcome';
       return isPublicRoute ? null : '/welcome';
     }
     // 3. Has auth, no profile, public route
@@ -78,6 +79,8 @@ class RedirectHandler {
       if (isOnboardingRoute) return '/home';
       return null;
     }
-    return (isPublicRoute || isOnboardingRoute) ? '/home' : null;
+    return (isPublicRoute || isOnboardingRoute || isErrorRoute)
+        ? '/home'
+        : null;
   }
 }

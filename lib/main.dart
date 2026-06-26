@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,6 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_state.dart';
+import 'package:zingo/core/blocs/connectivity/connectivity_bloc.dart';
+import 'package:zingo/core/blocs/connectivity/connectivity_event.dart';
+import 'package:zingo/core/blocs/connectivity/connectivity_state.dart';
 import 'package:zingo/core/blocs/locale/locale_cubit.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_event.dart';
@@ -101,6 +106,9 @@ class GoRouterRefreshStream extends ChangeNotifier {
               notifyListeners();
             }
             break;
+          case ConnectivityState():
+            // notifyListeners();
+            break;
         }
       });
       _subscriptions.add(subscription);
@@ -121,10 +129,12 @@ class _MainAppState extends State<MainApp> {
   late final SpeechToTextBloc _speechToTextBloc;
   late final UserConfigurationGetBloc _userConfigurationBloc;
   late final UserStreakGetBloc _userStreakGetBloc;
+  late final ConnectivityBloc _connectivityBloc;
   late final LocaleCubit _localeCubit;
   late final GoRouter _router;
   late final UserProfileCreateBloc _userProfileCreateBloc;
   late final GoRouterRefreshStream _refreshStream;
+  final Connectivity _connectivity = Connectivity();
 
   @override
   void initState() {
@@ -139,10 +149,15 @@ class _MainAppState extends State<MainApp> {
       ..add(const SpeechToTextInitializeEvent());
     _userConfigurationBloc = UserConfigurationGetBloc();
     _userStreakGetBloc = UserStreakGetBloc();
+    _connectivityBloc = ConnectivityBloc();
     _localeCubit = LocaleCubit();
     _userProfileCreateBloc = UserProfileCreateBloc();
     _refreshStream = GoRouterRefreshStream(
-      streams: [_authBloc.stream, _userConfigurationBloc.stream],
+      streams: [
+        _authBloc.stream,
+        _userConfigurationBloc.stream,
+        _connectivityBloc.stream,
+      ],
     );
     _router = buildRoutes(
       refreshListenable: Listenable.merge([
@@ -150,7 +165,56 @@ class _MainAppState extends State<MainApp> {
         SplashGuard.instance,
       ]),
     );
+    initConnectivity();
+
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
     setupInteractedMessage();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    late List<ConnectivityResult> result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+      _connectivityBloc.add(
+        ConnectivityCheckEvent(
+          connectivityResult: result,
+          isConnected:
+              result.contains(ConnectivityResult.mobile) ||
+              result.contains(ConnectivityResult.wifi) ||
+              result.contains(ConnectivityResult.ethernet) ||
+              result.contains(ConnectivityResult.satellite),
+        ),
+      );
+      debugPrint("Connectivity result: $result");
+    } on PlatformException catch (e) {
+      debugPrint('Couldn\'t check connectivity status: $e');
+      return;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
+    _connectivityBloc.add(
+      ConnectivityCheckEvent(
+        connectivityResult: result,
+        isConnected:
+            result.contains(ConnectivityResult.mobile) ||
+            result.contains(ConnectivityResult.wifi) ||
+            result.contains(ConnectivityResult.ethernet) ||
+            result.contains(ConnectivityResult.satellite),
+      ),
+    );
   }
 
   // It is assumed that all messages contain a data field with the key 'type'
@@ -192,6 +256,7 @@ class _MainAppState extends State<MainApp> {
     _userConfigurationBloc.close();
     _userStreakGetBloc.close();
     _localeCubit.close();
+    _connectivityBloc.close();
     super.dispose();
   }
 
@@ -205,11 +270,11 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _userStreakGetBloc),
         BlocProvider.value(value: _localeCubit),
         BlocProvider.value(value: _userProfileCreateBloc),
+        BlocProvider.value(value: _connectivityBloc),
       ],
       child: ToastificationWrapper(
         child: MultiBlocListener(
           listeners: [
-            // Trigger configuration fetch when auth succeeds
             BlocListener<AuthBloc, AuthState>(
               listenWhen: (previous, current) =>
                   previous.requestStatus != current.requestStatus ||
@@ -275,12 +340,28 @@ class _MainAppState extends State<MainApp> {
                 }
               },
             ),
-            // Sync backend display_language into LocaleCubit on successful fetch
             BlocListener<UserConfigurationGetBloc, UserConfigurationGetState>(
               listener: (context, state) {
                 final code = state.data?.settings?.display_language;
                 if (code != null) {
                   context.read<LocaleCubit>().setLocale(code);
+                }
+              },
+            ),
+            BlocListener<ConnectivityBloc, ConnectivityState>(
+              listener: (context, state) {
+                debugPrint("ConnectivityState: ${state.isConnected}");
+                if (state.isConnected == false) {
+                  Toastification().show(
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.flat,
+                    title: Text("No internet connection"),
+                    description: Text(
+                      "Please check your internet connection and try again.",
+                    ),
+                    autoCloseDuration: const Duration(seconds: 4),
+                  );
+                  return;
                 }
               },
             ),
