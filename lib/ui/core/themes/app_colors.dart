@@ -50,6 +50,7 @@ abstract final class AppColors {
   static const Color badge = Color(0xFF22C55E); // green achievement
 
   // ── Utility ───────────────────────────────────────────────────────────────
+  static const Color gray = Color(0xFF6B7280);
   static const Color divider = Color(0xFFDFF2F5);
   static const Color border = Color(0xFFC8E8ED);
   static const Color shadow = Color(0x1A0891B2); // primary at 10% opacity

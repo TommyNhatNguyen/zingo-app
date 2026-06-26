@@ -107,7 +107,7 @@ class GoRouterRefreshStream extends ChangeNotifier {
             }
             break;
           case ConnectivityState():
-            // notifyListeners();
+            notifyListeners();
             break;
         }
       });
@@ -345,23 +345,6 @@ class _MainAppState extends State<MainApp> {
                 final code = state.data?.settings?.display_language;
                 if (code != null) {
                   context.read<LocaleCubit>().setLocale(code);
-                }
-              },
-            ),
-            BlocListener<ConnectivityBloc, ConnectivityState>(
-              listener: (context, state) {
-                debugPrint("ConnectivityState: ${state.isConnected}");
-                if (state.isConnected == false) {
-                  Toastification().show(
-                    type: ToastificationType.error,
-                    style: ToastificationStyle.flat,
-                    title: Text("No internet connection"),
-                    description: Text(
-                      "Please check your internet connection and try again.",
-                    ),
-                    autoCloseDuration: const Duration(seconds: 4),
-                  );
-                  return;
                 }
               },
             ),

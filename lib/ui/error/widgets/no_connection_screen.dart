@@ -9,23 +9,20 @@ class NoConnectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Center(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 12,
             children: [
-              const Spacer(flex: 2),
               SvgPicture.asset('assets/error_illustration.svg', width: 180),
-              const SizedBox(height: 36),
               Text(
                 'No internet connection',
                 style: AppTextStyles.h1,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
               Text(
                 'Please check your Wi-Fi or mobile data and try again.',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -33,7 +30,6 @@ class NoConnectionScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const Spacer(flex: 3),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -49,7 +45,6 @@ class NoConnectionScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
             ],
           ),
         ),

@@ -11,8 +11,8 @@ class ConnectivityState extends Equatable {
   });
 
   factory ConnectivityState.initial() => const ConnectivityState(
-    connectivityResult: [ConnectivityResult.none],
-    isConnected: false,
+    connectivityResult: [ConnectivityResult.wifi],
+    isConnected: true,
   );
 
   ConnectivityState copyWith({
