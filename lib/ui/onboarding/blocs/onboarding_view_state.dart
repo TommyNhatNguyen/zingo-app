@@ -7,12 +7,14 @@ class OnboardingViewState extends Equatable {
 
   final String? displayName;
   final Language? displayLanguage;
+  final Language? motherLanguage;
 
   const OnboardingViewState({
     required this.page,
     required this.totalPage,
     this.displayName,
     this.displayLanguage,
+    this.motherLanguage,
   });
 
   factory OnboardingViewState.initial() => const OnboardingViewState(
@@ -20,6 +22,7 @@ class OnboardingViewState extends Equatable {
     totalPage: 3,
     displayName: null,
     displayLanguage: null,
+    motherLanguage: null,
   );
 
   OnboardingViewState copyWith({
@@ -27,15 +30,23 @@ class OnboardingViewState extends Equatable {
     int? totalPage,
     String? displayName,
     Language? displayLanguage,
+    Language? motherLanguage,
   }) {
     return OnboardingViewState(
       page: page ?? this.page,
       totalPage: totalPage ?? this.totalPage,
       displayName: displayName ?? this.displayName,
       displayLanguage: displayLanguage ?? this.displayLanguage,
+      motherLanguage: motherLanguage ?? this.motherLanguage,
     );
   }
 
   @override
-  List<Object?> get props => [page, totalPage, displayName, displayLanguage];
+  List<Object?> get props => [
+    page,
+    totalPage,
+    displayName,
+    displayLanguage,
+    motherLanguage,
+  ];
 }

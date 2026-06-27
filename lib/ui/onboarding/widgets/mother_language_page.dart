@@ -7,15 +7,15 @@ import 'package:zingo/ui/core/ui/resize_header.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_bloc.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_event.dart';
 
-class DisplayLanguagePage extends StatelessWidget {
-  const DisplayLanguagePage({super.key});
+class MotherLanguagePage extends StatelessWidget {
+  const MotherLanguagePage({super.key});
 
-  void _onDisplayLanguageChanged({
+  void _onMotherLanguageChanged({
     required BuildContext context,
     required Language language,
   }) {
     context.read<OnboardingViewBloc>().add(
-      OnboardingViewUpdateForm(displayLanguage: language),
+      OnboardingViewUpdateForm(motherLanguage: language),
     );
   }
 
@@ -28,7 +28,7 @@ class DisplayLanguagePage extends StatelessWidget {
           pinned: true,
           floating: true,
           delegate: ResizeHeader(
-            maxHeight: 150.0,
+            maxHeight: 115.0,
             minHeight: 82.0,
             builder: (context, t) {
               final textTheme = Theme.of(context).textTheme;
@@ -38,23 +38,15 @@ class DisplayLanguagePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text('⚙️', style: TextStyle(fontSize: 40 - t * 16)),
+                    Text('👩', style: TextStyle(fontSize: 40 - t * 16)),
                     Text(
-                      "What language should we use for display?",
+                      "What's your mother language?",
                       style: textTheme.headlineMedium?.copyWith(
                         fontSize:
                             (textTheme.headlineMedium?.fontSize ?? 28) - t * 5,
                       ),
                     ),
-                    Opacity(
-                      opacity: (1.0 - t).clamp(0.0, 1.0),
-                      child: Text(
-                        "We'll change the language of the app to this language.",
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               );
@@ -73,8 +65,8 @@ class DisplayLanguagePage extends StatelessWidget {
                   (lang) => CardSelect(
                     emoji: lang.flag,
                     label: lang.nativeName,
-                    isSelected: state.displayLanguage?.code == lang.code,
-                    onTap: () => _onDisplayLanguageChanged(
+                    isSelected: state.motherLanguage?.code == lang.code,
+                    onTap: () => _onMotherLanguageChanged(
                       context: context,
                       language: lang,
                     ),

@@ -14,6 +14,7 @@ class OnboardingViewBloc
         state.copyWith(
           displayName: event.displayName,
           displayLanguage: event.displayLanguage,
+          motherLanguage: event.motherLanguage,
         ),
       );
     });
