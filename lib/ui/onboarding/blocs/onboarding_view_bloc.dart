@@ -7,7 +7,10 @@ class OnboardingViewBloc
   OnboardingViewBloc() : super(OnboardingViewState.initial()) {
     on<OnboardingViewGoToPage>((event, emit) {
       if (event.page < 0 || event.page > (state.totalPage - 1)) return;
-      emit(OnboardingViewState(page: event.page, totalPage: state.totalPage));
+      emit(state.copyWith(page: event.page));
+    });
+    on<OnboardingViewUpdateForm>((event, emit) {
+      emit(state.copyWith(displayName: event.displayName));
     });
   }
 }

@@ -13,3 +13,12 @@ class OnboardingViewGoToPage extends OnboardingViewEvent {
   @override
   List<Object?> get props => [page];
 }
+
+class OnboardingViewUpdateForm extends OnboardingViewEvent {
+  final String? displayName;
+
+  OnboardingViewUpdateForm({required this.displayName});
+
+  @override
+  List<Object?> get props => [displayName];
+}

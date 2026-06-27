@@ -22,23 +22,17 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 80, 24, 100),
-        color: AppColors.background,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.emoji, style: Theme.of(context).textTheme.displayLarge),
-            Text(
-              widget.title,
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            Text(widget.description),
-            const SizedBox(height: 16),
-            widget.child ?? const SizedBox.shrink(),
-          ],
-        ),
+    return Container(
+      color: AppColors.background,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.emoji, style: Theme.of(context).textTheme.displayLarge),
+          Text(widget.title, style: Theme.of(context).textTheme.headlineLarge),
+          Text(widget.description),
+          const SizedBox(height: 16),
+          widget.child ?? const SizedBox.shrink(),
+        ],
       ),
     );
   }
