@@ -13,14 +13,14 @@ import 'package:zingo/core/blocs/user/update-configuration/user_configuration_up
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/constants/languages.dart';
 import 'package:zingo/core/constants/practice_goal.dart';
-import 'package:zingo/domain/dtos/user-configuration/user_configuration_update_dto.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/utils/parser_util.dart';
+import 'package:zingo/domain/dtos/user-configuration/user_configuration_update_dto.dart';
 import 'package:zingo/ui/core/ui/pickers/languages_picker.dart';
 import 'package:zingo/ui/core/ui/pickers/practice_goal_picker.dart';
 import 'package:zingo/ui/core/ui/pickers/time_picker.dart';
 import 'package:zingo/ui/profile-setting/blocs/user_profile_screen_form_data.dart';
 import 'package:zingo/ui/profile-setting/widgets/user_profile_header.dart';
+import 'package:zingo/utils/parser_util.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});

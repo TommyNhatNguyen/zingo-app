@@ -4,6 +4,7 @@ import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_bloc.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_event.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_state.dart';
+import 'package:zingo/ui/onboarding/widgets/display_language_page.dart';
 import 'package:zingo/ui/onboarding/widgets/display_name_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -65,7 +66,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                       children: [
                         _buildPage(context: context, child: DisplayNamePage()),
-                        _buildPage(context: context, child: Text("data")),
+                        _buildPage(
+                          context: context,
+                          child: DisplayLanguagePage(),
+                        ),
                         _buildPage(context: context, child: Text("data")),
                       ],
                     ),
@@ -108,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildPage({required BuildContext context, required Widget child}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 32),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 0),
       child: child,
     );
   }

@@ -10,7 +10,12 @@ class OnboardingViewBloc
       emit(state.copyWith(page: event.page));
     });
     on<OnboardingViewUpdateForm>((event, emit) {
-      emit(state.copyWith(displayName: event.displayName));
+      emit(
+        state.copyWith(
+          displayName: event.displayName,
+          displayLanguage: event.displayLanguage,
+        ),
+      );
     });
   }
 }

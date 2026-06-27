@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zingo/core/constants/languages.dart';
-import 'package:zingo/ui/onboarding/widgets/profile_page.dart';
 import 'package:zingo/ui/core/ui/card_select.dart';
+import 'package:zingo/ui/onboarding/widgets/profile_page.dart';
 
 class NativeLanguagePage extends StatefulWidget {
   const NativeLanguagePage({

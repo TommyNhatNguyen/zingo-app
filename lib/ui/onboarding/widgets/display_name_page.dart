@@ -20,29 +20,32 @@ class DisplayNamePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        spacing: 16,
-        children: [
-          Row(
-            spacing: 8,
-            children: [
-              Text("👋", style: Theme.of(context).textTheme.headlineLarge),
-              Text(
-                "What should we call you?",
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-            ],
-          ),
-          TextField(
-            autofocus: true,
-            decoration: InputDecoration(hintText: l10n.enterNameHint),
-            onChanged: (value) {
-              _onDisplayNameChanged(context: context, value: value);
-            },
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          spacing: 16,
+          children: [
+            Row(
+              spacing: 8,
+              children: [
+                Text("👋", style: Theme.of(context).textTheme.headlineLarge),
+                Text(
+                  "What should we call you?",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ],
+            ),
+            TextField(
+              autofocus: true,
+              decoration: InputDecoration(hintText: l10n.enterNameHint),
+              onChanged: (value) {
+                _onDisplayNameChanged(context: context, value: value);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

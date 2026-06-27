@@ -20,7 +20,7 @@ class Language extends Equatable {
       nativeName: 'Tiếng Việt',
       flag: '🇻🇳',
     ),
-    Language(id: 'en', code: 'english', nativeName: 'English', flag: '🇺🇸'),
+    // Language(id: 'en', code: 'english', nativeName: 'English', flag: '🇺🇸'),
     Language(id: 'es', code: 'spanish', nativeName: 'Español', flag: '🇪🇸'),
     Language(id: 'fr', code: 'french', nativeName: 'Français', flag: '🇫🇷'),
     Language(id: 'de', code: 'german', nativeName: 'Deutsch', flag: '🇩🇪'),
@@ -53,6 +53,12 @@ class Language extends Equatable {
       code: 'ukrainian',
       nativeName: 'Українська',
       flag: '🇺🇦',
+    ),
+    Language(
+      id: 'pt',
+      code: 'portuguese',
+      nativeName: 'Português (Brasil)',
+      flag: '🇧🇷',
     ),
   ];
 

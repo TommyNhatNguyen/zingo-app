@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:zingo/core/constants/languages.dart';
 
 sealed class OnboardingViewEvent extends Equatable {
   @override
@@ -16,9 +17,9 @@ class OnboardingViewGoToPage extends OnboardingViewEvent {
 
 class OnboardingViewUpdateForm extends OnboardingViewEvent {
   final String? displayName;
-
-  OnboardingViewUpdateForm({required this.displayName});
+  final Language? displayLanguage;
+  OnboardingViewUpdateForm({this.displayName, this.displayLanguage});
 
   @override
-  List<Object?> get props => [displayName];
+  List<Object?> get props => [displayName, displayLanguage];
 }
