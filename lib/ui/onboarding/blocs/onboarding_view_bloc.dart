@@ -15,6 +15,7 @@ class OnboardingViewBloc
           displayName: event.displayName,
           displayLanguage: event.displayLanguage,
           motherLanguage: event.motherLanguage,
+          practiceGoalPerDay: event.practiceGoalPerDay,
         ),
       );
     });

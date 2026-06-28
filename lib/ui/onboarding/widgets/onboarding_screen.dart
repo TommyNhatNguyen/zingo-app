@@ -7,6 +7,7 @@ import 'package:zingo/ui/onboarding/blocs/onboarding_view_state.dart';
 import 'package:zingo/ui/onboarding/widgets/display_language_page.dart';
 import 'package:zingo/ui/onboarding/widgets/display_name_page.dart';
 import 'package:zingo/ui/onboarding/widgets/mother_language_page.dart';
+import 'package:zingo/ui/onboarding/widgets/reminder_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -75,6 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           context: context,
                           child: MotherLanguagePage(),
                         ),
+                        _buildPage(context: context, child: ReminderPage()),
                       ],
                     ),
                   ),

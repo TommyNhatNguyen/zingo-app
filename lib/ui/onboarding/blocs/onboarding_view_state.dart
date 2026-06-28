@@ -8,6 +8,7 @@ class OnboardingViewState extends Equatable {
   final String? displayName;
   final Language? displayLanguage;
   final Language? motherLanguage;
+  final int? practiceGoalPerDay;
 
   const OnboardingViewState({
     required this.page,
@@ -15,14 +16,16 @@ class OnboardingViewState extends Equatable {
     this.displayName,
     this.displayLanguage,
     this.motherLanguage,
+    this.practiceGoalPerDay,
   });
 
   factory OnboardingViewState.initial() => const OnboardingViewState(
     page: 0,
-    totalPage: 3,
+    totalPage: 4,
     displayName: null,
     displayLanguage: null,
     motherLanguage: null,
+    practiceGoalPerDay: null,
   );
 
   OnboardingViewState copyWith({
@@ -31,6 +34,7 @@ class OnboardingViewState extends Equatable {
     String? displayName,
     Language? displayLanguage,
     Language? motherLanguage,
+    int? practiceGoalPerDay,
   }) {
     return OnboardingViewState(
       page: page ?? this.page,
@@ -38,6 +42,7 @@ class OnboardingViewState extends Equatable {
       displayName: displayName ?? this.displayName,
       displayLanguage: displayLanguage ?? this.displayLanguage,
       motherLanguage: motherLanguage ?? this.motherLanguage,
+      practiceGoalPerDay: practiceGoalPerDay ?? this.practiceGoalPerDay,
     );
   }
 
@@ -48,5 +53,6 @@ class OnboardingViewState extends Equatable {
     displayName,
     displayLanguage,
     motherLanguage,
+    practiceGoalPerDay,
   ];
 }

@@ -19,12 +19,19 @@ class OnboardingViewUpdateForm extends OnboardingViewEvent {
   final String? displayName;
   final Language? displayLanguage;
   final Language? motherLanguage;
+  final int? practiceGoalPerDay;
   OnboardingViewUpdateForm({
     this.displayName,
     this.displayLanguage,
     this.motherLanguage,
+    this.practiceGoalPerDay,
   });
 
   @override
-  List<Object?> get props => [displayName, displayLanguage, motherLanguage];
+  List<Object?> get props => [
+    displayName,
+    displayLanguage,
+    motherLanguage,
+    practiceGoalPerDay,
+  ];
 }

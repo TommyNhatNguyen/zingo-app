@@ -16,6 +16,7 @@ import 'package:zingo/core/blocs/connectivity/connectivity_bloc.dart';
 import 'package:zingo/core/blocs/connectivity/connectivity_event.dart';
 import 'package:zingo/core/blocs/connectivity/connectivity_state.dart';
 import 'package:zingo/core/blocs/locale/locale_cubit.dart';
+import 'package:zingo/core/blocs/notification-permisison/notification_permission_cubit.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
@@ -51,28 +52,28 @@ void main() async {
     SharedPreferences.getInstance(), // warm up before runApp
   ]);
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  final [_, settings as NotificationSettings] = await Future.wait([
+  // FirebaseMessaging messaging = FirebaseMessaging.instance;
+  final [_] = await Future.wait([
     GoogleSignIn.instance.initialize(),
-    messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    ),
+    // messaging.requestPermission(
+    //   alert: true,
+    //   announcement: false,
+    //   badge: true,
+    //   carPlay: false,
+    //   criticalAlert: false,
+    //   provisional: false,
+    //   sound: true,
+    // ),
   ]);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // APNS may not be available (missing entitlement, simulator, etc.) — never block startup.
-  try {
-    final token = await messaging.getToken();
-    print("FCM Token: $token");
-  } catch (_) {}
+  // try {
+  //   final token = await messaging.getToken();
+  //   print("FCM Token: $token");
+  // } catch (_) {}
 
-  print("Notification Authorization Status: ${settings.authorizationStatus}");
+  // print("Notification Authorization Status: ${settings.authorizationStatus}");
   runApp(const MainApp());
 }
 
@@ -131,6 +132,7 @@ class _MainAppState extends State<MainApp> {
   late final UserStreakGetBloc _userStreakGetBloc;
   late final ConnectivityBloc _connectivityBloc;
   late final LocaleCubit _localeCubit;
+  late final NotificationPermissionCubit _notificationPermissionCubit;
   late final GoRouter _router;
   late final UserProfileCreateBloc _userProfileCreateBloc;
   late final GoRouterRefreshStream _refreshStream;
@@ -151,6 +153,7 @@ class _MainAppState extends State<MainApp> {
     _userStreakGetBloc = UserStreakGetBloc();
     _connectivityBloc = ConnectivityBloc();
     _localeCubit = LocaleCubit();
+    _notificationPermissionCubit = NotificationPermissionCubit();
     _userProfileCreateBloc = UserProfileCreateBloc();
     _refreshStream = GoRouterRefreshStream(
       streams: [
@@ -256,6 +259,7 @@ class _MainAppState extends State<MainApp> {
     _userConfigurationBloc.close();
     _userStreakGetBloc.close();
     _localeCubit.close();
+    _notificationPermissionCubit.close();
     _connectivityBloc.close();
     super.dispose();
   }
@@ -269,6 +273,7 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _userConfigurationBloc),
         BlocProvider.value(value: _userStreakGetBloc),
         BlocProvider.value(value: _localeCubit),
+        BlocProvider.value(value: _notificationPermissionCubit),
         BlocProvider.value(value: _userProfileCreateBloc),
         BlocProvider.value(value: _connectivityBloc),
       ],
