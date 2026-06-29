@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:zingo/core/constants/languages.dart';
 
 class OnboardingViewState extends Equatable {
@@ -9,6 +10,7 @@ class OnboardingViewState extends Equatable {
   final Language? displayLanguage;
   final Language? motherLanguage;
   final int? practiceGoalPerDay;
+  final TimeOfDay? notificationTime;
 
   const OnboardingViewState({
     required this.page,
@@ -17,15 +19,17 @@ class OnboardingViewState extends Equatable {
     this.displayLanguage,
     this.motherLanguage,
     this.practiceGoalPerDay,
+    this.notificationTime,
   });
 
-  factory OnboardingViewState.initial() => const OnboardingViewState(
+  factory OnboardingViewState.initial() => OnboardingViewState(
     page: 0,
     totalPage: 4,
     displayName: null,
     displayLanguage: null,
     motherLanguage: null,
     practiceGoalPerDay: null,
+    notificationTime: TimeOfDay.now(),
   );
 
   OnboardingViewState copyWith({
@@ -35,6 +39,7 @@ class OnboardingViewState extends Equatable {
     Language? displayLanguage,
     Language? motherLanguage,
     int? practiceGoalPerDay,
+    TimeOfDay? notificationTime,
   }) {
     return OnboardingViewState(
       page: page ?? this.page,
@@ -43,6 +48,7 @@ class OnboardingViewState extends Equatable {
       displayLanguage: displayLanguage ?? this.displayLanguage,
       motherLanguage: motherLanguage ?? this.motherLanguage,
       practiceGoalPerDay: practiceGoalPerDay ?? this.practiceGoalPerDay,
+      notificationTime: notificationTime ?? this.notificationTime,
     );
   }
 
@@ -54,5 +60,6 @@ class OnboardingViewState extends Equatable {
     displayLanguage,
     motherLanguage,
     practiceGoalPerDay,
+    notificationTime,
   ];
 }

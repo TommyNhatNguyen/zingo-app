@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:zingo/core/constants/languages.dart';
 
 sealed class OnboardingViewEvent extends Equatable {
@@ -20,11 +21,13 @@ class OnboardingViewUpdateForm extends OnboardingViewEvent {
   final Language? displayLanguage;
   final Language? motherLanguage;
   final int? practiceGoalPerDay;
+  final TimeOfDay? notificationTime;
   OnboardingViewUpdateForm({
     this.displayName,
     this.displayLanguage,
     this.motherLanguage,
     this.practiceGoalPerDay,
+    this.notificationTime,
   });
 
   @override
@@ -33,5 +36,6 @@ class OnboardingViewUpdateForm extends OnboardingViewEvent {
     displayLanguage,
     motherLanguage,
     practiceGoalPerDay,
+    notificationTime,
   ];
 }
