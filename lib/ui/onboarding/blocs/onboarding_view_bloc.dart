@@ -17,6 +17,7 @@ class OnboardingViewBloc
           motherLanguage: event.motherLanguage,
           practiceGoalPerDay: event.practiceGoalPerDay,
           notificationTime: event.notificationTime,
+          favoriteTopics: event.favoriteTopics,
         ),
       );
     });

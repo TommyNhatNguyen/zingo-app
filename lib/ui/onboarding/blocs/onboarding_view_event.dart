@@ -22,12 +22,14 @@ class OnboardingViewUpdateForm extends OnboardingViewEvent {
   final Language? motherLanguage;
   final int? practiceGoalPerDay;
   final TimeOfDay? notificationTime;
+  final List<String>? favoriteTopics;
   OnboardingViewUpdateForm({
     this.displayName,
     this.displayLanguage,
     this.motherLanguage,
     this.practiceGoalPerDay,
     this.notificationTime,
+    this.favoriteTopics,
   });
 
   @override
@@ -37,5 +39,6 @@ class OnboardingViewUpdateForm extends OnboardingViewEvent {
     motherLanguage,
     practiceGoalPerDay,
     notificationTime,
+    favoriteTopics,
   ];
 }
