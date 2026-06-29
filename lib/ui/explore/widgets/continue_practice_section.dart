@@ -5,12 +5,12 @@ import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_event.dart';
 import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/dialog/recent_dialogs_payload.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/empty_section.dart';
 import 'package:zingo/ui/explore/widgets/topic_card.dart';
-import 'package:zingo/core/l10n/l10n.dart';
 
 class ContinuePracticeSection extends StatefulWidget {
   const ContinuePracticeSection({super.key});

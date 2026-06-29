@@ -279,7 +279,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     actions: [
                       IconButton(
                         onPressed: () {
-                          context.push('/settings');
+                          context.push('/setting');
                         },
                         icon: Icon(Icons.settings_outlined),
                       ),

@@ -7,14 +7,14 @@ import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_event.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/domain/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/ui/explore/widgets/favorite_section.dart';
 import 'package:zingo/ui/explore/widgets/recommendation_section.dart';
-import 'package:zingo/core/l10n/l10n.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -24,6 +24,20 @@ class LearnScreen extends StatefulWidget {
 }
 
 class _LearnScreenState extends State<LearnScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollToTop = false;
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final media = MediaQuery.of(context);
+    if (pos.pixels > media.size.height / 2) {
+      setState(() => _showScrollToTop = true);
+    } else {
+      setState(() => _showScrollToTop = false);
+    }
+  }
+
   Future<void> _onRefresh() async {
     final userId = context.read<AuthBloc>().state.data?.id;
 
@@ -43,41 +57,79 @@ class _LearnScreenState extends State<LearnScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        actionsPadding: const EdgeInsets.only(right: 16),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(context.l10n.browseAllDialogs),
-            Text(
-              context.l10n.browseSubtitle,
-              style: Theme.of(context).textTheme.bodyMedium,
+    final textTheme = Theme.of(context).textTheme;
+
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: Scaffold(
+        body: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              backgroundColor: AppColors.white,
+              stretch: false,
+              floating: true,
+              snap: true,
+              pinned: false,
+              elevation: 4,
+              shadowColor: AppColors.shadow,
+              shape: const Border(bottom: BorderSide(color: AppColors.divider)),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.l10n.browseAllDialogs),
+                  Text(
+                    context.l10n.browseSubtitle,
+                    style: textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
+              sliver: SliverToBoxAdapter(
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 12,
+                      children: const [
+                        ContinuePracticeSection(),
+                        FavoriteSection(),
+                        RecommendationSection(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
-        centerTitle: false,
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                ContinuePracticeSection(),
-                FavoriteSection(),
-                RecommendationSection(),
-              ],
-            ),
-          ),
-        ),
+        floatingActionButton: _showScrollToTop
+            ? FloatingActionButton(
+                onPressed: () => _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+                child: const Icon(Icons.arrow_upward),
+              )
+            : null,
       ),
     );
   }

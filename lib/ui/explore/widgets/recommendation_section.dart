@@ -7,12 +7,12 @@ import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_event.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
 import 'package:zingo/domain/models/journey.dart';
-import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
 class RecommendationSection extends StatefulWidget {
@@ -60,14 +60,13 @@ class _RecommendationSectionState extends State<RecommendationSection> {
         final isLoadingMore = state.requestStatus == RequestStatus.loadingMore;
         final items = _flattenDialogs(state.data);
 
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
-              alignment: Alignment.topCenter,
-              child: Column(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
@@ -132,7 +131,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
               ],
             ),
           ),
-        ));
+        );
       },
     );
   }
