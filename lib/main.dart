@@ -342,6 +342,13 @@ class _MainAppState extends State<MainApp> {
                       ),
                     ),
                   );
+                } else if (state.requestStatus == RequestStatus.error) {
+                  Toastification().show(
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.flat,
+                    title: Text(state.error ?? ''),
+                    autoCloseDuration: const Duration(seconds: 4),
+                  );
                 }
               },
             ),

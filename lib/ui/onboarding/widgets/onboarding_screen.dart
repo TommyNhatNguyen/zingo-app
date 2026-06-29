@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:toastification/toastification.dart';
+import 'package:zingo/core/blocs/auth/auth_bloc.dart';
+import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
+import 'package:zingo/core/blocs/user/create-profile/user_profile_create_event.dart';
+import 'package:zingo/core/blocs/user/create-profile/user_profile_create_state.dart';
+import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/domain/dtos/user-profile/user_profile_create_dto.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_bloc.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_event.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_state.dart';
 import 'package:zingo/ui/onboarding/widgets/display_language_page.dart';
 import 'package:zingo/ui/onboarding/widgets/display_name_page.dart';
+import 'package:zingo/ui/onboarding/widgets/english_level_page.dart';
 import 'package:zingo/ui/onboarding/widgets/interest_topics_page.dart';
 import 'package:zingo/ui/onboarding/widgets/mother_language_page.dart';
 import 'package:zingo/ui/onboarding/widgets/reminder_page.dart';
+import 'package:zingo/utils/parser_util.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -26,14 +36,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      // Toastification().show(
-      //   context: context,
-      //   type: ToastificationType.success,
-      //   style: ToastificationStyle.flat,
-      //   title: Text(context.l10n.welcomeLearnerTitle),
-      //   description: Text(context.l10n.welcomeLearnerDesc),
-      //   autoCloseDuration: const Duration(seconds: 5),
-      // );
+      Toastification().show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        title: Text(context.l10n.welcomeLearnerTitle),
+        description: Text(context.l10n.welcomeLearnerDesc),
+        autoCloseDuration: const Duration(seconds: 5),
+      );
     });
   }
 
@@ -83,6 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           context: context,
                           child: InterestTopicsPage(),
                         ),
+                        _buildPage(context: context, child: EnglishLevelPage()),
                       ],
                     ),
                   ),
@@ -102,6 +113,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required OnboardingViewState state,
   }) {
     void onNextPage() {
+      if (state.page == 4 &&
+          (state.favoriteTopics?.isEmpty == true ||
+              state.favoriteTopics == null ||
+              state.favoriteTopics!.length < 3)) {
+        Toastification().show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          title: Text("Please select at least 3 topics"),
+          autoCloseDuration: const Duration(seconds: 5),
+        );
+        return;
+      }
+
       _pageController.animateToPage(
         state.page + 1,
         duration: const Duration(milliseconds: 300),
@@ -109,6 +134,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
       FocusScope.of(context).unfocus();
       debugPrint('state.displayName: ${state.toString()}');
+    }
+
+    void onSubmit() {
+      final user = context.read<AuthBloc>().state.user;
+      context.read<UserProfileCreateBloc>().add(
+        UserProfileCreateTrigger(
+          payload: UserProfileCreateDto(
+            user_id: user?.uid ?? '',
+            display_name: state.displayName ?? '',
+            display_language: state.displayLanguage?.code ?? '',
+            mother_language: state.motherLanguage?.code ?? '',
+            cefr_level: state.englishLevel ?? EnglishLevel.A1,
+            practice_goal_per_day: state.practiceGoalPerDay ?? 0,
+            notification_time: ParserUtil.formatTimeOfDay(
+              state.notificationTime,
+            ),
+            favorite_topics: state.favoriteTopics ?? [],
+          ),
+        ),
+      );
+    }
+
+    if (state.page == state.totalPage - 1) {
+      return BlocBuilder<UserProfileCreateBloc, UserProfileCreateState>(
+        builder: (context, createState) {
+          final isLoading = createState.requestStatus == RequestStatus.loading;
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: isLoading ? null : onSubmit,
+              label: isLoading ? Text("Submitting...") : Text("Submit"),
+              icon: isLoading ? CircularProgressIndicator() : Icon(Icons.check),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.scoreHigh,
+                foregroundColor: AppColors.white,
+              ),
+            ),
+          );
+        },
+      );
     }
 
     return Container(

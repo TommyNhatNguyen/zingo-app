@@ -15,6 +15,7 @@ class OnboardingViewBloc
           displayName: event.displayName,
           displayLanguage: event.displayLanguage,
           motherLanguage: event.motherLanguage,
+          englishLevel: event.englishLevel,
           practiceGoalPerDay: event.practiceGoalPerDay,
           notificationTime: event.notificationTime,
           favoriteTopics: event.favoriteTopics,

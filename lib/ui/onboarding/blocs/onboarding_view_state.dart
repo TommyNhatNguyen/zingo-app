@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/constants/languages.dart';
 
 class OnboardingViewState extends Equatable {
@@ -9,6 +10,7 @@ class OnboardingViewState extends Equatable {
   final String? displayName;
   final Language? displayLanguage;
   final Language? motherLanguage;
+  final EnglishLevel? englishLevel;
   final int? practiceGoalPerDay;
   final TimeOfDay? notificationTime;
   final List<String>? favoriteTopics;
@@ -19,6 +21,7 @@ class OnboardingViewState extends Equatable {
     this.displayName,
     this.displayLanguage,
     this.motherLanguage,
+    this.englishLevel,
     this.practiceGoalPerDay,
     this.notificationTime,
     this.favoriteTopics,
@@ -26,10 +29,11 @@ class OnboardingViewState extends Equatable {
 
   factory OnboardingViewState.initial() => OnboardingViewState(
     page: 0,
-    totalPage: 5,
+    totalPage: 6,
     displayName: null,
     displayLanguage: null,
     motherLanguage: null,
+    englishLevel: null,
     practiceGoalPerDay: null,
     notificationTime: TimeOfDay.now(),
     favoriteTopics: [],
@@ -41,6 +45,7 @@ class OnboardingViewState extends Equatable {
     String? displayName,
     Language? displayLanguage,
     Language? motherLanguage,
+    EnglishLevel? englishLevel,
     int? practiceGoalPerDay,
     TimeOfDay? notificationTime,
     List<String>? favoriteTopics,
@@ -51,6 +56,7 @@ class OnboardingViewState extends Equatable {
       displayName: displayName ?? this.displayName,
       displayLanguage: displayLanguage ?? this.displayLanguage,
       motherLanguage: motherLanguage ?? this.motherLanguage,
+      englishLevel: englishLevel ?? this.englishLevel,
       practiceGoalPerDay: practiceGoalPerDay ?? this.practiceGoalPerDay,
       notificationTime: notificationTime ?? this.notificationTime,
       favoriteTopics: favoriteTopics ?? this.favoriteTopics,
@@ -64,6 +70,7 @@ class OnboardingViewState extends Equatable {
     displayName,
     displayLanguage,
     motherLanguage,
+    englishLevel,
     practiceGoalPerDay,
     notificationTime,
     favoriteTopics,

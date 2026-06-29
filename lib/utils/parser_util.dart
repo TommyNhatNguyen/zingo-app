@@ -10,4 +10,11 @@ class ParserUtil {
     if (hour == null || minute == null) return null;
     return TimeOfDay(hour: hour, minute: minute);
   }
+
+  static String? formatTimeOfDay(TimeOfDay? time) {
+    if (time == null) return null;
+    final hours = time.hour.toString().padLeft(2, '0');
+    final minutes = time.minute.toString().padLeft(2, '0');
+    return '$hours:$minutes';
+  }
 }
