@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_bloc.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_event.dart';
@@ -78,7 +79,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: MotherLanguagePage(),
                         ),
                         _buildPage(context: context, child: ReminderPage()),
-                        _buildPage(context: context, child: InterestTopicsPage()),
+                        _buildPage(
+                          context: context,
+                          child: InterestTopicsPage(),
+                        ),
                       ],
                     ),
                   ),
@@ -130,6 +134,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required OnboardingViewState state,
   }) {
     void onPreviousPage() {
+      debugPrint("state.page: ${state.page}");
+      if (state.page == 0) {
+        context.go("/welcome", extra: {"from": "onboarding"});
+        return;
+      }
       _pageController.animateToPage(
         state.page - 1,
         duration: const Duration(milliseconds: 300),

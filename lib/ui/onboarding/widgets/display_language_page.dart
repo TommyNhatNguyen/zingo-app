@@ -1,21 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zingo/core/blocs/locale/locale_cubit.dart';
 import 'package:zingo/core/constants/languages.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/core/ui/card_select.dart';
 import 'package:zingo/ui/core/ui/resize_header.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_bloc.dart';
 import 'package:zingo/ui/onboarding/blocs/onboarding_view_event.dart';
 
-class DisplayLanguagePage extends StatelessWidget {
+class DisplayLanguagePage extends StatefulWidget {
   const DisplayLanguagePage({super.key});
+
+  @override
+  State<DisplayLanguagePage> createState() => _DisplayLanguagePageState();
+}
+
+class _DisplayLanguagePageState extends State<DisplayLanguagePage> {
+  LocaleCubit get _localeCubit => context.read<LocaleCubit>();
 
   void _onDisplayLanguageChanged({
     required BuildContext context,
     required Language language,
   }) {
-    context.read<OnboardingViewBloc>().add(
-      OnboardingViewUpdateForm(displayLanguage: language),
+    final l10n = context.l10n;
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.displayLanguage),
+        content: Text(
+          "We'll change the language of the app to this language.",
+          style: Theme.of(ctx).textTheme.bodyLarge,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              _localeCubit.setLocale(language.id);
+              context.read<OnboardingViewBloc>().add(
+                OnboardingViewUpdateForm(displayLanguage: language),
+              );
+              Navigator.of(ctx).pop(true);
+            },
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
     );
   }
 

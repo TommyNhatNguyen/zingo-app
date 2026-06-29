@@ -15,7 +15,9 @@ class RedirectHandler {
   ) {
     final authBloc = context.read<AuthBloc>();
     final userConfigBloc = context.read<UserConfigurationGetBloc>();
+    final extra = state.extra as Map<String, dynamic>?;
     final curLoc = state.matchedLocation;
+    final fromLoc = extra?["from"] as String?;
     final isPublicRoute = const [
       '/welcome',
       '/login',
@@ -66,10 +68,9 @@ class RedirectHandler {
         if (isPublicRoute) {
           return isSplashRoute ? '/welcome' : null;
         }
-        return '/onboarding';
+        return fromLoc == "onboarding" ? '/welcome' : '/onboarding';
       }
-      // 3.2 Normal auth
-      return '/onboarding';
+      return fromLoc == "onboarding" ? '/welcome' : '/onboarding';
     }
     // 4. Has auth, has profile, public route
     // 4.1 Anonymous path
