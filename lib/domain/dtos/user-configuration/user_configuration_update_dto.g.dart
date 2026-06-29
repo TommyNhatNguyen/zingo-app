@@ -19,6 +19,9 @@ UserConfigurationUpdateDto _$UserConfigurationUpdateDtoFromJson(
       : UserConfigurationSettingsDto.fromJson(
           json['settings'] as Map<String, dynamic>,
         ),
+  favorite_topics: (json['favorite_topics'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
 );
 
 Map<String, dynamic> _$UserConfigurationUpdateDtoToJson(
@@ -26,6 +29,7 @@ Map<String, dynamic> _$UserConfigurationUpdateDtoToJson(
 ) => <String, dynamic>{
   'profile': ?instance.profile,
   'settings': ?instance.settings,
+  'favorite_topics': ?instance.favorite_topics,
 };
 
 UserConfigurationProfileDto _$UserConfigurationProfileDtoFromJson(

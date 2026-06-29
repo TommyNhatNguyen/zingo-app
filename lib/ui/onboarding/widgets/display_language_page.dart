@@ -106,7 +106,7 @@ class _DisplayLanguagePageState extends State<DisplayLanguagePage> {
                   (lang) => CardSelect(
                     emoji: lang.flag,
                     label: lang.nativeName,
-                    isSelected: state.displayLanguage?.code == lang.code,
+                    isSelected: state.displayLanguage?.id == lang.id,
                     onTap: () => _onDisplayLanguageChanged(
                       context: context,
                       language: lang,

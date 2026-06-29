@@ -7,8 +7,13 @@ part 'user_configuration_update_dto.g.dart';
 class UserConfigurationUpdateDto extends Equatable {
   final UserConfigurationProfileDto? profile;
   final UserConfigurationSettingsDto? settings;
+  final List<String>? favorite_topics;
 
-  const UserConfigurationUpdateDto({this.profile, this.settings});
+  const UserConfigurationUpdateDto({
+    this.profile,
+    this.settings,
+    this.favorite_topics,
+  });
 
   factory UserConfigurationUpdateDto.fromJson(Map<String, dynamic> json) =>
       _$UserConfigurationUpdateDtoFromJson(json);
@@ -16,7 +21,7 @@ class UserConfigurationUpdateDto extends Equatable {
   Map<String, dynamic> toJson() => _$UserConfigurationUpdateDtoToJson(this);
 
   @override
-  List<Object?> get props => [profile, settings];
+  List<Object?> get props => [profile, settings, favorite_topics];
 }
 
 @JsonSerializable(includeIfNull: false)

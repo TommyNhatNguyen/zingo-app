@@ -1,33 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/topics.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/core/ui/card_select.dart';
 
-/// Trigger row showing how many topics are picked. Opens a tall bottom-sheet
-/// with a 2-col grid for multi-select and commits via a Done button.
-///
-/// Controlled widget: parent owns [value] (set of topic codes) and receives
-/// the new full set via [onChanged]. We never mutate the incoming set.
 class FavoriteTopicsPicker extends StatelessWidget {
-  final Set<String> value;
-  final ValueChanged<Set<String>> onChanged;
+  final List<String> value;
+  final ValueChanged<List<String>> onChanged;
+  final bool? allowClear;
+  final String emptyLabel;
+  final String sheetTitle;
+  final String sheetSubtitle;
 
   const FavoriteTopicsPicker({
     super.key,
     required this.value,
     required this.onChanged,
+    this.allowClear = true,
+    this.emptyLabel = 'Pick favourite topics',
+    this.sheetTitle = 'Favourite topics',
+    this.sheetSubtitle =
+        "Pick as many as you like; we'll personalise your dialogs.",
   });
 
   Future<void> _open(BuildContext context) async {
-    final result = await showModalBottomSheet<Set<String>>(
+    final result = await showModalBottomSheet<List<String>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      enableDrag: true,
       backgroundColor: AppColors.surface,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _TopicsSheet(initialValue: value),
+      builder: (_) => _TopicsSheet(
+        initialValue: value,
+        title: sheetTitle,
+        subtitle: sheetSubtitle,
+        allowClear: allowClear,
+      ),
     );
     if (result != null) onChanged(result);
   }
@@ -36,7 +49,7 @@ class FavoriteTopicsPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final count = value.length;
-    final preview = _previewNames(value);
+    final preview = _formatPreview(value);
 
     return InkWell(
       onTap: () => _open(context),
@@ -73,7 +86,7 @@ class FavoriteTopicsPicker extends StatelessWidget {
                   children: [
                     Text(
                       count == 0
-                          ? 'Pick favourite topics'
+                          ? emptyLabel
                           : '$count topic${count == 1 ? '' : 's'} selected',
                       style: textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -103,22 +116,32 @@ class FavoriteTopicsPicker extends StatelessWidget {
     );
   }
 
-  String? _previewNames(Set<String> codes) {
+  static String? _formatPreview(List<String> codes) {
     if (codes.isEmpty) return null;
+
     final names = TopicCategory.all
-        .where((c) => codes.contains(c.code))
-        .map((c) => c.name)
+        .where((category) => codes.contains(category.code))
+        .map((category) => category.name)
         .toList(growable: false);
     if (names.isEmpty) return null;
     if (names.length <= 3) return names.join(' · ');
+
     return '${names.take(3).join(' · ')} +${names.length - 3} more';
   }
 }
 
 class _TopicsSheet extends StatefulWidget {
-  final Set<String> initialValue;
+  final List<String> initialValue;
+  final String title;
+  final String subtitle;
+  final bool? allowClear;
 
-  const _TopicsSheet({required this.initialValue});
+  const _TopicsSheet({
+    required this.initialValue,
+    required this.title,
+    required this.subtitle,
+    this.allowClear = true,
+  });
 
   @override
   State<_TopicsSheet> createState() => _TopicsSheetState();
@@ -130,7 +153,7 @@ class _TopicsSheetState extends State<_TopicsSheet> {
   @override
   void initState() {
     super.initState();
-    _draft = Set<String>.from(widget.initialValue);
+    _draft = widget.initialValue.toSet();
   }
 
   void _toggle(String code) {
@@ -143,78 +166,66 @@ class _TopicsSheetState extends State<_TopicsSheet> {
     });
   }
 
+  void _clear() {
+    setState(_draft.clear);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final maxHeight = MediaQuery.of(context).size.height * 0.85;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 4, 20, 16 + bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Favourite topics',
-                      style: textTheme.headlineSmall,
-                    ),
-                  ),
-                  if (_draft.isNotEmpty)
-                    TextButton(
-                      onPressed: () => setState(_draft.clear),
-                      child: const Text('Clear'),
-                    ),
-                ],
+              Expanded(
+                child: Text(widget.title, style: textTheme.headlineSmall),
               ),
-              const SizedBox(height: 4),
-              Text(
-                "Pick as many as you like; we'll personalise your dialogs.",
-                style: textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
-              Flexible(
-                child: GridView.count(
-                  shrinkWrap: true,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 2.4,
-                  crossAxisCount: 2,
-                  children: [
-                    for (final cat in TopicCategory.all)
-                      CardSelect(
-                        emoji: cat.emoji,
-                        label: cat.name,
-                        isSelected: _draft.contains(cat.code),
-                        onTap: () => _toggle(cat.code),
-                        labelStyle: textTheme.bodySmall,
-                        labelMaxLines: 2,
-                        checkIconSize: 16,
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: () => Navigator.of(context).pop(_draft),
-                  child: Text(
-                    _draft.isEmpty
-                        ? 'Done'
-                        : 'Done · ${_draft.length} selected',
-                  ),
-                ),
-              ),
+              if (widget.allowClear == true && _draft.isNotEmpty)
+                TextButton(onPressed: _clear, child: const Text('Clear')),
             ],
           ),
-        ),
+          Text(widget.subtitle, style: textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Flexible(
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.4,
+              crossAxisCount: 2,
+              children: [
+                for (final category in TopicCategory.all)
+                  CardSelect(
+                    emoji: category.emoji,
+                    label: category.name,
+                    isSelected: _draft.contains(category.code),
+                    onTap: () => _toggle(category.code),
+                    labelStyle: textTheme.bodySmall,
+                    labelMaxLines: 2,
+                    checkIconSize: 16,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () => Navigator.of(context).pop(_draft.toList()),
+              child: Text(
+                _draft.isEmpty ? 'Done' : 'Done · ${_draft.length} selected',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

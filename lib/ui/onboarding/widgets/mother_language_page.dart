@@ -65,7 +65,7 @@ class MotherLanguagePage extends StatelessWidget {
                   (lang) => CardSelect(
                     emoji: lang.flag,
                     label: lang.nativeName,
-                    isSelected: state.motherLanguage?.code == lang.code,
+                    isSelected: state.motherLanguage?.id == lang.id,
                     onTap: () => _onMotherLanguageChanged(
                       context: context,
                       language: lang,

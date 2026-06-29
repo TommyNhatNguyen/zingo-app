@@ -7,7 +7,7 @@ class UserConfigurationRepository {
   final ApiClientService _apiClientService;
 
   UserConfigurationRepository({required ApiClientService apiClientService})
-      : _apiClientService = apiClientService;
+    : _apiClientService = apiClientService;
 
   Future<Result<UserConfiguration?>> getUserConfiguration() {
     return _apiClientService.getUserConfiguration();

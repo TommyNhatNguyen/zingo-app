@@ -82,6 +82,10 @@ class TopicCategory {
       emoji: '🛍️',
     ),
   ];
+
+  static TopicCategory fromCode(String code) {
+    return all.firstWhere((category) => category.code == code);
+  }
 }
 
 class Topic {

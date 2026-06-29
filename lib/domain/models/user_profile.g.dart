@@ -30,6 +30,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
   user_id: json['user_id'] as String,
   display_name: json['display_name'] as String?,
   mother_language: json['mother_language'] as String?,
+  favorite_topics: (json['favorite_topics'] as List<dynamic>?)
+      ?.map((e) => UserTopicPreference.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
@@ -47,6 +50,7 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'created_at': instance.created_at?.toIso8601String(),
       'updated_at': instance.updated_at?.toIso8601String(),
       'deleted_at': instance.deleted_at?.toIso8601String(),
+      'favorite_topics': instance.favorite_topics,
     };
 
 const _$EnglishLevelEnumMap = {

@@ -5,7 +5,7 @@ class CardSelect extends StatelessWidget {
   final String emoji;
   final String label;
   final bool isSelected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final TextStyle? emojiStyle;
   final TextStyle? labelStyle;
   final int? labelMaxLines;
@@ -16,7 +16,7 @@ class CardSelect extends StatelessWidget {
     required this.emoji,
     required this.label,
     required this.isSelected,
-    required this.onTap,
+    this.onTap,
     this.emojiStyle,
     this.labelStyle,
     this.labelMaxLines,

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/core/ui/pill_badge.dart';
 
 class UserProfileHeader extends StatelessWidget {
@@ -25,6 +25,7 @@ class UserProfileHeader extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [

@@ -55,56 +55,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => OnboardingViewBloc(),
-      child: BlocBuilder<OnboardingViewBloc, OnboardingViewState>(
-        builder: (context, state) {
-          return Scaffold(
-            body: SafeArea(
-              left: false,
-              right: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Progress bar
-                  _buildProgressBar(context: context, state: state),
-                  // Pages
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (page) {
-                        context.read<OnboardingViewBloc>().add(
-                          OnboardingViewGoToPage(page: page),
-                        );
-                      },
-                      children: [
-                        _buildPage(context: context, child: DisplayNamePage()),
-                        _buildPage(
-                          context: context,
-                          child: DisplayLanguagePage(),
-                        ),
-                        _buildPage(
-                          context: context,
-                          child: MotherLanguagePage(),
-                        ),
-                        _buildPage(context: context, child: ReminderPage()),
-                        _buildPage(
-                          context: context,
-                          child: InterestTopicsPage(),
-                        ),
-                        _buildPage(context: context, child: EnglishLevelPage()),
-                      ],
-                    ),
+    return BlocBuilder<OnboardingViewBloc, OnboardingViewState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            left: false,
+            right: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Progress bar
+                _buildProgressBar(context: context, state: state),
+                // Pages
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (page) {
+                      context.read<OnboardingViewBloc>().add(
+                        OnboardingViewGoToPage(page: page),
+                      );
+                    },
+                    children: [
+                      _buildPage(context: context, child: DisplayNamePage()),
+                      _buildPage(
+                        context: context,
+                        child: DisplayLanguagePage(),
+                      ),
+                      _buildPage(context: context, child: MotherLanguagePage()),
+                      _buildPage(context: context, child: ReminderPage()),
+                      _buildPage(context: context, child: InterestTopicsPage()),
+                      _buildPage(context: context, child: EnglishLevelPage()),
+                    ],
                   ),
-                  // Action button
-                  _buildActionButton(context: context, state: state),
-                ],
-              ),
+                ),
+                // Action button
+                _buildActionButton(context: context, state: state),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -143,8 +134,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           payload: UserProfileCreateDto(
             user_id: user?.uid ?? '',
             display_name: state.displayName ?? '',
-            display_language: state.displayLanguage?.code ?? '',
-            mother_language: state.motherLanguage?.code ?? '',
+            display_language: state.displayLanguage?.id ?? '',
+            mother_language: state.motherLanguage?.id ?? '',
             cefr_level: state.englishLevel ?? EnglishLevel.A1,
             practice_goal_per_day: state.practiceGoalPerDay ?? 0,
             notification_time: ParserUtil.formatTimeOfDay(

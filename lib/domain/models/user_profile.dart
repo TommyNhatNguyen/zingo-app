@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/domain/models/user_topic_preference.dart';
 
 part 'user_profile.g.dart';
 
@@ -19,6 +20,7 @@ class UserProfile extends Equatable {
   final DateTime? created_at;
   final DateTime? updated_at;
   final DateTime? deleted_at;
+  final List<UserTopicPreference>? favorite_topics;
 
   const UserProfile({
     required this.cefr_level,
@@ -34,6 +36,7 @@ class UserProfile extends Equatable {
     required this.user_id,
     this.display_name,
     this.mother_language,
+    this.favorite_topics,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
@@ -56,5 +59,6 @@ class UserProfile extends Equatable {
     user_id,
     display_name,
     mother_language,
+    favorite_topics,
   ];
 }
