@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/ui/home/widgets/dashed_line_painter.dart';
 import 'package:zingo/ui/home/widgets/home_lesson.dart';
-import 'package:zingo/core/l10n/l10n.dart';
 
 class HomeChapterDivider extends StatelessWidget {
   const HomeChapterDivider({super.key});

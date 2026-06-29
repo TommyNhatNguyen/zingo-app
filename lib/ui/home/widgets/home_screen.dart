@@ -8,6 +8,7 @@ import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_b
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/domain/dtos/journey/journey_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/ui/home/widgets/home_greeting_row.dart';
 import 'package:zingo/ui/home/widgets/home_lesson_path.dart';
 import 'package:zingo/ui/home/widgets/home_streak_card.dart';
@@ -20,7 +21,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _scrollController = ScrollController();
+  static const _expandedHeaderHeight = 280.0;
+
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollToTop = false;
+  bool _headerCollapsed = false;
 
   @override
   void initState() {
@@ -47,9 +52,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
+    final media = MediaQuery.of(context);
+    final collapseScrollOffset = _expandedHeaderHeight - kToolbarHeight;
 
-    // Layout-phase notifications always fire at pixels == 0.
-    // Require actual downward scroll before evaluating.
+    final showScrollToTop = pos.pixels > media.size.height / 2;
+    final headerCollapsed = pos.pixels >= collapseScrollOffset - 8;
+    if (showScrollToTop != _showScrollToTop ||
+        headerCollapsed != _headerCollapsed) {
+      setState(() {
+        _showScrollToTop = showScrollToTop;
+        _headerCollapsed = headerCollapsed;
+      });
+    }
+
     if (pos.maxScrollExtent <= 0) return;
     if (pos.pixels <= 0) return;
     if (pos.pixels < pos.maxScrollExtent - 300) return;
@@ -71,6 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -81,30 +104,139 @@ class _HomeScreenState extends State<HomeScreen> {
             .state
             .data
             ?.profile;
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HomeGreetingRow(user: user, profile: profile),
-                    const SizedBox(height: 14),
-                    HomeStreakCard(profile: profile),
-                    const SizedBox(height: 28),
-                    const HomeLessonPath(),
-                  ],
+        final topPadding = MediaQuery.of(context).padding.top;
+
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverSafeArea(
+                  sliver: SliverAppBar(
+                    pinned: true,
+                    floating: false,
+                    automaticallyImplyLeading: false,
+                    backgroundColor: AppColors.background,
+                    surfaceTintColor: AppColors.white,
+                    scrolledUnderElevation: 4,
+                    elevation: 4,
+                    toolbarHeight: topPadding + kToolbarHeight,
+                    shadowColor: AppColors.shadow,
+                    expandedHeight: _expandedHeaderHeight,
+                    actionsPadding: EdgeInsets.only(top: topPadding),
+                    actions: _headerCollapsed
+                        ? [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _HomeAppBarStatChip(
+                                  icon: Icons.local_fire_department_rounded,
+                                  value: '${profile?.streak ?? 0}',
+                                  iconColor: AppColors.streak,
+                                  backgroundColor: AppColors.accentContainer,
+                                ),
+                                const SizedBox(width: 8),
+                                _HomeAppBarStatChip(
+                                  icon: Icons.star_rounded,
+                                  value: '${profile?.xp ?? 0}',
+                                  iconColor: AppColors.textOnAccent,
+                                  backgroundColor: AppColors.xp,
+                                  labelColor: AppColors.textOnAccent,
+                                ),
+                                const SizedBox(width: 16),
+                              ],
+                            ),
+                          ]
+                        : null,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: false,
+                      titlePadding: const EdgeInsetsDirectional.only(
+                        start: 16,
+                        bottom: 14,
+                      ),
+                      title: _headerCollapsed
+                          ? Text(
+                              user?.username ?? '—',
+                              style: AppTextStyles.h3,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : null,
+                      background: ColoredBox(
+                        color: AppColors.background,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              HomeGreetingRow(user: user, profile: profile),
+                              const SizedBox(height: 14),
+                              HomeStreakCard(profile: profile),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 28, 16, 32),
+                  sliver: const SliverToBoxAdapter(child: HomeLessonPath()),
+                ),
+              ],
             ),
+            floatingActionButton: _showScrollToTop
+                ? FloatingActionButton(
+                    onPressed: _scrollToTop,
+                    child: const Icon(Icons.arrow_upward),
+                  )
+                : null,
           ),
         );
       },
+    );
+  }
+}
+
+class _HomeAppBarStatChip extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final Color iconColor;
+  final Color backgroundColor;
+  final Color? labelColor;
+
+  const _HomeAppBarStatChip({
+    required this.icon,
+    required this.value,
+    required this.iconColor,
+    required this.backgroundColor,
+    this.labelColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: labelColor ?? iconColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(icon, color: iconColor, size: 16),
+        ],
+      ),
+      backgroundColor: backgroundColor,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
     );
   }
 }

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
-import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/models/journey.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/ui/home/widgets/home_lesson.dart';
 import 'package:zingo/ui/home/widgets/home_lesson_widgets.dart';
 

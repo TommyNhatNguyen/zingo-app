@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
-import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/models/user_profile.dart';
 import 'package:zingo/domain/models/users.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/ui/core/themes/app_text_styles.dart';
 
 class HomeGreetingRow extends StatelessWidget {
   const HomeGreetingRow({super.key, required this.user, required this.profile});
