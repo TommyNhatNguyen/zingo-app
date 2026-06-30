@@ -286,6 +286,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ],
                     stretch: false,
                     floating: true,
+                    pinned: true,
                     snap: true,
                     elevation: 1,
                     shadowColor: AppColors.shadow,

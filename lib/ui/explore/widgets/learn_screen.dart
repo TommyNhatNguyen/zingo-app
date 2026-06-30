@@ -10,10 +10,8 @@ import 'package:zingo/core/blocs/recommendations/list/recommendations_list_event
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/domain/dtos/dialog/popular_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/recommendations/recommendations_payload.dart';
-import 'package:zingo/domain/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/ui/explore/widgets/favorite_section.dart';
@@ -48,18 +46,14 @@ class _LearnScreenState extends State<LearnScreen> {
       ListActiveDialogsFetch(payload: ListActiveDialogsPayload(userId: userId)),
     );
     context.read<ListFavoriteDialogsBloc>().add(
-      ListFavoriteDialogsFetch(
-        payload: ListFavoriteDialogsPayload(userId: userId),
-      ),
+      ListFavoriteDialogsRefreshEvent(userId: userId),
     );
     context.read<RecommendationsListBloc>().add(
       RecommendationsListFetch(
         payload: RecommendationsPayload(user_id: userId ?? ''),
       ),
     );
-    context.read<PopularDialogsBloc>().add(
-      const PopularDialogsFetchEvent(payload: PopularDialogsPayload()),
-    );
+    context.read<PopularDialogsBloc>().add(const PopularDialogsRefreshEvent());
   }
 
   @override
@@ -90,7 +84,7 @@ class _LearnScreenState extends State<LearnScreen> {
               stretch: false,
               floating: true,
               snap: true,
-              pinned: false,
+              pinned: true,
               elevation: 4,
               shadowColor: AppColors.shadow,
               shape: const Border(bottom: BorderSide(color: AppColors.divider)),

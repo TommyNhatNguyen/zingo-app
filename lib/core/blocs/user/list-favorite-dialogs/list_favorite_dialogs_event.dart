@@ -1,27 +1,21 @@
 import 'package:equatable/equatable.dart';
-import 'package:zingo/domain/dtos/user-favorite-dialogs/list_favorite_dialogs_payload.dart';
 
-class ListFavoriteDialogsEvent extends Equatable {
+abstract class ListFavoriteDialogsEvent extends Equatable {
   const ListFavoriteDialogsEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-class ListFavoriteDialogsFetch extends ListFavoriteDialogsEvent {
-  final ListFavoriteDialogsPayload payload;
-
-  const ListFavoriteDialogsFetch({required this.payload});
-
-  @override
-  List<Object?> get props => [payload];
+class ListFavoriteDialogsFetchNextPageEvent extends ListFavoriteDialogsEvent {
+  const ListFavoriteDialogsFetchNextPageEvent();
 }
 
-class ListFavoriteDialogsFetchMore extends ListFavoriteDialogsEvent {
-  final ListFavoriteDialogsPayload payload;
+class ListFavoriteDialogsRefreshEvent extends ListFavoriteDialogsEvent {
+  final String? userId;
 
-  const ListFavoriteDialogsFetchMore({required this.payload});
+  const ListFavoriteDialogsRefreshEvent({this.userId});
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [userId];
 }
