@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class YoullBeScoredOn extends StatelessWidget {
   const YoullBeScoredOn({super.key, required this.selectedMode});
@@ -85,18 +85,14 @@ class YoullBeScoredOn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.youllBeScoredOn,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+        Text(
+          l10n.youllBeScoredOn,
+          softWrap: true,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
+          ),
         ),
         Container(
           width: double.infinity,

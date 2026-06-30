@@ -149,10 +149,10 @@ enum DialogDuration {
 }
 
 enum PracticeMode {
-  @JsonValue('free_speak')
-  freeSpeak,
   @JsonValue('read_aloud')
-  readAloud;
+  readAloud,
+  @JsonValue('free_speak')
+  freeSpeak;
 
   String get label => switch (this) {
     PracticeMode.freeSpeak => "Free speak",

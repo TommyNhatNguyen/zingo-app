@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/ui/core/ui/card_select_icon.dart';
+import 'package:zingo/ui/explore-detail/widgets/practice_mode_preview.dart';
 
 class PracticeModeForm extends StatefulWidget {
   const PracticeModeForm({
@@ -19,6 +21,94 @@ class PracticeModeForm extends StatefulWidget {
 }
 
 class _PracticeModeFormState extends State<PracticeModeForm> {
+  void _showDifferenceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 40,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.8,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        context.l10n.whatsTheDifference,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(dialogContext),
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        spacing: 16,
+                        children: PracticeMode.values.map((mode) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
+                            children: [
+                              Row(
+                                spacing: 8,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primaryContainer,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      mode.icon,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    mode.label,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              PracticeModePreview(selectedMode: mode),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text("Got it"),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,7 +127,7 @@ class _PracticeModeFormState extends State<PracticeModeForm> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => _showDifferenceDialog(context),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -50,84 +140,29 @@ class _PracticeModeFormState extends State<PracticeModeForm> {
         Row(
           spacing: 8,
           children: PracticeMode.values.map((mode) {
-            final isSelected = widget.selectedMode == mode;
+            final isDisabled = mode == PracticeMode.freeSpeak;
             return Expanded(
-              child: Card.outlined(
-                color: isSelected
-                    ? AppColors.primaryContainer
-                    : AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: isSelected ? AppColors.primary : AppColors.border,
-                  ),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    if (mode == PracticeMode.freeSpeak) {
-                      Toastification().show(
-                        context: context,
-                        type: ToastificationType.info,
-                        style: ToastificationStyle.flat,
-                        alignment: AlignmentGeometry.bottomCenter,
-                        title: Text(context.l10n.info),
-                        description: Text(context.l10n.modeNotAvailable),
-                        autoCloseDuration: const Duration(seconds: 4),
-                      );
-                      return;
-                    }
-                    widget.onModeSelected(mode);
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Stack(
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.white
-                                    : AppColors.primaryContainer.withAlpha(100),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                mode.icon,
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : AppColors.textSecondary,
-                              ),
-                            ),
-                            Text(
-                              mode.label,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              mode.description,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Icon(
-                            isSelected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              child: CardSelectIcon(
+                icon: mode.icon,
+                label: mode.label,
+                description: mode.description,
+                isSelected: widget.selectedMode == mode,
+                isDisabled: isDisabled,
+                onTap: () {
+                  if (isDisabled) {
+                    Toastification().show(
+                      context: context,
+                      type: ToastificationType.info,
+                      style: ToastificationStyle.flat,
+                      alignment: AlignmentGeometry.bottomCenter,
+                      title: Text(context.l10n.info),
+                      description: Text(context.l10n.modeNotAvailable),
+                      autoCloseDuration: const Duration(seconds: 4),
+                    );
+                    return;
+                  }
+                  widget.onModeSelected(mode);
+                },
               ),
             );
           }).toList(),

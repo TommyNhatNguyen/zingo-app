@@ -1,13 +1,11 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class PracticeModePreview extends StatelessWidget {
-  const PracticeModePreview({
-    super.key,
-    required PracticeMode selectedMode,
-  }) : _selectedMode = selectedMode;
+  const PracticeModePreview({super.key, required PracticeMode selectedMode})
+    : _selectedMode = selectedMode;
 
   final PracticeMode _selectedMode;
 

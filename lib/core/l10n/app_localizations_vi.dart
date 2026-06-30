@@ -466,7 +466,8 @@ class AppLocalizationsVi extends AppLocalizations {
       'Chấm điểm 3 tiêu chí. Ghi âm lại bất kỳ lượt nào.';
 
   @override
-  String get youllBeScoredOn => 'BẠN SẼ ĐƯỢC CHẤM ĐIỂM';
+  String get youllBeScoredOn =>
+      'BẠN SẼ ĐƯỢC CHẤM ĐIỂM (DÀNH CHO CHẾ ĐỘ FREE SPEAK)';
 
   @override
   String get scoreRanges => 'Thang điểm:';

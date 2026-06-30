@@ -17,22 +17,22 @@ import 'package:zingo/core/blocs/practice-sessions/complete-practice/complete_pr
 import 'package:zingo/core/blocs/practice-sessions/complete-practice/complete_practice_state.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
+import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/practice-sessions/complete_session_payload.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
 import 'package:zingo/domain/models/dialog_turn.dart';
-import 'package:zingo/utils/cache_service.dart';
-import 'package:zingo/utils/matching_text_service.dart';
-import 'package:zingo/utils/speech_to_text_service.dart';
-import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/utils/debounce_util.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/practice/blocs/practice_screen_view_bloc.dart';
 import 'package:zingo/ui/practice/blocs/practice_screen_view_event.dart';
 import 'package:zingo/ui/practice/blocs/practice_screen_view_state.dart';
 import 'package:zingo/ui/practice/widgets/ai_message.dart';
 import 'package:zingo/ui/practice/widgets/practice_control_bar.dart';
 import 'package:zingo/ui/practice/widgets/user_message.dart';
+import 'package:zingo/utils/cache_service.dart';
+import 'package:zingo/utils/debounce_util.dart';
+import 'package:zingo/utils/matching_text_service.dart';
+import 'package:zingo/utils/speech_to_text_service.dart';
 
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({
@@ -202,9 +202,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   Future<void> _playTurnFeedback({required bool success}) async {
     try {
       await _sfxPlayer.stop();
-      await _sfxPlayer.setAsset(
-        success ? _successTurnSound : _errorTurnSound,
-      );
+      await _sfxPlayer.setAsset(success ? _successTurnSound : _errorTurnSound);
       unawaited(_sfxPlayer.play());
     } catch (_) {
       // Ignore missing or unsupported sfx assets.
@@ -245,9 +243,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         style: ToastificationStyle.flat,
         title: Text(context.l10n.keepTrying),
         description: Text(
-          context.l10n.accuracyTooLow(
-            (matchResult.completion * 100).round(),
-          ),
+          context.l10n.accuracyTooLow((matchResult.completion * 100).round()),
         ),
         autoCloseDuration: const Duration(seconds: 4),
       );
