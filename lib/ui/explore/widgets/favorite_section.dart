@@ -47,7 +47,7 @@ class _FavoriteSectionState extends State<FavoriteSection> {
 
   Widget _buildEmptySection(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: EmptySection(
         icon: Icon(Icons.favorite),
         title: Text(
@@ -64,18 +64,45 @@ class _FavoriteSectionState extends State<FavoriteSection> {
     );
   }
 
+  Widget _buildErrorSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: EmptySection(
+        icon: Icon(Icons.favorite),
+        title: Text(
+          context.l10n.errorGeneric,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: TextButton.icon(
+          onPressed: _refreshFavorites,
+          icon: const Icon(Icons.refresh, size: 18),
+          label: Text(context.l10n.retry),
+        ),
+        backgroundColor: AppColors.white,
+        borderColor: AppColors.favoriteLight,
+        iconColor: AppColors.favoriteContainer,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userId = context.select((AuthBloc bloc) => bloc.state.data?.id);
     if (userId == null) return const SizedBox.shrink();
 
-    return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (prev, curr) => prev.data?.id != curr.data?.id,
-      listener: (context, authState) {
-        context.read<ListFavoriteDialogsBloc>().add(
-          ListFavoriteDialogsRefreshEvent(userId: authState.data?.id),
-        );
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listenWhen: (prev, curr) => prev.data?.id != curr.data?.id,
+          listener: (context, authState) {
+            context.read<ListFavoriteDialogsBloc>().add(
+              ListFavoriteDialogsRefreshEvent(userId: authState.data?.id),
+            );
+          },
+        ),
+      ],
       child:
           BlocBuilder<
             ListFavoriteDialogsBloc,
@@ -105,7 +132,9 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                         ],
                       ),
                     ),
-                    if (state.status == PagingStatus.noItemsFound)
+                    if (state.status == PagingStatus.firstPageError)
+                      _buildErrorSection(context)
+                    else if (state.status == PagingStatus.noItemsFound)
                       _buildEmptySection(context)
                     else
                       SizedBox(
@@ -113,7 +142,7 @@ class _FavoriteSectionState extends State<FavoriteSection> {
                         child: PagedListView<int, UserDialogFavorite>.separated(
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           state: state,
                           fetchNextPage: context
                               .read<ListFavoriteDialogsBloc>()

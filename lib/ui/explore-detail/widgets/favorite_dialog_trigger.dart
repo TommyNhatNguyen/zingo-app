@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
+import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
+import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
 import 'package:zingo/core/blocs/user/update-favorite-dialog/update_favorite_dialog_bloc.dart';
 import 'package:zingo/core/blocs/user/update-favorite-dialog/update_favorite_dialog_event.dart';
 import 'package:zingo/core/blocs/user/update-favorite-dialog/update_favorite_dialog_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/domain/dtos/users/users_favorite_dialog_dto.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class FavoriteDialogTrigger extends StatefulWidget {
   final String dialogId;
@@ -23,54 +25,54 @@ class FavoriteDialogTrigger extends StatefulWidget {
 }
 
 class _FavoriteDialogTriggerState extends State<FavoriteDialogTrigger> {
-  late final FavoriteDialogBloc _bloc;
-  late bool _isFavorite;
-  bool _previousFavorite = false;
-
+  bool isFavorite = false;
   @override
   void initState() {
     super.initState();
-    _bloc = FavoriteDialogBloc();
-    _isFavorite = widget.isFavorite;
+    setState(() {
+      isFavorite = widget.isFavorite;
+    });
   }
 
   @override
   void dispose() {
-    _bloc.close();
     super.dispose();
   }
 
   void _toggle(BuildContext context) {
-    if (_bloc.state.requestStatus == RequestStatus.loading) return;
-
     final userId = context.read<AuthBloc>().state.data?.id;
     if (userId == null) return;
 
-    _previousFavorite = _isFavorite;
     final payload = UsersFavoriteDialogDto(
       dialog_id: widget.dialogId,
       user_id: userId,
     );
-
-    setState(() => _isFavorite = !_isFavorite);
-
-    if (_previousFavorite) {
-      _bloc.add(FavoriteDialogRemoveEvent(payload: payload));
+    if (isFavorite) {
+      context.read<FavoriteDialogBloc>().add(
+        FavoriteDialogRemoveEvent(payload: payload),
+      );
     } else {
-      _bloc.add(FavoriteDialogAddEvent(payload: payload));
+      context.read<FavoriteDialogBloc>().add(
+        FavoriteDialogAddEvent(payload: payload),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FavoriteDialogBloc, FavoriteDialogState>(
-      bloc: _bloc,
+      listenWhen: (prev, curr) => prev.requestStatus != curr.requestStatus,
       listener: (context, state) {
-        if (state.requestStatus == RequestStatus.success) {
-          setState(() => _isFavorite = !_isFavorite);
-        } else if (state.requestStatus == RequestStatus.error) {
-          setState(() => _isFavorite = _previousFavorite);
-        }
+        if (state.requestStatus != RequestStatus.success) return;
+
+        setState(() {
+          isFavorite = state.isFavorite;
+        });
+
+        final userId = context.read<AuthBloc>().state.data?.id;
+        context.read<ListFavoriteDialogsBloc>().add(
+          ListFavoriteDialogsRefreshEvent(userId: userId),
+        );
       },
       builder: (context, state) {
         final isLoading = state.requestStatus == RequestStatus.loading;
@@ -83,8 +85,8 @@ class _FavoriteDialogTriggerState extends State<FavoriteDialogTrigger> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : Icon(
-                  _isFavorite ? Icons.favorite : Icons.favorite_outline,
-                  color: _isFavorite
+                  isFavorite ? Icons.favorite : Icons.favorite_outline,
+                  color: isFavorite
                       ? AppColors.favorite
                       : AppColors.textSecondary,
                 ),

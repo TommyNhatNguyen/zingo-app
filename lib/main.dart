@@ -26,6 +26,7 @@ import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_e
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_state.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_event.dart';
+import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/app_localizations.dart';
 import 'package:zingo/core/network/dio_http.dart';
@@ -135,6 +136,7 @@ class _MainAppState extends State<MainApp> {
   late final NotificationPermissionCubit _notificationPermissionCubit;
   late final GoRouter _router;
   late final UserProfileCreateBloc _userProfileCreateBloc;
+  late final ListFavoriteDialogsBloc _listFavoriteDialogsBloc;
   late final GoRouterRefreshStream _refreshStream;
   final Connectivity _connectivity = Connectivity();
 
@@ -155,6 +157,7 @@ class _MainAppState extends State<MainApp> {
     _localeCubit = LocaleCubit();
     _notificationPermissionCubit = NotificationPermissionCubit();
     _userProfileCreateBloc = UserProfileCreateBloc();
+    _listFavoriteDialogsBloc = ListFavoriteDialogsBloc();
     _refreshStream = GoRouterRefreshStream(
       streams: [
         _authBloc.stream,
@@ -261,6 +264,7 @@ class _MainAppState extends State<MainApp> {
     _localeCubit.close();
     _notificationPermissionCubit.close();
     _connectivityBloc.close();
+    _listFavoriteDialogsBloc.close();
     super.dispose();
   }
 
@@ -276,6 +280,7 @@ class _MainAppState extends State<MainApp> {
         BlocProvider.value(value: _notificationPermissionCubit),
         BlocProvider.value(value: _userProfileCreateBloc),
         BlocProvider.value(value: _connectivityBloc),
+        BlocProvider.value(value: _listFavoriteDialogsBloc),
       ],
       child: ToastificationWrapper(
         child: MultiBlocListener(

@@ -61,7 +61,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
         final items = _flattenDialogs(state.data);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AnimatedSize(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOut,
@@ -212,34 +212,11 @@ class _RecommendationCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   spacing: 2,
                   children: [
-                    if (dialog?.topics?.name != null)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 4,
-                        children: [
-                          const Icon(
-                            Icons.folder_open_rounded,
-                            size: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                          Expanded(
-                            child: Text(
-                              CapitalizeUtil.capitalize(
-                                text: dialog!.topics!.name,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ),
-                        ],
-                      ),
                     Text(
                       CapitalizeUtil.capitalize(text: dialog?.title ?? ''),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -253,9 +230,45 @@ class _RecommendationCard extends StatelessWidget {
                           fontStyle: FontStyle.italic,
                         ),
                       ),
+                    const SizedBox(height: 4),
                     Row(
                       spacing: 6,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        if (dialog?.topics?.name != null)
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              spacing: 4,
+                              children: [
+                                const Icon(
+                                  Icons.folder_open_rounded,
+                                  size: 13,
+                                  color: AppColors.textSecondary,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    CapitalizeUtil.capitalize(
+                                      text: dialog!.topics!.name,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Text(
+                          "${dialog?.conversation_length ?? 0} turns",
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
                         if (dialog?.duration != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -275,11 +288,6 @@ class _RecommendationCard extends StatelessWidget {
                                   ),
                             ),
                           ),
-                        Text(
-                          "${dialog?.conversation_length ?? 0} turns",
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.textSecondary),
-                        ),
                       ],
                     ),
                   ],

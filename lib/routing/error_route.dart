@@ -6,6 +6,6 @@ class ErrorRoute {
   static GoRoute buildRoute() => GoRoute(
     path: '/error',
     pageBuilder: (context, state) =>
-        RoutePageBuilders.noTransition(state.pageKey, const ErrorScreen()),
+        RoutePageBuilders.noTransition(state.pageKey, ErrorScreen()),
   );
 }

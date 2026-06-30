@@ -39,6 +39,7 @@ class EmptySection extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           spacing: 8,
           children: [
             Container(

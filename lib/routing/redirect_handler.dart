@@ -44,9 +44,11 @@ class RedirectHandler {
         authBloc.state.requestStatus == RequestStatus.error ||
         userConfigBloc.state.requestStatus == RequestStatus.error;
 
-    // if (isError) {
-    //   return '/error';
-    // }
+    if (isSplashRoute) {
+      if (isError) {
+        return '/error';
+      }
+    }
 
     if (isLoadingAuth || isLoadingConfig) {
       return null;

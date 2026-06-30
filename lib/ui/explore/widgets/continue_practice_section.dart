@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_bloc.dart';
+import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_event.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
 import 'package:zingo/ui/core/themes/app_colors.dart';
@@ -26,7 +27,7 @@ class ContinuePracticeSection extends StatelessWidget {
 
   Widget _buildEmptySection(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: EmptySection(
         icon: Icon(Icons.coffee),
         title: Text(
@@ -36,6 +37,31 @@ class ContinuePracticeSection extends StatelessWidget {
           ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(context.l10n.startNewSession),
+        backgroundColor: AppColors.white,
+        borderColor: AppColors.border,
+        iconColor: AppColors.primaryContainer,
+      ),
+    );
+  }
+
+  Widget _buildErrorSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: EmptySection(
+        icon: Icon(Icons.coffee),
+        title: Text(
+          context.l10n.errorGeneric,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: TextButton.icon(
+          onPressed: () => context.read<PopularDialogsBloc>().add(
+            const PopularDialogsRefreshEvent(),
+          ),
+          icon: const Icon(Icons.refresh, size: 18),
+          label: Text(context.l10n.retry),
+        ),
         backgroundColor: AppColors.white,
         borderColor: AppColors.border,
         iconColor: AppColors.primaryContainer,
@@ -74,7 +100,9 @@ class ContinuePracticeSection extends StatelessWidget {
                   ],
                 ),
               ),
-              if (state.status == PagingStatus.noItemsFound)
+              if (state.status == PagingStatus.firstPageError)
+                _buildErrorSection(context)
+              else if (state.status == PagingStatus.noItemsFound)
                 _buildEmptySection(context)
               else
                 SizedBox(
@@ -82,7 +110,7 @@ class ContinuePracticeSection extends StatelessWidget {
                   child: PagedListView<int, dialog_model.Dialog>.separated(
                     scrollDirection: Axis.horizontal,
                     shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     state: state,
                     fetchNextPage: context
                         .read<PopularDialogsBloc>()
