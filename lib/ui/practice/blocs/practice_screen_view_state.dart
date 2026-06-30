@@ -8,13 +8,18 @@ class PracticeScreenViewState extends Equatable {
   final int currentTurnIndex;
   final String? playingDialogTurnID;
   final PracticePhase phase;
+  final bool isLoadingDialogTurns;
 
   const PracticeScreenViewState({
     this.turns = const [],
     this.currentTurnIndex = 0,
     this.playingDialogTurnID,
     this.phase = PracticePhase.idle,
+    this.isLoadingDialogTurns = true,
   });
+
+  factory PracticeScreenViewState.initial() =>
+      const PracticeScreenViewState();
 
   PracticeScreenViewState copyWith({
     List<DialogTurn>? turns,
@@ -22,6 +27,7 @@ class PracticeScreenViewState extends Equatable {
     String? playingDialogTurnID,
     bool clearPlayingDialogTurnID = false,
     PracticePhase? phase,
+    bool? isLoadingDialogTurns,
   }) {
     return PracticeScreenViewState(
       turns: turns ?? this.turns,
@@ -30,6 +36,7 @@ class PracticeScreenViewState extends Equatable {
           ? null
           : (playingDialogTurnID ?? this.playingDialogTurnID),
       phase: phase ?? this.phase,
+      isLoadingDialogTurns: isLoadingDialogTurns ?? this.isLoadingDialogTurns,
     );
   }
 
@@ -39,5 +46,6 @@ class PracticeScreenViewState extends Equatable {
     currentTurnIndex,
     playingDialogTurnID,
     phase,
+    isLoadingDialogTurns,
   ];
 }

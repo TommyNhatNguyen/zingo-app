@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:zingo/domain/models/dialog_turn.dart';
 import 'package:zingo/ui/practice/blocs/practice_screen_view_state.dart';
 
-class PracticeScreenEvent extends Equatable {
+sealed class PracticeScreenEvent extends Equatable {
   const PracticeScreenEvent();
 
   @override
@@ -47,4 +47,13 @@ class PracticeScreenSetPlayingAudioEvent extends PracticeScreenEvent {
 
   @override
   List<Object?> get props => [turnId];
+}
+
+class PracticeScreenSetLoadingDialogTurnsEvent extends PracticeScreenEvent {
+  final bool isLoading;
+
+  const PracticeScreenSetLoadingDialogTurnsEvent({required this.isLoading});
+
+  @override
+  List<Object?> get props => [isLoading];
 }

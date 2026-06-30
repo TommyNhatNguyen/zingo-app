@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/domain/models/dialog_turn.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class AiMessage extends StatefulWidget {
   const AiMessage({
@@ -80,43 +80,50 @@ class _AiMessageState extends State<AiMessage> {
                                     repeat: true,
                                     fit: BoxFit.cover,
                                   )
-                                : const Icon(Icons.volume_up_outlined, size: 20),
+                                : const Icon(
+                                    Icons.volume_up_outlined,
+                                    size: 20,
+                                  ),
                           ),
                           IconButton.outlined(
                             tooltip: 'Translate',
                             style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStateProperty.all(AppColors.white),
+                              backgroundColor: WidgetStateProperty.all(
+                                AppColors.white,
+                              ),
                             ),
                             onPressed: () {},
-                            icon: const Icon(Icons.translate_outlined, size: 20),
-                          ),
-                          if (widget.turn?.context_note != null)
-                            IconButton.outlined(
-                              tooltip: 'Context note',
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                  _showContextNote
-                                      ? AppColors.primaryContainer
-                                      : AppColors.white,
-                                ),
-                              ),
-                              onPressed: () =>
-                                  setState(() => _showContextNote = !_showContextNote),
-                              icon: const Icon(Icons.info_outline, size: 20),
+                            icon: const Icon(
+                              Icons.translate_outlined,
+                              size: 20,
                             ),
+                          ),
+                          // if (widget.turn?.context_note != null)
+                          //   IconButton.outlined(
+                          //     tooltip: 'Context note',
+                          //     style: ButtonStyle(
+                          //       backgroundColor: WidgetStateProperty.all(
+                          //         _showContextNote
+                          //             ? AppColors.primaryContainer
+                          //             : AppColors.white,
+                          //       ),
+                          //     ),
+                          //     onPressed: () =>
+                          //         setState(() => _showContextNote = !_showContextNote),
+                          //     icon: const Icon(Icons.info_outline, size: 20),
+                          //   ),
                         ],
                       ),
                     ),
-                    if (_showContextNote && widget.turn?.context_note != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.turn!.context_note!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontStyle: FontStyle.italic,
-                            ),
-                      ),
-                    ],
+                    // if (_showContextNote && widget.turn?.context_note != null) ...[
+                    //   const SizedBox(height: 8),
+                    //   Text(
+                    //     widget.turn!.context_note!,
+                    //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    //           fontStyle: FontStyle.italic,
+                    //         ),
+                    //   ),
+                    // ],
                   ],
                 ),
               ),

@@ -4,19 +4,27 @@ import 'package:zingo/ui/practice/blocs/practice_screen_view_state.dart';
 
 class PracticeScreenBloc
     extends Bloc<PracticeScreenEvent, PracticeScreenViewState> {
-  PracticeScreenBloc() : super(const PracticeScreenViewState()) {
+  PracticeScreenBloc() : super(PracticeScreenViewState.initial()) {
     on<PracticeScreenInitializeEvent>(_onInitialize);
     on<PracticeScreenLoadDialogTurnsEvent>(_onLoadDialogTurns);
     on<PracticeScreenInsertDialogTurnEvent>(_onInsertDialogTurn);
     on<PracticeScreenSetPhaseEvent>(_onSetPhase);
     on<PracticeScreenSetPlayingAudioEvent>(_onSetPlayingAudio);
+    on<PracticeScreenSetLoadingDialogTurnsEvent>(_onSetLoadingDialogTurns);
   }
 
   void _onInitialize(
     PracticeScreenInitializeEvent event,
     Emitter<PracticeScreenViewState> emit,
   ) {
-    emit(const PracticeScreenViewState());
+    emit(PracticeScreenViewState.initial());
+  }
+
+  void _onSetLoadingDialogTurns(
+    PracticeScreenSetLoadingDialogTurnsEvent event,
+    Emitter<PracticeScreenViewState> emit,
+  ) {
+    emit(state.copyWith(isLoadingDialogTurns: event.isLoading));
   }
 
   void _onLoadDialogTurns(

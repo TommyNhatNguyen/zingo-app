@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/domain/models/dialog_turn.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/utils/matching_text_service.dart';
 
 class UserMessage extends StatefulWidget {
@@ -36,23 +36,27 @@ class _UserMessageState extends State<UserMessage> {
 
     if (widget.tokens != null) {
       return widget.tokens!
-          .expand((token) => [
-                TextSpan(
-                  text: token.display,
-                  style: token.state == WordState.matched
-                      ? underlined?.copyWith(color: AppColors.scoreHigh)
-                      : underlined,
-                ),
-                const TextSpan(text: '  '),
-              ])
+          .expand(
+            (token) => [
+              TextSpan(
+                text: token.display,
+                style: token.state == WordState.matched
+                    ? underlined?.copyWith(color: AppColors.scoreHigh)
+                    : underlined,
+              ),
+              const TextSpan(text: '  '),
+            ],
+          )
           .toList();
     }
 
     return (widget.turn?.line_text.split(' ') ?? [])
-        .expand((word) => [
-              TextSpan(text: word, style: underlined),
-              const TextSpan(text: '  '),
-            ])
+        .expand(
+          (word) => [
+            TextSpan(text: word, style: underlined),
+            const TextSpan(text: '  '),
+          ],
+        )
         .toList();
   }
 
@@ -101,39 +105,45 @@ class _UserMessageState extends State<UserMessage> {
                                     repeat: true,
                                     fit: BoxFit.cover,
                                   )
-                                : const Icon(Icons.volume_up_outlined, size: 20),
+                                : const Icon(
+                                    Icons.volume_up_outlined,
+                                    size: 20,
+                                  ),
                           ),
                           IconButton.outlined(
                             tooltip: 'Translate',
                             onPressed: () {},
-                            icon: const Icon(Icons.translate_outlined, size: 20),
-                          ),
-                          if (widget.turn?.context_note != null)
-                            IconButton.outlined(
-                              tooltip: 'Context note',
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                  _showContextNote
-                                      ? AppColors.primaryContainer
-                                      : AppColors.white,
-                                ),
-                              ),
-                              onPressed: () =>
-                                  setState(() => _showContextNote = !_showContextNote),
-                              icon: const Icon(Icons.info_outline, size: 20),
+                            icon: const Icon(
+                              Icons.translate_outlined,
+                              size: 20,
                             ),
+                          ),
+                          // if (widget.turn?.context_note != null)
+                          //   IconButton.outlined(
+                          //     tooltip: 'Context note',
+                          //     style: ButtonStyle(
+                          //       backgroundColor: WidgetStateProperty.all(
+                          //         _showContextNote
+                          //             ? AppColors.primaryContainer
+                          //             : AppColors.white,
+                          //       ),
+                          //     ),
+                          //     onPressed: () =>
+                          //         setState(() => _showContextNote = !_showContextNote),
+                          //     icon: const Icon(Icons.info_outline, size: 20),
+                          //   ),
                         ],
                       ),
                     ),
-                    if (_showContextNote && widget.turn?.context_note != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.turn!.context_note!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontStyle: FontStyle.italic,
-                            ),
-                      ),
-                    ],
+                    // if (_showContextNote && widget.turn?.context_note != null) ...[
+                    //   const SizedBox(height: 4),
+                    //   Text(
+                    //     widget.turn!.context_note!,
+                    //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    //           fontStyle: FontStyle.italic,
+                    //         ),
+                    //   ),
+                    // ],
                   ],
                 ),
               ),

@@ -62,7 +62,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late final AuthBloc _authBloc;
   late final AudioPlayer _audioPlayer;
   late final AudioPlayer _sfxPlayer;
-  bool _isLoadingDialogTurns = true;
 
   SpeechToText get _speechToTextController => SpeechToTextService.instance;
   final DebounceUtil _debouncer = DebounceUtil(milliseconds: 200);
@@ -453,9 +452,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
             _practiceScreenBloc.add(
               PracticeScreenLoadDialogTurnsEvent(turns: state.data!),
             );
-            setState(() {
-              _isLoadingDialogTurns = false;
-            });
+            _practiceScreenBloc.add(
+              const PracticeScreenSetLoadingDialogTurnsEvent(isLoading: false),
+            );
             await _insertDialogTurn(
               turn: state.data!.first,
               currentTurnIndex: 0,
@@ -530,7 +529,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             body: Column(
               children: [
                 Expanded(
-                  child: _isLoadingDialogTurns
+                  child: state.isLoadingDialogTurns
                       ? const Center(child: CircularProgressIndicator())
                       : Chat(
                           currentUserId: _authBloc.state.user?.uid ?? '',
