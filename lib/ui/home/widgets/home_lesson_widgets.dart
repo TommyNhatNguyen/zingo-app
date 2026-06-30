@@ -240,72 +240,75 @@ class HomeLessonContent extends StatelessWidget {
         );
 
       case HomeLessonState.nextUp:
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.accent, width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.10),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    context.l10n.lessonNextUpLabel(lesson.number),
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 10,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.star_border_rounded,
-                    color: AppColors.xp,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '+${lesson.xpGain}',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.xp,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                lesson.title,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w700,
+        return GestureDetector(
+          onTap: () => context.push('/learn/${lesson.id}'),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.accent, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.10),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  if (lesson.level != null) HomeLessonInfoChip(lesson.level!),
-                  if (lesson.turns != null) ...[
-                    const SizedBox(width: 6),
-                    HomeLessonInfoChip('${lesson.turns} turns'),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      context.l10n.lessonNextUpLabel(lesson.number),
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(
+                      Icons.star_border_rounded,
+                      color: AppColors.xp,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '+${lesson.xpGain}',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.xp,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
+                    ),
                   ],
-                  if (lesson.durationMin != null) ...[
-                    const SizedBox(width: 6),
-                    HomeLessonInfoChip('${lesson.durationMin} min'),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  lesson.title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (lesson.level != null) HomeLessonInfoChip(lesson.level!),
+                    if (lesson.turns != null) ...[
+                      const SizedBox(width: 6),
+                      HomeLessonInfoChip('${lesson.turns} turns'),
+                    ],
+                    if (lesson.durationMin != null) ...[
+                      const SizedBox(width: 6),
+                      HomeLessonInfoChip('${lesson.durationMin} min'),
+                    ],
                   ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         );
 
