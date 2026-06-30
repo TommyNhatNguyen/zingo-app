@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zingo/core/blocs/dialog/list/dialog_list_bloc.dart';
-import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_bloc.dart';
+import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
@@ -16,7 +16,7 @@ class LearnRoute {
         BlocProvider(create: (_) => ListActiveDialogsBloc()),
         BlocProvider(create: (_) => ListFavoriteDialogsBloc()),
         BlocProvider(create: (_) => RecommendationsListBloc()),
-        BlocProvider(create: (_) => RecentDialogsBloc()),
+        BlocProvider(create: (_) => PopularDialogsBloc()),
       ],
       child: const LearnScreen(),
     ),

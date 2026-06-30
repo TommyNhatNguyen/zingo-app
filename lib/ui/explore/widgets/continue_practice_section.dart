@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:zingo/core/blocs/auth/auth_bloc.dart';
-import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_bloc.dart';
-import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_event.dart';
-import 'package:zingo/core/blocs/dialog/recent/recent_dialogs_state.dart';
+import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_bloc.dart';
+import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_event.dart';
+import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_state.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/domain/dtos/dialog/recent_dialogs_payload.dart';
+import 'package:zingo/domain/dtos/dialog/popular_dialogs_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/empty_section.dart';
 import 'package:zingo/ui/explore/widgets/topic_card.dart';
@@ -24,18 +23,14 @@ class _ContinuePracticeSectionState extends State<ContinuePracticeSection> {
   @override
   void initState() {
     super.initState();
-    final userId = context.read<AuthBloc>().state.data?.id ?? '';
-    context.read<RecentDialogsBloc>().add(
-      RecentDialogsFetchEvent(
-        userId: userId,
-        payload: const RecentDialogsPayload(),
-      ),
+    context.read<PopularDialogsBloc>().add(
+      const PopularDialogsFetchEvent(payload: PopularDialogsPayload()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RecentDialogsBloc, RecentDialogsState>(
+    return BlocBuilder<PopularDialogsBloc, PopularDialogsState>(
       builder: (context, state) {
         final isLoading =
             state.requestStatus == RequestStatus.loading ||

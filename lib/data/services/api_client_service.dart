@@ -5,6 +5,7 @@ import 'package:zingo/data/model/result.dart';
 import 'package:zingo/domain/dtos/dialog-turns/dialog_turns_by_dialog_id_payload.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_detail_payload.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_list_payload.dart';
+import 'package:zingo/domain/dtos/dialog/popular_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/dialog/recent_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/journey/journey_payload.dart';
 import 'package:zingo/domain/dtos/practice-sessions/complete_session_payload.dart';
@@ -291,6 +292,35 @@ class ApiClientService {
       final success = response.data['success'] ?? false;
       final error = response.data['error'];
       if (!success || error != null) return Result.error(Exception(error));
+      return Result.ok(
+        PaginatedApiResult<Dialog>(
+          success: success,
+          meta: PaginationMeta.fromJson(meta),
+          data: items.map((e) => Dialog.fromJson(e)).toList(),
+          error: error,
+        ),
+      );
+    } on DioException catch (e) {
+      return _dioErrorResult(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<PaginatedApiResult<Dialog>>> getPopularDialogs(
+    PopularDialogsPayload payload,
+  ) async {
+    try {
+      final response = await _httpClient.get(
+        '/v1/popular-dialogs',
+        queryParameters: payload.toJson(),
+      );
+      final success = response.data['success'] ?? false;
+      final error = response.data['error'];
+      if (!success || error != null) return Result.error(Exception(error));
+      final data = response.data['data'] as Map<String, dynamic>;
+      final items = data['items'] as List<dynamic>;
+      final meta = data['meta'] as Map<String, dynamic>;
       return Result.ok(
         PaginatedApiResult<Dialog>(
           success: success,

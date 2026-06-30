@@ -3,6 +3,7 @@ import 'package:zingo/data/model/result.dart';
 import 'package:zingo/data/services/api_client_service.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_detail_payload.dart';
 import 'package:zingo/domain/dtos/dialog/dialog_list_payload.dart';
+import 'package:zingo/domain/dtos/dialog/popular_dialogs_payload.dart';
 import 'package:zingo/domain/dtos/dialog/recent_dialogs_payload.dart';
 import 'package:zingo/domain/models/dialog.dart';
 
@@ -10,7 +11,13 @@ class DialogRepository {
   final ApiClientService _apiClientService;
 
   DialogRepository({required ApiClientService apiClientService})
-      : _apiClientService = apiClientService;
+    : _apiClientService = apiClientService;
+
+  Future<Result<PaginatedApiResult<Dialog>>> getPopularDialogs(
+    PopularDialogsPayload payload,
+  ) {
+    return _apiClientService.getPopularDialogs(payload);
+  }
 
   Future<Result<PaginatedApiResult<Dialog>>> getDialogs(
     DialogListPayload payload,
