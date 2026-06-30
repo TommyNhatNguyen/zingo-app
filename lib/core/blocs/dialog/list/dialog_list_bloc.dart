@@ -62,10 +62,7 @@ class DialogListBloc extends Bloc<DialogListEvent, DialogListState> {
       );
     } else {
       emit(
-        source.copyWith(
-          requestStatus: RequestStatus.loadingMore,
-          error: null,
-        ),
+        source.copyWith(requestStatus: RequestStatus.loadingMore, error: null),
       );
     }
 

@@ -12,9 +12,12 @@ class FavoriteDialogBloc
   final FavoriteDialogRepository _repository;
 
   FavoriteDialogBloc({FavoriteDialogRepository? repository})
-      : _repository = repository ??
-            FavoriteDialogRepository(apiClientService: ApiClientService(httpClient: dio)),
-        super(FavoriteDialogState()) {
+    : _repository =
+          repository ??
+          FavoriteDialogRepository(
+            apiClientService: ApiClientService(httpClient: dio),
+          ),
+      super(FavoriteDialogState()) {
     on<FavoriteDialogAddEvent>((event, emit) async {
       emit(state.copyWith(requestStatus: RequestStatus.loading));
       final result = await _repository.addFavorite(event.payload);

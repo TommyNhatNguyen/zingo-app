@@ -9,7 +9,8 @@ import 'package:zingo/domain/dtos/user-favorite-dialogs/list_favorite_dialogs_pa
 import 'package:zingo/domain/models/user_dialog_favorite.dart';
 
 class ListFavoriteDialogsBloc
-    extends Bloc<ListFavoriteDialogsEvent, PagingState<int, UserDialogFavorite>> {
+    extends
+        Bloc<ListFavoriteDialogsEvent, PagingState<int, UserDialogFavorite>> {
   static const _pageSize = 10;
 
   final FavoriteDialogRepository _repository;
@@ -26,7 +27,9 @@ class ListFavoriteDialogsBloc
     on<ListFavoriteDialogsRefreshEvent>(_onRefresh);
   }
 
-  void fetchNextPage() => add(const ListFavoriteDialogsFetchNextPageEvent());
+  void fetchNextPage() {
+    add(const ListFavoriteDialogsFetchNextPageEvent());
+  }
 
   Future<void> _onFetchNextPage(
     ListFavoriteDialogsFetchNextPageEvent event,
