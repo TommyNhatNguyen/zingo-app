@@ -121,6 +121,33 @@ enum EnglishLevel {
   }
 }
 
+enum DialogDuration {
+  @JsonValue('short')
+  short,
+  @JsonValue('mid')
+  mid,
+  @JsonValue('long')
+  long;
+
+  String get label => switch (this) {
+    DialogDuration.short => 'Short',
+    DialogDuration.mid => 'Medium',
+    DialogDuration.long => 'Long',
+  };
+
+  String get description => switch (this) {
+    DialogDuration.short => '~2 min',
+    DialogDuration.mid => '~5 min',
+    DialogDuration.long => '~10 min',
+  };
+
+  String get value => switch (this) {
+    DialogDuration.short => 'short',
+    DialogDuration.mid => 'mid',
+    DialogDuration.long => 'long',
+  };
+}
+
 enum PracticeMode {
   @JsonValue('free_speak')
   freeSpeak,

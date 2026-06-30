@@ -5,9 +5,8 @@ import 'package:zingo/core/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/core/blocs/dialog/list/dialog_list_event.dart';
 import 'package:zingo/core/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/core/constants/enums.dart';
-import 'package:zingo/domain/dtos/dialog/dialog_list_payload.dart';
-import 'package:zingo/ui/explore/widgets/topic_card.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/explore/widgets/topic_card.dart';
 
 class DialogList extends StatefulWidget {
   const DialogList({super.key});
@@ -23,9 +22,7 @@ class _DialogListState extends State<DialogList> {
   void initState() {
     super.initState();
     _scrollController = ScrollController()..addListener(_onScroll);
-    bloc.add(
-      DialogListFetchEvent(payload: DialogListPayload(page: 1, limit: 10)),
-    );
+    bloc.add(const DialogListStarted());
   }
 
   void _onScroll() {
@@ -39,11 +36,7 @@ class _DialogListState extends State<DialogList> {
         hasMore &&
         bloc.state.requestStatus != RequestStatus.loading &&
         bloc.state.requestStatus != RequestStatus.loadingMore) {
-      bloc.add(
-        DialogListFetchMoreEvent(
-          payload: DialogListPayload(page: meta.page + 1, limit: meta.limit),
-        ),
-      );
+      bloc.add(const DialogListFetchMoreEvent());
     }
   }
 

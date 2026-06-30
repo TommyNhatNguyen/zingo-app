@@ -8,12 +8,18 @@ class DialogListState extends Equatable {
   final PaginationMeta? meta;
   final RequestStatus requestStatus;
   final String? error;
+  final List<EnglishLevel> cefrLevels;
+  final List<DialogDuration> durations;
+  final List<String> topicIds;
 
   const DialogListState({
     this.data,
     this.meta,
     this.requestStatus = RequestStatus.initial,
     this.error,
+    this.cefrLevels = const [],
+    this.durations = const [],
+    this.topicIds = const [],
   });
 
   factory DialogListState.initial() {
@@ -30,15 +36,29 @@ class DialogListState extends Equatable {
     PaginationMeta? meta,
     RequestStatus? requestStatus,
     String? error,
+    List<EnglishLevel>? cefrLevels,
+    List<DialogDuration>? durations,
+    List<String>? topicIds,
   }) {
     return DialogListState(
       data: data ?? this.data,
       meta: meta ?? this.meta,
       requestStatus: requestStatus ?? this.requestStatus,
       error: error ?? this.error,
+      cefrLevels: cefrLevels ?? this.cefrLevels,
+      durations: durations ?? this.durations,
+      topicIds: topicIds ?? this.topicIds,
     );
   }
 
   @override
-  List<Object?> get props => [data, meta, requestStatus, error];
+  List<Object?> get props => [
+    data,
+    meta,
+    requestStatus,
+    error,
+    cefrLevels,
+    durations,
+    topicIds,
+  ];
 }

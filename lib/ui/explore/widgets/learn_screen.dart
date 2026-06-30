@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
+import 'package:zingo/core/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/core/blocs/dialog/list/dialog_list_event.dart';
 import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_event.dart';
 import 'package:zingo/core/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_event.dart';
-import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
-import 'package:zingo/core/blocs/recommendations/list/recommendations_list_event.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/dtos/practice-sessions/list_active_dialogs_payload.dart';
-import 'package:zingo/domain/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/ui/explore/widgets/favorite_section.dart';
@@ -48,11 +47,7 @@ class _LearnScreenState extends State<LearnScreen> {
     context.read<ListFavoriteDialogsBloc>().add(
       ListFavoriteDialogsRefreshEvent(userId: userId),
     );
-    context.read<RecommendationsListBloc>().add(
-      RecommendationsListFetch(
-        payload: RecommendationsPayload(user_id: userId ?? ''),
-      ),
-    );
+    context.read<DialogListBloc>().add(const DialogListRefreshEvent());
     context.read<PopularDialogsBloc>().add(const PopularDialogsRefreshEvent());
   }
 

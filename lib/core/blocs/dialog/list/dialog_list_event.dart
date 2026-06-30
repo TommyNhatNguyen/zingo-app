@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:zingo/domain/dtos/dialog/dialog_list_payload.dart';
+import 'package:zingo/core/constants/enums.dart';
 
 class DialogListEvent extends Equatable {
   const DialogListEvent();
@@ -8,25 +8,29 @@ class DialogListEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class DialogListFetchEvent extends DialogListEvent {
-  final DialogListPayload payload;
-  const DialogListFetchEvent({required this.payload});
+class DialogListStarted extends DialogListEvent {
+  const DialogListStarted();
+}
+
+class DialogListFiltersChanged extends DialogListEvent {
+  final List<EnglishLevel> cefrLevels;
+  final List<DialogDuration> durations;
+  final List<String> topicIds;
+
+  const DialogListFiltersChanged({
+    required this.cefrLevels,
+    required this.durations,
+    required this.topicIds,
+  });
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [cefrLevels, durations, topicIds];
 }
 
 class DialogListFetchMoreEvent extends DialogListEvent {
-  final DialogListPayload payload;
-  const DialogListFetchMoreEvent({required this.payload});
-
-  @override
-  List<Object?> get props => [payload];
+  const DialogListFetchMoreEvent();
 }
 
-class DialogRefreshEvent extends DialogListEvent {
-  const DialogRefreshEvent();
-
-  @override
-  List<Object?> get props => [];
+class DialogListRefreshEvent extends DialogListEvent {
+  const DialogListRefreshEvent();
 }

@@ -285,6 +285,7 @@ class ApiClientService {
       final response = await _httpClient.get(
         '/v1/dialogs',
         queryParameters: payload.toJson(),
+        options: Options(listFormat: ListFormat.multiCompatible),
       );
       final data = response.data['data'] as Map<String, dynamic>;
       final items = data['items'] as List<dynamic>;

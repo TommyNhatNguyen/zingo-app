@@ -3,62 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:zingo/core/blocs/auth/auth_bloc.dart';
-import 'package:zingo/core/blocs/recommendations/list/recommendations_list_bloc.dart';
-import 'package:zingo/core/blocs/recommendations/list/recommendations_list_event.dart';
-import 'package:zingo/core/blocs/recommendations/list/recommendations_list_state.dart';
+import 'package:zingo/core/blocs/dialog/list/dialog_list_bloc.dart';
+import 'package:zingo/core/blocs/dialog/list/dialog_list_event.dart';
+import 'package:zingo/core/blocs/dialog/list/dialog_list_state.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/domain/dtos/recommendations/recommendations_payload.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
-import 'package:zingo/domain/models/journey.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/ui/core/ui/pickers/cefr_level_filter_picker.dart';
+import 'package:zingo/ui/core/ui/pickers/duration_filter_picker.dart';
+import 'package:zingo/ui/core/ui/pickers/topic_filter_picker.dart';
 import 'package:zingo/utils/capitalize_util.dart';
 
-class RecommendationSection extends StatefulWidget {
+class RecommendationSection extends StatelessWidget {
   const RecommendationSection({super.key});
 
-  @override
-  State<RecommendationSection> createState() => _RecommendationSectionState();
-}
-
-class _RecommendationSectionState extends State<RecommendationSection> {
-  AuthBloc get authBloc => context.read<AuthBloc>();
-
-  RecommendationsPayload get _basePayload =>
-      RecommendationsPayload(user_id: authBloc.state.data?.id ?? '');
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<RecommendationsListBloc>().add(
-      RecommendationsListFetch(payload: _basePayload),
-    );
-  }
-
-  List<dialog_model.Dialog> _flattenDialogs(JourneyResponse? response) {
-    if (response == null) return [];
-    return response.chapters
-        .expand((c) => c.dialogs.map((s) => s.dialog))
-        .toList();
-  }
-
-  void _loadMore(RecommendationsListState state) {
-    final nextPage = (state.data?.meta.page ?? 1) + 1;
-    context.read<RecommendationsListBloc>().add(
-      RecommendationsListFetchMore(
-        payload: _basePayload.copyWith(page: nextPage),
-      ),
-    );
+  bool _hasMore(DialogListState state) {
+    final meta = state.meta;
+    if (meta == null) return false;
+    return meta.page * meta.limit < meta.total;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RecommendationsListBloc, RecommendationsListState>(
+    return BlocBuilder<DialogListBloc, DialogListState>(
       builder: (context, state) {
+        final bloc = context.read<DialogListBloc>();
         final isLoading = state.requestStatus == RequestStatus.loading;
         final isLoadingMore = state.requestStatus == RequestStatus.loadingMore;
-        final items = _flattenDialogs(state.data);
+        final items = state.data ?? [];
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -98,6 +71,44 @@ class _RecommendationSectionState extends State<RecommendationSection> {
                     ),
                   ],
                 ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      CefrLevelFilterPicker(
+                        value: state.cefrLevels,
+                        onChanged: (levels) => bloc.add(
+                          DialogListFiltersChanged(
+                            cefrLevels: levels,
+                            durations: state.durations,
+                            topicIds: state.topicIds,
+                          ),
+                        ),
+                      ),
+                      DurationFilterPicker(
+                        value: state.durations,
+                        onChanged: (durations) => bloc.add(
+                          DialogListFiltersChanged(
+                            cefrLevels: state.cefrLevels,
+                            durations: durations,
+                            topicIds: state.topicIds,
+                          ),
+                        ),
+                      ),
+                      TopicFilterPicker(
+                        value: state.topicIds,
+                        onChanged: (topicIds) => bloc.add(
+                          DialogListFiltersChanged(
+                            cefrLevels: state.cefrLevels,
+                            durations: state.durations,
+                            topicIds: topicIds,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Skeletonizer(
                   enabled: isLoading,
                   child: Column(
@@ -108,15 +119,37 @@ class _RecommendationSectionState extends State<RecommendationSection> {
                             3,
                             (_) => const _RecommendationCard(dialog: null),
                           )
+                        : items.isEmpty
+                        ? [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text(
+                                  context.l10n.noSessionsInProgress,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(color: AppColors.textSecondary),
+                                ),
+                              ),
+                            ),
+                          ]
                         : items
-                              .map((d) => _RecommendationCard(dialog: d))
+                              .map(
+                                (d) => _RecommendationCard(
+                                  key: ValueKey(d.id),
+                                  dialog: d,
+                                ),
+                              )
                               .toList(),
                   ),
                 ),
-                if (!isLoading && state.hasMore)
+                if (!isLoading && _hasMore(state))
                   Center(
                     child: TextButton.icon(
-                      onPressed: isLoadingMore ? null : () => _loadMore(state),
+                      onPressed: isLoadingMore
+                          ? null
+                          : () => bloc.add(const DialogListFetchMoreEvent()),
                       iconAlignment: IconAlignment.end,
                       icon: isLoadingMore
                           ? const SizedBox(
@@ -140,7 +173,7 @@ class _RecommendationSectionState extends State<RecommendationSection> {
 class _RecommendationCard extends StatelessWidget {
   final dialog_model.Dialog? dialog;
 
-  const _RecommendationCard({required this.dialog});
+  const _RecommendationCard({super.key, required this.dialog});
 
   @override
   Widget build(BuildContext context) {
