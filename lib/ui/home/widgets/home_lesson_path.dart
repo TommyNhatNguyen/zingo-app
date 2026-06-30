@@ -49,6 +49,7 @@ class HomeLessonPath extends StatelessWidget {
       if (isFuture || (!slot.isCompleted && i != nextUpIndex)) {
         return HomeLesson(
           id: dialog.id,
+          slotId: slot.slot_id,
           number: i + 1,
           title: dialog.title,
           state: HomeLessonState.locked,
@@ -62,6 +63,7 @@ class HomeLessonPath extends StatelessWidget {
       if (slot.isCompleted) {
         return HomeLesson(
           id: dialog.id,
+          slotId: slot.slot_id,
           number: i + 1,
           title: dialog.title,
           state: HomeLessonState.completed,
@@ -74,6 +76,7 @@ class HomeLessonPath extends StatelessWidget {
 
       return HomeLesson(
         id: dialog.id,
+        slotId: slot.slot_id,
         number: i + 1,
         title: dialog.title,
         state: HomeLessonState.nextUp,

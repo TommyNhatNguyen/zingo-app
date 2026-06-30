@@ -31,6 +31,7 @@ CompleteSessionPayload _$CompleteSessionPayloadFromJson(
       .toList(),
   not_completed_reason: json['not_completed_reason'] as String?,
   current_turn_order: (json['current_turn_order'] as num?)?.toInt(),
+  suggestion_dialog_id: json['suggestion_dialog_id'] as String?,
 );
 
 Map<String, dynamic> _$CompleteSessionPayloadToJson(
@@ -40,4 +41,5 @@ Map<String, dynamic> _$CompleteSessionPayloadToJson(
   'answers': instance.answers,
   'not_completed_reason': instance.not_completed_reason,
   'current_turn_order': instance.current_turn_order,
+  'suggestion_dialog_id': instance.suggestion_dialog_id,
 };

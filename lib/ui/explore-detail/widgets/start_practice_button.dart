@@ -5,21 +5,23 @@ import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/practice-sessions/start-practice/start_practice_bloc.dart';
 import 'package:zingo/core/blocs/practice-sessions/start-practice/start_practice_event.dart';
 import 'package:zingo/core/blocs/practice-sessions/start-practice/start_practice_state.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/constants/enums.dart';
-import 'package:zingo/domain/dtos/practice-sessions/create_session_payload.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/domain/dtos/practice-sessions/create_session_payload.dart';
 import 'package:zingo/domain/models/dialog.dart' as dialog_model;
+import 'package:zingo/ui/core/themes/app_colors.dart';
 
 class StartPracticeButton extends StatelessWidget {
   const StartPracticeButton({
     super.key,
     required this.selectedMode,
     this.dialog,
+    this.suggestionDialogId,
   });
 
   final PracticeMode selectedMode;
   final dialog_model.Dialog? dialog;
+  final String? suggestionDialogId;
 
   void _onStartPractice(BuildContext context) {
     if (dialog?.id == null) {
@@ -49,6 +51,7 @@ class StartPracticeButton extends StatelessWidget {
               'dialog_id': state.data?.dialog_id ?? dialog?.id ?? "",
               'pracetice_mode': state.data?.practice_mode ?? selectedMode.value,
               'dialog': dialog,
+              'suggestion_dialog_id': suggestionDialogId,
             },
           );
         }

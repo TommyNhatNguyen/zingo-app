@@ -14,21 +14,19 @@ class PracticeRoute {
   static GoRoute buildRoute() => GoRoute(
     path: '/practice',
     builder: (context, state) {
-      final practiceSessionId =
-          (state.extra as Map<String, dynamic>?)?['practice_session_id'];
-      final dialogId = (state.extra as Map<String, dynamic>?)?['dialog_id'];
-      final praceticeMode =
-          (state.extra as Map<String, dynamic>?)?['pracetice_mode']
-              as PracticeMode?;
-      final dialog =
-          (state.extra as Map<String, dynamic>?)?['dialog'] as Dialog?;
+      final extra = state.extra as Map<String, dynamic>?;
+      final practiceSessionId = extra?['practice_session_id'] as String?;
+      final dialogId = extra?['dialog_id'] as String?;
+      final praceticeMode = extra?['pracetice_mode'] as PracticeMode?;
+      final dialog = extra?['dialog'] as Dialog?;
+      final suggestionDialogId = extra?['suggestion_dialog_id'] as String?;
       return MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => DialogTurnsListByDialogBloc()
               ..add(
                 DialogTurnsListByDialogFetchEvent(
-                  payload: DialogTurnsByDialogIdPayload(dialogId: dialogId),
+                  payload: DialogTurnsByDialogIdPayload(dialogId: dialogId ?? ''),
                 ),
               ),
           ),
@@ -43,6 +41,7 @@ class PracticeRoute {
           dialogId: dialogId ?? '',
           practiceMode: praceticeMode ?? PracticeMode.readAloud,
           dialog: dialog,
+          suggestionDialogId: suggestionDialogId,
         ),
       );
     },

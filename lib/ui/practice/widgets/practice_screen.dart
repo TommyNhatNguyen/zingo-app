@@ -41,12 +41,14 @@ class PracticeScreen extends StatefulWidget {
     this.dialogId = '13febbdf-a74c-4904-bc3b-c22bdec6a327',
     this.practiceMode = PracticeMode.readAloud,
     this.dialog,
+    this.suggestionDialogId,
   });
 
   final String practiceSessionId;
   final String dialogId;
   final PracticeMode practiceMode;
   final dialog_model.Dialog? dialog;
+  final String? suggestionDialogId;
 
   @override
   State<PracticeScreen> createState() => _PracticeScreenState();
@@ -405,6 +407,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           id: widget.practiceSessionId,
           answers: answers,
           current_turn_order: _currentTurnIndex + 1,
+          suggestion_dialog_id: widget.suggestionDialogId,
         ),
       ),
     );

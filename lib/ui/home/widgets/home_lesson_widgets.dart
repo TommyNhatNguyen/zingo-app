@@ -149,7 +149,10 @@ class HomeLessonNode extends StatelessWidget {
 
       case HomeLessonState.nextUp:
         return GestureDetector(
-          onTap: () => context.push('/learn/${lesson.id}'),
+          onTap: () => context.push(
+            '/learn/${lesson.id}',
+            extra: {'suggestion_dialog_id': lesson.slotId},
+          ),
           child: Container(
             width: 58,
             height: 58,
@@ -241,7 +244,10 @@ class HomeLessonContent extends StatelessWidget {
 
       case HomeLessonState.nextUp:
         return GestureDetector(
-          onTap: () => context.push('/learn/${lesson.id}'),
+          onTap: () => context.push(
+            '/learn/${lesson.id}',
+            extra: {'suggestion_dialog_id': lesson.slotId},
+          ),
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(

@@ -11,6 +11,12 @@
       "deviceId": "209B3A35-1D84-4D77-B031-53EB1AAB795A"
     },
     {
+      "name": "zingo iphone 15 (debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "BF285D63-DDBA-4C7F-B782-02C8A1DE60C1"
+    },
+    {
       "name": "zingo (real device debug mode)",
       "request": "launch",
       "type": "dart",

@@ -22,8 +22,13 @@ import 'package:zingo/ui/explore-detail/widgets/youll_be_scored_on.dart';
 
 class LearnDetailScreen extends StatefulWidget {
   final String id;
+  final String? suggestionDialogId;
 
-  const LearnDetailScreen({super.key, required this.id});
+  const LearnDetailScreen({
+    super.key,
+    required this.id,
+    this.suggestionDialogId,
+  });
 
   @override
   State<LearnDetailScreen> createState() => _LearnDetailScreenState();
@@ -178,6 +183,7 @@ class _LearnDetailScreenState extends State<LearnDetailScreen> {
                           child: StartPracticeButton(
                             selectedMode: viewState.selectedMode,
                             dialog: dialogState.data,
+                            suggestionDialogId: widget.suggestionDialogId,
                           ),
                         ),
                       ),

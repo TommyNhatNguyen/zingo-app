@@ -31,12 +31,14 @@ class CompleteSessionPayload extends Equatable {
   final List<SessionAnswer> answers;
   final String? not_completed_reason;
   final int? current_turn_order;
+  final String? suggestion_dialog_id;
 
   const CompleteSessionPayload({
     required this.id,
     required this.answers,
     this.not_completed_reason,
     this.current_turn_order,
+    this.suggestion_dialog_id,
   });
 
   factory CompleteSessionPayload.fromJson(Map<String, dynamic> json) =>
@@ -49,5 +51,6 @@ class CompleteSessionPayload extends Equatable {
     answers,
     not_completed_reason,
     current_turn_order,
+    suggestion_dialog_id,
   ];
 }

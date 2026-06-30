@@ -3,6 +3,7 @@ enum HomeLessonState { completed, nextUp, locked }
 class HomeLesson {
   const HomeLesson({
     required this.id,
+    required this.slotId,
     required this.number,
     required this.title,
     required this.state,
@@ -13,6 +14,7 @@ class HomeLesson {
   });
 
   final String id;
+  final String slotId;
   final int number;
   final String title;
   final HomeLessonState state;

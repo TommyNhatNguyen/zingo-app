@@ -12,13 +12,16 @@ class LearnDetailRoute {
     parentNavigatorKey: rootNavigatorKey,
     builder: (context, state) {
       final id = state.pathParameters['id'] ?? '';
+      final suggestionDialogId =
+          (state.extra as Map<String, dynamic>?)?['suggestion_dialog_id']
+              as String?;
       return MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => DialogDetailBloc()),
           BlocProvider(create: (_) => StartPracticeBloc()),
           BlocProvider(create: (_) => FavoriteDialogBloc()),
         ],
-        child: LearnDetailScreen(id: id),
+        child: LearnDetailScreen(id: id, suggestionDialogId: suggestionDialogId),
       );
     },
   );

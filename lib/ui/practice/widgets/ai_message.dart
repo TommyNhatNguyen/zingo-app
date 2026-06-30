@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:zingo/core/blocs/locale/locale_cubit.dart';
 import 'package:zingo/domain/models/dialog_turn.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
+import 'package:zingo/utils/translation_service.dart';
 
 class AiMessage extends StatefulWidget {
   const AiMessage({
@@ -22,10 +25,39 @@ class AiMessage extends StatefulWidget {
 }
 
 class _AiMessageState extends State<AiMessage> {
-  bool _showContextNote = false;
+  String? _translatedText;
+  bool _isTranslating = false;
+
+  Future<void> _toggleTranslation() async {
+    if (_translatedText != null) {
+      setState(() => _translatedText = null);
+      return;
+    }
+
+    final text = widget.turn?.line_text;
+    if (text == null || text.isEmpty) return;
+
+    final localeCode = context.read<LocaleCubit>().state.languageCode;
+    if (localeCode == 'en') return;
+
+    setState(() => _isTranslating = true);
+
+    final result = await TranslationService.instance.translate(
+      text,
+      localeCode,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _translatedText = result;
+      _isTranslating = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isTranslated = _translatedText != null;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       margin: const EdgeInsets.only(bottom: 8),
@@ -64,6 +96,18 @@ class _AiMessageState extends State<AiMessage> {
                       widget.turn?.line_text ?? '',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
+                    if (isTranslated) ...[
+                      const Divider(height: 12),
+                      Text(
+                        _translatedText!,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Transform.translate(
                       offset: const Offset(-4, 0),
@@ -86,44 +130,36 @@ class _AiMessageState extends State<AiMessage> {
                                   ),
                           ),
                           IconButton.outlined(
-                            tooltip: 'Translate',
+                            tooltip: isTranslated
+                                ? 'Hide translation'
+                                : 'Translate',
                             style: ButtonStyle(
                               backgroundColor: WidgetStateProperty.all(
-                                AppColors.white,
+                                isTranslated
+                                    ? AppColors.primaryContainer
+                                    : AppColors.white,
                               ),
                             ),
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.translate_outlined,
-                              size: 20,
-                            ),
+                            onPressed: _isTranslating ? null : _toggleTranslation,
+                            icon: _isTranslating
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.translate_outlined,
+                                    size: 20,
+                                    color: isTranslated
+                                        ? AppColors.primary
+                                        : null,
+                                  ),
                           ),
-                          // if (widget.turn?.context_note != null)
-                          //   IconButton.outlined(
-                          //     tooltip: 'Context note',
-                          //     style: ButtonStyle(
-                          //       backgroundColor: WidgetStateProperty.all(
-                          //         _showContextNote
-                          //             ? AppColors.primaryContainer
-                          //             : AppColors.white,
-                          //       ),
-                          //     ),
-                          //     onPressed: () =>
-                          //         setState(() => _showContextNote = !_showContextNote),
-                          //     icon: const Icon(Icons.info_outline, size: 20),
-                          //   ),
                         ],
                       ),
                     ),
-                    // if (_showContextNote && widget.turn?.context_note != null) ...[
-                    //   const SizedBox(height: 8),
-                    //   Text(
-                    //     widget.turn!.context_note!,
-                    //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    //           fontStyle: FontStyle.italic,
-                    //         ),
-                    //   ),
-                    // ],
                   ],
                 ),
               ),

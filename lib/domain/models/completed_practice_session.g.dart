@@ -67,6 +67,6 @@ Map<String, dynamic> _$CompletedPracticeSessionToJson(
 };
 
 const _$PracticeModeEnumMap = {
-  PracticeMode.freeSpeak: 'free_speak',
   PracticeMode.readAloud: 'read_aloud',
+  PracticeMode.freeSpeak: 'free_speak',
 };
