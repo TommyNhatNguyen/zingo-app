@@ -19,7 +19,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       super(AuthState.initial()) {
     _authStateStream.listen((user) {
       try {
-        add(AuthStateLoading());
         final isAuthenticated = state.user != null;
         if (isAuthenticated && user == null) {
           add(AuthLoggedOut());
@@ -30,17 +29,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         debugPrint("State error: ${e.toString()}");
         add(AuthLoggedOut());
       }
-    });
-
-    on<AuthStateLoading>((event, emit) async {
-      emit(
-        state.copyWith(
-          requestStatus: RequestStatus.loading,
-          user: null,
-          data: null,
-          error: null,
-        ),
-      );
     });
 
     on<AuthLoggedOut>((event, emit) async {
@@ -67,6 +55,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthStateChanged>((event, emit) async {
       if (event.user != null) {
+        emit(state.copyWith(requestStatus: RequestStatus.loading));
         final result = await _authRepository.getUserByUid();
         switch (result) {
           case Ok(:final data):
@@ -97,12 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             );
         }
       } else {
-        emit(
-          state.copyWith(
-            user: event.user,
-            requestStatus: RequestStatus.success,
-          ),
-        );
+        emit(AuthState.loggedOut());
       }
     });
 

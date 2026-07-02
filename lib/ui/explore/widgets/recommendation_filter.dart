@@ -13,6 +13,10 @@ class RecommendationFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DialogListBloc, DialogListState>(
+      buildWhen: (prev, curr) =>
+          prev.cefrLevels != curr.cefrLevels ||
+          prev.durations != curr.durations ||
+          prev.topicIds != curr.topicIds,
       builder: (context, state) {
         final bloc = context.read<DialogListBloc>();
 
