@@ -37,8 +37,8 @@ import 'package:zingo/utils/speech_to_text_service.dart';
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({
     super.key,
-    this.practiceSessionId = '1c11f53a-d653-4e1d-97e2-242e82ebe22b',
-    this.dialogId = '13febbdf-a74c-4904-bc3b-c22bdec6a327',
+    required this.practiceSessionId,
+    required this.dialogId,
     this.practiceMode = PracticeMode.readAloud,
     this.dialog,
     this.suggestionDialogId,
@@ -418,7 +418,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await _sfxPlayer.stop();
     await _speechToTextController.stop();
     if (!mounted) return;
-    context.go('/learn');
+    context.go('/home');
   }
 
   // ---------------------------------------------------------------------------

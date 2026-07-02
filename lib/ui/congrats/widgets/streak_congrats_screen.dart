@@ -7,6 +7,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_event.dart';
+import 'package:zingo/core/blocs/user/get-streak/user_streak_get_bloc.dart';
+import 'package:zingo/core/blocs/user/get-streak/user_streak_get_event.dart';
+import 'package:zingo/domain/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/models/completed_practice_session.dart';
@@ -169,10 +172,17 @@ class _StreakCongratsScreenState extends State<StreakCongratsScreen>
   }
 
   void _onContinuePressed() {
-    context.go('/learn');
+    final userId = widget.session?.user_id ?? '';
+    context.go('/home');
     _userConfigurationGetBloc.add(
-      UserConfigurationGetFetched(
-        userId: widget.session?.user_id ?? '',
+      UserConfigurationGetFetched(userId: userId),
+    );
+    context.read<UserStreakGetBloc>().add(
+      UserStreakGetFetched(
+        payload: GetUserStreakPayload(
+          user_id: userId,
+          year: DateTime.now().year,
+        ),
       ),
     );
   }

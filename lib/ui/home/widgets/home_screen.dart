@@ -5,8 +5,11 @@ import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_event.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
+import 'package:zingo/core/blocs/user/get-streak/user_streak_get_bloc.dart';
+import 'package:zingo/core/blocs/user/get-streak/user_streak_get_event.dart';
 import 'package:zingo/core/constants/enums.dart';
 import 'package:zingo/domain/dtos/journey/journey_payload.dart';
+import 'package:zingo/domain/dtos/user-streak/get_user_streak_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/core/themes/app_text_styles.dart';
 import 'package:zingo/ui/home/widgets/home_greeting_row.dart';
@@ -40,10 +43,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onRefresh() async {
+    final userId = context.read<AuthBloc>().state.data?.id ?? '';
     context.read<JourneyBloc>().add(
-      JourneyFetchEvent(
-        payload: JourneyPayload(
-          user_id: context.read<AuthBloc>().state.data?.id ?? '',
+      JourneyFetchEvent(payload: JourneyPayload(user_id: userId)),
+    );
+    context.read<UserStreakGetBloc>().add(
+      UserStreakGetFetched(
+        payload: GetUserStreakPayload(
+          user_id: userId,
+          year: DateTime.now().year,
         ),
       ),
     );

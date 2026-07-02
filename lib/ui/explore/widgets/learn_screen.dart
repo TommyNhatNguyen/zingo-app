@@ -5,12 +5,9 @@ import 'package:zingo/core/blocs/dialog/list/dialog_list_bloc.dart';
 import 'package:zingo/core/blocs/dialog/list/dialog_list_event.dart';
 import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/dialog/popular/popular_dialogs_event.dart';
-import 'package:zingo/core/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_bloc.dart';
-import 'package:zingo/core/blocs/practice-sessions/list-active-dialogs/list_active_dialogs_event.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_bloc.dart';
 import 'package:zingo/core/blocs/user/list-favorite-dialogs/list_favorite_dialogs_event.dart';
 import 'package:zingo/core/l10n/l10n.dart';
-import 'package:zingo/domain/dtos/practice-sessions/list_active_dialogs_payload.dart';
 import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/explore/widgets/continue_practice_section.dart';
 import 'package:zingo/ui/explore/widgets/favorite_section.dart';
@@ -40,10 +37,6 @@ class _LearnScreenState extends State<LearnScreen> {
 
   Future<void> _onRefresh() async {
     final userId = context.read<AuthBloc>().state.data?.id;
-
-    context.read<ListActiveDialogsBloc>().add(
-      ListActiveDialogsFetch(payload: ListActiveDialogsPayload(userId: userId)),
-    );
     context.read<ListFavoriteDialogsBloc>().add(
       ListFavoriteDialogsRefreshEvent(userId: userId),
     );
