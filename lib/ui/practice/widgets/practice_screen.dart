@@ -310,8 +310,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await _speechToTextController.listen(
       onResult: _onRecognizedText,
       listenOptions: SpeechListenOptions(
-        listenFor: const Duration(minutes: 1),
-        pauseFor: const Duration(seconds: 5),
+        listenFor: const Duration(seconds: 40),
+        pauseFor: const Duration(seconds: 2),
+        enableHapticFeedback: true,
       ),
     );
   }

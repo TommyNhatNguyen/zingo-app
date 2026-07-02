@@ -20,6 +20,7 @@ class SpeechToTextBloc extends Bloc<SpeechToTextEvent, SpeechToTextState> {
     final enabled = await SpeechToTextService.instance.initialize(
       onError: (_) {},
       onStatus: (_) {},
+      debugLogging: true,
     );
 
     if (enabled) {

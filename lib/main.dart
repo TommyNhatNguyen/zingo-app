@@ -18,7 +18,6 @@ import 'package:zingo/core/blocs/connectivity/connectivity_state.dart';
 import 'package:zingo/core/blocs/locale/locale_cubit.dart';
 import 'package:zingo/core/blocs/notification-permisison/notification_permission_cubit.dart';
 import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
-import 'package:zingo/core/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_bloc.dart';
 import 'package:zingo/core/blocs/user/create-profile/user_profile_create_state.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
@@ -128,7 +127,6 @@ class GoRouterRefreshStream extends ChangeNotifier {
 
 class _MainAppState extends State<MainApp> {
   late final AuthBloc _authBloc;
-  late final SpeechToTextBloc _speechToTextBloc;
   late final UserConfigurationGetBloc _userConfigurationBloc;
   late final UserStreakGetBloc _userStreakGetBloc;
   late final ConnectivityBloc _connectivityBloc;
@@ -149,8 +147,6 @@ class _MainAppState extends State<MainApp> {
         apiClientService: ApiClientService(httpClient: dio),
       ),
     );
-    _speechToTextBloc = SpeechToTextBloc()
-      ..add(const SpeechToTextInitializeEvent());
     _userConfigurationBloc = UserConfigurationGetBloc();
     _userStreakGetBloc = UserStreakGetBloc();
     _connectivityBloc = ConnectivityBloc();
@@ -258,7 +254,6 @@ class _MainAppState extends State<MainApp> {
   @override
   void dispose() {
     _authBloc.close();
-    _speechToTextBloc.close();
     _userConfigurationBloc.close();
     _userStreakGetBloc.close();
     _localeCubit.close();
@@ -273,7 +268,7 @@ class _MainAppState extends State<MainApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: _authBloc),
-        BlocProvider.value(value: _speechToTextBloc),
+        BlocProvider.value(value: SpeechToTextBloc()),
         BlocProvider.value(value: _userConfigurationBloc),
         BlocProvider.value(value: _userStreakGetBloc),
         BlocProvider.value(value: _localeCubit),

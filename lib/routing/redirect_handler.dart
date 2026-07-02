@@ -85,7 +85,7 @@ class RedirectHandler {
       return null;
     }
     return (isPublicRoute || isOnboardingRoute || isErrorRoute)
-        ? '/learn'
+        ? '/home'
         : null;
   }
 }

@@ -16,3 +16,10 @@ class UserStreakGetFetched extends UserStreakGetEvent {
   @override
   List<Object?> get props => [payload];
 }
+
+class UserStreakGetReset extends UserStreakGetEvent {
+  const UserStreakGetReset();
+
+  @override
+  List<Object?> get props => [];
+}

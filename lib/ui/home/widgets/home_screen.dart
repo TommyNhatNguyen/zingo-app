@@ -4,6 +4,8 @@ import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/auth/auth_state.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_bloc.dart';
 import 'package:zingo/core/blocs/recommendations/journey/journey_event.dart';
+import 'package:zingo/core/blocs/speech-to-text/speech_to_text_bloc.dart';
+import 'package:zingo/core/blocs/speech-to-text/speech_to_text_event.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-streak/user_streak_get_event.dart';
@@ -25,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const _expandedHeaderHeight = 280.0;
-
+  late final SpeechToTextBloc _speechToTextBloc;
   final ScrollController _scrollController = ScrollController();
   bool _showScrollToTop = false;
   bool _headerCollapsed = false;
@@ -33,12 +35,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _speechToTextBloc = SpeechToTextBloc();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _speechToTextBloc.add(const SpeechToTextInitializeEvent());
+    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _speechToTextBloc.close();
     super.dispose();
   }
 

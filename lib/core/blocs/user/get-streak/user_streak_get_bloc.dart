@@ -11,10 +11,14 @@ class UserStreakGetBloc extends Bloc<UserStreakGetEvent, UserStreakGetState> {
   final UserStreakRepository _repository;
 
   UserStreakGetBloc({UserStreakRepository? repository})
-      : _repository = repository ??
-            UserStreakRepository(apiClientService: ApiClientService(httpClient: dio)),
-        super(UserStreakGetState.initial()) {
+    : _repository =
+          repository ??
+          UserStreakRepository(
+            apiClientService: ApiClientService(httpClient: dio),
+          ),
+      super(UserStreakGetState.initial()) {
     on<UserStreakGetFetched>(_onFetched);
+    on<UserStreakGetReset>(_onReset);
   }
 
   Future<void> _onFetched(
@@ -47,5 +51,12 @@ class UserStreakGetBloc extends Bloc<UserStreakGetEvent, UserStreakGetState> {
           ),
         );
     }
+  }
+
+  Future<void> _onReset(
+    UserStreakGetReset event,
+    Emitter<UserStreakGetState> emit,
+  ) async {
+    emit(UserStreakGetState.initial());
   }
 }
