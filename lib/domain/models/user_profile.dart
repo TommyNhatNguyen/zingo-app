@@ -5,7 +5,7 @@ import 'package:zingo/domain/models/user_topic_preference.dart';
 
 part 'user_profile.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: true)
 class UserProfile extends Equatable {
   final String user_id;
   final String? display_name;

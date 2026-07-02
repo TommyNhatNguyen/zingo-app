@@ -221,8 +221,8 @@ class ApiClientService {
       return Result.error(Exception(result.error));
     } on DioException catch (e) {
       return _dioErrorResult(e);
-    } on Exception catch (e) {
-      return Result.error(e);
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
     }
   }
 
@@ -245,8 +245,8 @@ class ApiClientService {
       return Result.error(Exception(result.error));
     } on DioException catch (e) {
       return _dioErrorResult(e);
-    } on Exception catch (e) {
-      return Result.error(e);
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
     }
   }
 

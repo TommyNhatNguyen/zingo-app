@@ -28,8 +28,13 @@ class UserConfigurationUpdateDto extends Equatable {
 class UserConfigurationProfileDto extends Equatable {
   final String? display_name;
   final String? mother_language;
+  final String? timezone;
 
-  const UserConfigurationProfileDto({this.display_name, this.mother_language});
+  const UserConfigurationProfileDto({
+    this.display_name,
+    this.mother_language,
+    this.timezone,
+  });
 
   factory UserConfigurationProfileDto.fromJson(Map<String, dynamic> json) =>
       _$UserConfigurationProfileDtoFromJson(json);
@@ -37,7 +42,7 @@ class UserConfigurationProfileDto extends Equatable {
   Map<String, dynamic> toJson() => _$UserConfigurationProfileDtoToJson(this);
 
   @override
-  List<Object?> get props => [display_name, mother_language];
+  List<Object?> get props => [display_name, mother_language, timezone];
 }
 
 @JsonSerializable(includeIfNull: false)

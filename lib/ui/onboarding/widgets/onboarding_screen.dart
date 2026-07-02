@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
@@ -127,7 +128,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       debugPrint('state.displayName: ${state.toString()}');
     }
 
-    void onSubmit() {
+    Future<void> onSubmit() async {
+      String? tz;
+      try {
+        tz = await FlutterTimezone.getLocalTimezone();
+      } catch (_) {}
+
+      if (!context.mounted) return;
       final user = context.read<AuthBloc>().state.user;
       context.read<UserProfileCreateBloc>().add(
         UserProfileCreateTrigger(
@@ -141,6 +148,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             notification_time: ParserUtil.formatTimeOfDay(
               state.notificationTime,
             ),
+            timezone: tz,
             favorite_topics: state.favoriteTopics ?? [],
           ),
         ),

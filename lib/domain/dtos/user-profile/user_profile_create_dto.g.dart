@@ -16,6 +16,7 @@ UserProfileCreateDto _$UserProfileCreateDtoFromJson(
   display_language: json['display_language'] as String,
   practice_goal_per_day: (json['practice_goal_per_day'] as num?)?.toInt(),
   notification_time: json['notification_time'] as String?,
+  timezone: json['timezone'] as String?,
   favorite_topics: (json['favorite_topics'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
@@ -31,6 +32,7 @@ Map<String, dynamic> _$UserProfileCreateDtoToJson(
   'display_language': instance.display_language,
   'practice_goal_per_day': instance.practice_goal_per_day,
   'notification_time': instance.notification_time,
+  'timezone': instance.timezone,
   'favorite_topics': instance.favorite_topics,
 };
 

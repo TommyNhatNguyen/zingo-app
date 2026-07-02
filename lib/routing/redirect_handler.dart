@@ -40,17 +40,19 @@ class RedirectHandler {
       RequestStatus.loading,
     ].contains(userConfigBloc.state.requestStatus);
 
-    final isError =
-        authBloc.state.requestStatus == RequestStatus.error ||
+    final isAuthError = authBloc.state.requestStatus == RequestStatus.error;
+    final isConfigError =
         userConfigBloc.state.requestStatus == RequestStatus.error;
 
     if (isSplashRoute) {
-      if (isError) {
+      // Only hard-error when auth itself failed; config errors mean "no profile"
+      // and are handled below by the profile-presence check.
+      if (isAuthError) {
         return '/error';
       }
     }
 
-    if (isLoadingAuth || isLoadingConfig) {
+    if (isLoadingAuth || (isLoadingConfig && !isConfigError)) {
       return null;
     }
     // 2. No auth, public route

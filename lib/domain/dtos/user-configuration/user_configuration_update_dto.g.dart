@@ -37,6 +37,7 @@ UserConfigurationProfileDto _$UserConfigurationProfileDtoFromJson(
 ) => UserConfigurationProfileDto(
   display_name: json['display_name'] as String?,
   mother_language: json['mother_language'] as String?,
+  timezone: json['timezone'] as String?,
 );
 
 Map<String, dynamic> _$UserConfigurationProfileDtoToJson(
@@ -44,6 +45,7 @@ Map<String, dynamic> _$UserConfigurationProfileDtoToJson(
 ) => <String, dynamic>{
   'display_name': ?instance.display_name,
   'mother_language': ?instance.mother_language,
+  'timezone': ?instance.timezone,
 };
 
 UserConfigurationSettingsDto _$UserConfigurationSettingsDtoFromJson(

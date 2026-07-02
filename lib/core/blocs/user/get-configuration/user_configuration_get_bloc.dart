@@ -32,34 +32,43 @@ class UserConfigurationGetBloc
     Emitter<UserConfigurationGetState> emit,
   ) async {
     emit(state.copyWith(requestStatus: RequestStatus.loading));
-    final result = await _repository.getUserConfiguration();
-    switch (result) {
-      case Ok(:final data):
-        emit(
-          state.copyWith(
-            requestStatus: RequestStatus.success,
-            data: data == null
-                ? null
-                : UserConfiguration(
-                    profile: data.profile,
-                    settings: _normalizeSettings(data.settings),
-                  ),
-          ),
-        );
-      case Error(:final error):
-        emit(
-          state.copyWith(
-            requestStatus: RequestStatus.error,
-            error: error.toString(),
-          ),
-        );
-      case ErrorAPI(:final error):
-        emit(
-          state.copyWith(
-            requestStatus: RequestStatus.error,
-            error: error.error.detail,
-          ),
-        );
+    try {
+      final result = await _repository.getUserConfiguration();
+      switch (result) {
+        case Ok(:final data):
+          emit(
+            state.copyWith(
+              requestStatus: RequestStatus.success,
+              data: data == null
+                  ? null
+                  : UserConfiguration(
+                      profile: data.profile,
+                      settings: _normalizeSettings(data.settings),
+                    ),
+            ),
+          );
+        case Error(:final error):
+          emit(
+            state.copyWith(
+              requestStatus: RequestStatus.error,
+              error: error.toString(),
+            ),
+          );
+        case ErrorAPI(:final error):
+          emit(
+            state.copyWith(
+              requestStatus: RequestStatus.error,
+              error: error.error.detail,
+            ),
+          );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          requestStatus: RequestStatus.error,
+          error: e.toString(),
+        ),
+      );
     }
   }
 

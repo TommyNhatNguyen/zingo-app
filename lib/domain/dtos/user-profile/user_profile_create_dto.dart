@@ -13,6 +13,7 @@ class UserProfileCreateDto extends Equatable {
   final String display_language;
   final int? practice_goal_per_day;
   final String? notification_time;
+  final String? timezone;
   final List<String>? favorite_topics;
 
   const UserProfileCreateDto({
@@ -23,6 +24,7 @@ class UserProfileCreateDto extends Equatable {
     required this.display_language,
     this.practice_goal_per_day,
     this.notification_time,
+    this.timezone,
     this.favorite_topics,
   });
 
@@ -39,6 +41,7 @@ class UserProfileCreateDto extends Equatable {
     display_language,
     practice_goal_per_day,
     notification_time,
+    timezone,
     favorite_topics,
   ];
 }
