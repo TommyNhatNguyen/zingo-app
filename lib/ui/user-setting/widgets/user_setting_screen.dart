@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_bloc.dart';
 import 'package:zingo/core/blocs/user/get-configuration/user_configuration_get_event.dart';
-import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/core/l10n/l10n.dart';
+import 'package:zingo/ui/core/themes/app_colors.dart';
 import 'package:zingo/ui/user-setting/widgets/logout_button.dart';
 
 class UserSettingScreen extends StatelessWidget {
@@ -14,6 +14,7 @@ class UserSettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final _allowNotifications = ValueNotifier(true);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
@@ -57,12 +58,18 @@ class UserSettingScreen extends StatelessWidget {
                     _buildSectionItem(
                       context,
                       title: l10n.notifications,
-                      onTap: () {},
-                    ),
-                    _buildSectionItem(
-                      context,
-                      title: l10n.privacy,
-                      onTap: () {},
+                      trailing: ListenableBuilder(
+                        listenable: _allowNotifications,
+                        builder: (context, child) => Switch(
+                          value: _allowNotifications.value,
+                          onChanged: (value) {
+                            _allowNotifications.value = value;
+                          },
+                        ),
+                      ),
+                      onTap: () {
+                        _allowNotifications.value = !_allowNotifications.value;
+                      },
                     ),
                   ],
                 ),
@@ -96,7 +103,7 @@ class UserSettingScreen extends StatelessWidget {
                     ),
                     _buildSectionItem(
                       context,
-                      title: l10n.feedback,
+                      title: l10n.acknowledgements,
                       onTap: () {},
                     ),
                   ],
@@ -117,11 +124,6 @@ class UserSettingScreen extends StatelessWidget {
                     title: l10n.privacyPolicy,
                     onTap: () {},
                   ),
-                  _buildSectionItem(
-                    context,
-                    title: l10n.acknowledgements,
-                    onTap: () {},
-                  ),
                 ],
               ),
             ],
@@ -134,7 +136,8 @@ class UserSettingScreen extends StatelessWidget {
   InkWell _buildSectionItem(
     BuildContext context, {
     required String title,
-    required VoidCallback onTap,
+    Widget? trailing,
+    VoidCallback? onTap,
   }) {
     return InkWell(
       child: ListTile(
@@ -148,7 +151,7 @@ class UserSettingScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
       ),
     );
   }
