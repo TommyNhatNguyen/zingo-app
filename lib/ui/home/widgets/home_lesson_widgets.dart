@@ -137,14 +137,21 @@ class HomeLessonNode extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (lesson.state) {
       case HomeLessonState.completed:
-        return Container(
-          width: 42,
-          height: 42,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.scoreHigh,
+        return GestureDetector(
+          onTap: () => context.push('/learn/${lesson.id}'),
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.scoreHigh,
+            ),
+            child: const Icon(
+              Icons.check_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
-          child: const Icon(Icons.check_rounded, color: Colors.white, size: 24),
         );
 
       case HomeLessonState.nextUp:
@@ -221,25 +228,28 @@ class HomeLessonContent extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (lesson.state) {
       case HomeLessonState.completed:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.lessonLabel(lesson.number),
-              style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textSecondary,
-                letterSpacing: 0.8,
-                fontSize: 10,
+        return GestureDetector(
+          onTap: () => context.push('/learn/${lesson.id}'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.lessonLabel(lesson.number),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.8,
+                  fontSize: 10,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              lesson.title,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 2),
+              Text(
+                lesson.title,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
 
       case HomeLessonState.nextUp:

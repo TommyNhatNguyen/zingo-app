@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zingo/core/blocs/auth/auth_bloc.dart';
 import 'package:zingo/core/l10n/l10n.dart';
 import 'package:zingo/domain/models/user_profile.dart';
 import 'package:zingo/domain/models/users.dart';
@@ -21,17 +23,27 @@ class HomeGreetingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authUser = context.read<AuthBloc>().state.user;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_greeting(context), style: AppTextStyles.bodySmall),
-            Text(user?.username ?? '—', style: AppTextStyles.h2),
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_greeting(context), style: AppTextStyles.bodySmall),
+              Text(
+                (authUser?.isAnonymous == true || authUser?.isAnonymous == null)
+                    ? 'Guest User'
+                    : user?.username ?? '—',
+                style: AppTextStyles.h2,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ],
+          ),
         ),
-        const Spacer(),
         Chip(
           label: Row(
             mainAxisSize: MainAxisSize.min,

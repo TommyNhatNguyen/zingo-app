@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
+        final authUser = authState.user;
         final user = authState.data;
         final profile = context
             .read<UserConfigurationGetBloc>()
@@ -167,9 +168,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       title: _headerCollapsed
                           ? Text(
-                              user?.username ?? '—',
+                              (authUser?.isAnonymous == true ||
+                                      authUser?.isAnonymous == null)
+                                  ? "Guest User"
+                                  : user?.username ?? '—',
                               style: AppTextStyles.h3,
                               overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             )
                           : null,
                       background: ColoredBox(
